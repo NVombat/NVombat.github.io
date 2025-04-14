@@ -639,6 +639,224 @@ footer {
     border-top: 1px solid var(--primary-color);
 }
 
+/* Profile Section */
+.profile-section {
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    margin: 2rem auto;
+    max-width: 1200px;
+    border-radius: 5px;
+    border: var(--card-border);
+}
+
+.profile-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.profile-image {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 5px;
+    overflow: hidden;
+    border: var(--card-border);
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 255, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-placeholder i {
+    font-size: 5rem;
+    color: var(--primary-color);
+    opacity: 0.5;
+}
+
+.profile-content {
+    padding: 1rem;
+}
+
+.profile-content h2 {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+}
+
+.profile-content p {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+}
+
+/* Experience Section */
+.experience-section {
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.experience-section h2 {
+    text-align: center;
+    color: var(--secondary-color);
+    margin-bottom: 2rem;
+}
+
+.experience-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.experience-card {
+    background: var(--card-bg);
+    border: var(--card-border);
+    padding: 2rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.experience-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.experience-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.experience-card h3 {
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.experience-card .company {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.experience-card .date {
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.experience-card ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.experience-card ul li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.experience-card ul li::before {
+    content: '>';
+    color: var(--primary-color);
+    position: absolute;
+    left: 0;
+}
+
+/* Contact Section */
+.contact-section {
+    padding: 4rem 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-section h2 {
+    text-align: center;
+    color: var(--secondary-color);
+    margin-bottom: 2rem;
+}
+
+.contact-container {
+    background: var(--card-bg);
+    border: var(--card-border);
+    padding: 2rem;
+    border-radius: 5px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    border-radius: 3px;
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-group label {
+    position: absolute;
+    left: 0.8rem;
+    top: 0.8rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+}
+
+.form-group input:focus + label,
+.form-group textarea:focus + label,
+.form-group input:not(:placeholder-shown) + label,
+.form-group textarea:not(:placeholder-shown) + label {
+    transform: translateY(-1.5rem) scale(0.8);
+    color: var(--secondary-color);
+}
+
+/* Footer Social Links */
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.social-links a {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    color: var(--primary-color);
+    transform: translateY(-3px);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-links {
@@ -688,4 +906,33 @@ footer {
         flex-direction: column;
         gap: 0.5rem;
     }
+
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-image {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .experience-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-section {
+        padding: 2rem 1rem;
+    }
+}
+
+/* Research Note */
+.note {
+    display: inline-block;
+    background: rgba(255, 0, 0, 0.1);
+    color: var(--accent-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    border: 1px solid var(--accent-color);
 } 
