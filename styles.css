@@ -589,28 +589,55 @@ h2 {
 .form-group input,
 .form-group textarea {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.8rem;
     background: transparent;
     border: 1px solid var(--primary-color);
     color: var(--text-color);
     font-family: 'Courier New', monospace;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.form-group textarea {
+    min-height: 150px;
+    resize: vertical;
 }
 
 .form-group label {
     position: absolute;
-    left: 0.5rem;
-    top: 0.5rem;
+    left: 0.8rem;
+    top: -1.2rem;
+    color: var(--primary-color);
+    font-size: 0.9rem;
     transition: all 0.3s ease;
-    pointer-events: none;
+    background: var(--background-color);
+    padding: 0 0.5rem;
 }
 
-.form-group input:focus + label,
-.form-group input:valid + label,
-.form-group textarea:focus + label,
-.form-group textarea:valid + label {
-    top: -1.5rem;
-    font-size: 0.8rem;
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+}
+
+.btn {
+    background: transparent;
+    border: 1px solid var(--primary-color);
     color: var(--primary-color);
+    padding: 0.8rem 2rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 3px;
+    margin-top: 1rem;
+}
+
+.btn:hover {
+    background: var(--primary-color);
+    color: var(--background-color);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
 }
 
 /* Social Links */
