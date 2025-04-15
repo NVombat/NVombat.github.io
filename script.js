@@ -203,115 +203,46 @@ document.querySelectorAll('.cyber-link').forEach(link => {
     });
 });
 
-// Theme and Rain Toggle Functionality
+// Theme Toggle Functionality
 document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('themeToggle');
-    const rainToggle = document.getElementById('rainToggle');
-    const canvas = document.getElementById('matrixRain');
-    let isRainActive = true;
+    const themeToggle = document.querySelector('.theme-toggle');
+    const rainToggle = document.querySelector('.rain-toggle');
+    const body = document.body;
+    const matrixRain = document.getElementById('matrixRain');
 
-    // Theme Toggle
-    themeToggle.addEventListener('click', () => {
-        document.body.setAttribute('data-theme', 
-            document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'
-        );
-        themeToggle.classList.toggle('active');
-        
-        // Save theme preference
-        localStorage.setItem('theme', document.body.getAttribute('data-theme'));
-    });
-
-    // Rain Toggle
-    rainToggle.addEventListener('click', () => {
-        isRainActive = !isRainActive;
-        rainToggle.classList.toggle('active');
-        
-        if (isRainActive) {
-            canvas.style.display = 'block';
-            startMatrixRain();
-        } else {
-            canvas.style.display = 'none';
-            stopMatrixRain();
-        }
-        
-        // Save rain preference
-        localStorage.setItem('rainActive', isRainActive);
-    });
-
-    // Load saved preferences
+    // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.body.setAttribute('data-theme', savedTheme);
-        if (savedTheme === 'light') {
-            themeToggle.classList.add('active');
-        }
+    const savedRain = localStorage.getItem('rain');
+
+    // Apply saved theme
+    if (savedTheme === 'light') {
+        body.classList.add('light-theme');
+        themeToggle.classList.add('active');
     }
 
-    const savedRain = localStorage.getItem('rainActive');
-    if (savedRain === 'false') {
-        isRainActive = false;
+    // Apply saved rain preference
+    if (savedRain === 'off') {
+        body.classList.add('rain-off');
         rainToggle.classList.add('active');
-        canvas.style.display = 'none';
-    }
-
-    // Matrix Rain Animation
-    let animationId;
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = [];
-
-    for (let i = 0; i < columns; i++) {
-        drops[i] = 1;
-    }
-
-    function drawMatrixRain() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#0F0';
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < drops.length; i++) {
-            const text = chars[Math.floor(Math.random() * chars.length)];
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
+        if (matrixRain) {
+            matrixRain.style.display = 'none';
         }
     }
 
-    function startMatrixRain() {
-        if (!animationId) {
-            function animate() {
-                drawMatrixRain();
-                animationId = requestAnimationFrame(animate);
-            }
-            animate();
+    // Theme toggle click handler
+    themeToggle.addEventListener('click', () => {
+        body.classList.toggle('light-theme');
+        themeToggle.classList.toggle('active');
+        localStorage.setItem('theme', body.classList.contains('light-theme') ? 'light' : 'dark');
+    });
+
+    // Rain toggle click handler
+    rainToggle.addEventListener('click', () => {
+        body.classList.toggle('rain-off');
+        rainToggle.classList.toggle('active');
+        if (matrixRain) {
+            matrixRain.style.display = body.classList.contains('rain-off') ? 'none' : 'block';
         }
-    }
-
-    function stopMatrixRain() {
-        if (animationId) {
-            cancelAnimationFrame(animationId);
-            animationId = null;
-        }
-    }
-
-    // Start matrix rain if active
-    if (isRainActive) {
-        startMatrixRain();
-    }
-
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        localStorage.setItem('rain', body.classList.contains('rain-off') ? 'off' : 'on');
     });
 }); 
