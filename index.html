@@ -8,16 +8,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <canvas id="matrixRain"></canvas>
     <div class="matrix-bg"></div>
     <header>
         <nav>
-            <div class="nav-links">
-                <a href="index.html" class="active">Home</a>
-                <a href="research.html">Research</a>
-                <a href="projects.html">Projects</a>
-                <a href="bio.html">Bio</a>
-                <a href="contact.html">Contact</a>
-            </div>
+            <div class="logo">NVombat</div>
+            <button class="mobile-nav-toggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="research-projects.html">Research & Projects</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
         </nav>
     </header>
 
@@ -41,6 +44,201 @@
                     <h2>About Me</h2>
                     <p>I am a Master's student at the University of Calgary, specializing in Zero-Trust Architectures & Policy Mining. With a strong academic record (CGPA: 3.93/4.00) and multiple publications in top-tier conferences and journals, I focus on developing innovative solutions in cybersecurity.</p>
                     <p>My research interests lie in zero-trust security architectures, policy mining, and automated policy formulation. I am currently working on developing novel approaches to access control and policy management in distributed systems.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="education-section">
+            <h2>Education</h2>
+            <div class="education-grid">
+                <div class="education-card">
+                    <div class="education-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3>UNIVERSITY OF CALGARY</h3>
+                    <p class="location">CALGARY, CANADA</p>
+                    <p class="degree">MSc in Computer Science</p>
+                    <p class="date">Anticipated May 2025</p>
+                    <ul>
+                        <li>CGPA 3.93/4.00; Area of Research: Zero-Trust Architectures & Policy Mining; Research Supervisor: Prof. Philip W.L. Fong.</li>
+                        <li>Relevant Courses: Principles of Computer Security, Networking Systems, Foundations of Access Control, Network Security.</li>
+                    </ul>
+                </div>
+
+                <div class="education-card">
+                    <div class="education-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>SRM INSTITUTE OF SCIENCE & TECHNOLOGY</h3>
+                    <p class="location">KATTANKULATHUR, CHENNAI, INDIA</p>
+                    <p class="degree">BTech in Computer Science & Engineering</p>
+                    <p class="specialization">Specialization in Cyber Security</p>
+                    <p class="date">May 2023</p>
+                    <ul>
+                        <li>CGPA 9.53/10.00; Awarded performance-based scholarship as class topper in 4th Semester.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="awards-section">
+            <h2>Awards & Scholarships</h2>
+            <div class="awards-grid">
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3>University of Calgary Research & Teaching Assistantships</h3>
+                    <p class="amount">CAD 56,000</p>
+                    <p>Recruitment & Tuition Awards</p>
+                </div>
+
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>MITACS Globalink Graduate Fellowship</h3>
+                    <p class="amount">CAD 15,000</p>
+                </div>
+
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h3>Alberta Graduate Excellence Scholarship</h3>
+                    <p class="amount">CAD 11,000</p>
+                    <p>2024</p>
+                </div>
+
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Alberta Innovates Graduate Student Scholarship</h3>
+                    <p class="amount">CAD 15,000</p>
+                    <p>2024</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="leadership-section">
+            <h2>Teaching & Leadership</h2>
+            <div class="leadership-grid">
+                <div class="leadership-card">
+                    <div class="leadership-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>UNIVERSITY OF CALGARY</h3>
+                    <p class="location">CALGARY, CANADA</p>
+                    <div class="role">
+                        <h4>Graduate Student Representative, Awards Committee, Faculty of Science</h4>
+                        <p class="date">Sep 2024 – present</p>
+                        <p>Adjudication of internal Faculty of Science Awards of Excellence and identification of external awards and nominees.</p>
+                    </div>
+                    <div class="role">
+                        <h4>Graduate Student Representative, Info-Sec Hiring Committee (Tenure Track Research Stream)</h4>
+                        <p class="date">Sep 2024 – present</p>
+                        <p>Scrutiny of applications, short-listing of candidates in applied cybersecurity and privacy & citizenship.</p>
+                    </div>
+                    <div class="role">
+                        <h4>Graduate Student Representative, Info-Sec Hiring Committee (Limited-term Teaching Stream)</h4>
+                        <p class="date">Apr – Aug 2024</p>
+                        <ul>
+                            <li>Received diversity training for equitable and inclusive hiring for academic selection.</li>
+                            <li>Scrutinized applications, short-listed applicants, attended hiring committee meetings as a full voting member of the committee, and all formal in-person interviews, including candidate presentations.</li>
+                        </ul>
+                    </div>
+                    <div class="role">
+                        <h4>Teaching Assistant</h4>
+                        <ul>
+                            <li>CPSC 505/604: Foundations of Access Control (Jan 2025 - present)</li>
+                            <li>CPSC 319: Data Structures, Algorithms & their Applications (Jan 2025 - present)</li>
+                            <li>CPSC 331: Data Structures, Algorithms & their Analysis (Aug – Dec 2024)</li>
+                            <li>CPSC 331: Data Structures, Algorithms & their Analysis (Jan – Apr 2024)</li>
+                            <li>CPSC 457: Principles of Operating Systems (Sep - Dec 2023)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="leadership-card">
+                    <div class="leadership-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>SRM INSTITUTE OF SCIENCE & TECHNOLOGY</h3>
+                    <p class="location">KATTANKULATHUR, CHENNAI, INDIA</p>
+                    <div class="role">
+                        <h4>Co-founder & Technical Lead of Product Development Club SRM</h4>
+                        <p class="date">Jan 2022 – May 2023</p>
+                        <p>Designed the backend application framework and led a team of students that developed and are maintaining a Sports Event Management & Planning mobile application for M/s Ardent Sport, which is live on PlayStore.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="skills-section">
+            <h2><i class="fas fa-code"></i> Languages & Tools</h2>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <h3><i class="fas fa-laptop-code"></i> Programming Languages</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">C/C++</span>
+                        <span class="skill-tag">Java</span>
+                        <span class="skill-tag">Scheme</span>
+                        <span class="skill-tag">Racket</span>
+                        <span class="skill-tag">Prolog</span>
+                        <span class="skill-tag">SQL</span>
+                        <span class="skill-tag">MongoDB</span>
+                        <span class="skill-tag">Shell</span>
+                        <span class="skill-tag">LaTeX</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h3><i class="fas fa-server"></i> Development & Cloud</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Linux</span>
+                        <span class="skill-tag">Flask</span>
+                        <span class="skill-tag">Django</span>
+                        <span class="skill-tag">REST Framework</span>
+                        <span class="skill-tag">Postman</span>
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">GDB</span>
+                        <span class="skill-tag">Heroku</span>
+                        <span class="skill-tag">AWS</span>
+                        <span class="skill-tag">CircleCI</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h3><i class="fas fa-chart-line"></i> Data Science</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Pandas</span>
+                        <span class="skill-tag">NumPy</span>
+                        <span class="skill-tag">Scikit-learn</span>
+                        <span class="skill-tag">Matplotlib</span>
+                        <span class="skill-tag">Jupyter Notebook</span>
+                    </div>
+                </div>
+                <div class="skill-category">
+                    <h3><i class="fas fa-language"></i> Languages</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">English (Fluent)</span>
+                        <span class="skill-tag">Hindi (Fluent)</span>
+                        <span class="skill-tag">German (Intermediate)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="extracurricular-section">
+            <h2><i class="fas fa-music"></i> Extra-Curriculars</h2>
+            <div class="extracurricular-grid">
+                <div class="extracurricular-card">
+                    <h3><i class="fas fa-running"></i> Sports</h3>
+                    <p>Active participant in University of Calgary Squash box league. Play soccer, badminton, basketball, and cricket.</p>
+                </div>
+                <div class="extracurricular-card">
+                    <h3><i class="fas fa-guitar"></i> Music</h3>
+                    <p>Compose music & write rap (No Oxygen, Lovers on the run). Play the Guitar, Ukulele and Tabla.</p>
                 </div>
             </div>
         </section>
@@ -135,5 +333,20 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // Mobile Navigation Toggle
+        document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.querySelector('nav');
+            const navLinks = document.querySelector('.nav-links');
+            if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html> 

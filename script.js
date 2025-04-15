@@ -1,44 +1,86 @@
-// Matrix rain effect
-class MatrixRain {
-    constructor() {
-        this.canvas = document.createElement('canvas');
-        this.canvas.classList.add('matrix-bg');
-        document.body.prepend(this.canvas);
-        this.ctx = this.canvas.getContext('2d');
-        this.resize();
-        this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
-        this.fontSize = 14;
-        this.columns = 0;
-        this.drops = [];
-        this.init();
-        window.addEventListener('resize', () => this.resize());
-    }
+// Matrix Rain Effect
+const canvas = document.getElementById('matrixRain');
+const ctx = canvas.getContext('2d');
 
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.columns = Math.floor(this.canvas.width / this.fontSize);
-        this.drops = Array(this.columns).fill(1);
-    }
+// Set canvas size to window size
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
 
-    init() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = '#0F0';
-        this.ctx.font = this.fontSize + 'px monospace';
+// Initial resize
+resizeCanvas();
 
-        for (let i = 0; i < this.drops.length; i++) {
-            const text = this.characters[Math.floor(Math.random() * this.characters.length)];
-            this.ctx.fillText(text, i * this.fontSize, this.drops[i] * this.fontSize);
+// Resize canvas when window is resized
+window.addEventListener('resize', resizeCanvas);
 
-            if (this.drops[i] * this.fontSize > this.canvas.height && Math.random() > 0.975) {
-                this.drops[i] = 0;
-            }
-            this.drops[i]++;
+// Characters to use in the rain
+const chars = '0123456789ABCDEF';
+const charSize = 14;
+const columns = canvas.width / charSize;
+const drops = [];
+
+// Initialize drops
+for (let i = 0; i < columns; i++) {
+    drops[i] = Math.floor(Math.random() * -canvas.height);
+}
+
+// Draw the rain
+function draw() {
+    // Semi-transparent black background to create fade effect
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Set text properties
+    ctx.fillStyle = '#0F0';
+    ctx.font = charSize + 'px monospace';
+
+    // Draw each drop
+    for (let i = 0; i < drops.length; i++) {
+        // Random character
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        
+        // Draw the character
+        const x = i * charSize;
+        const y = drops[i] * charSize;
+        
+        // Vary the opacity based on position
+        const opacity = Math.random() * 0.5 + 0.5;
+        ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
+        ctx.fillText(char, x, y);
+
+        // Reset drop to top when it reaches bottom
+        if (y > canvas.height) {
+            drops[i] = 0;
         }
-        requestAnimationFrame(() => this.init());
+        
+        // Move drop down
+        drops[i]++;
     }
 }
+
+// Animate
+function animate() {
+    draw();
+    requestAnimationFrame(animate);
+}
+
+// Start animation
+animate();
+
+// Existing mobile navigation code
+document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
+    document.querySelector('.nav-links').classList.toggle('active');
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+    const nav = document.querySelector('nav');
+    const navLinks = document.querySelector('.nav-links');
+    if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+    }
+});
 
 // Typing effect for terminal
 class TypingEffect {
@@ -107,9 +149,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
-
-// Initialize matrix effect
-new MatrixRain();
 
 // Initialize terminal effect
 document.addEventListener('DOMContentLoaded', () => {
