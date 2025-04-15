@@ -1,6 +1,4 @@
-# NVombat.github.io
-
-Personal website of Nikhill Vombatkere - Graduate Student, Cybersecurity Researcher, and Software Developer.
+You know where to find me [✈️](https://nvombat.github.io/)
 
 ## Project Structure
 
@@ -29,7 +27,3 @@ NVombat.github.io/
 - Interactive terminal-style elements
 - Research and project showcases
 - Contact form
-
-## Visit
-
-You know where to find me [✈️](https://nvombat.github.io/)
