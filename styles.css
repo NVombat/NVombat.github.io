@@ -70,11 +70,12 @@ nav {
     padding: 1rem 2rem;
     max-width: 1400px;
     margin: 0 auto;
+    gap: 2rem;
 }
 
 .logo-link {
     text-decoration: none;
-    color: var(--text-color);
+    margin-right: 2rem;
 }
 
 .logo {
@@ -87,9 +88,11 @@ nav {
 .nav-links {
     display: flex;
     gap: 2rem;
-    list-style: none;
     margin: 0;
     padding: 0;
+    list-style: none;
+    flex: 1;
+    justify-content: center;
 }
 
 .nav-links a {
