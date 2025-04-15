@@ -257,4 +257,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         localStorage.setItem('rain', body.classList.contains('rain-off') ? 'off' : 'on');
     });
+});
+
+// Terminal text animation
+document.addEventListener('DOMContentLoaded', function() {
+    const typingTexts = document.querySelectorAll('.typing-text');
+    
+    typingTexts.forEach(text => {
+        const delay = text.getAttribute('data-delay');
+        text.style.setProperty('--delay', delay);
+    });
 }); 

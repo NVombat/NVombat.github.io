@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NVombat - Home</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -20,9 +20,9 @@
             </button>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="experience.html">Experience</a></li>
-                <li><a href="research-projects.html">Research & Projects</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="pages/experience.html">Experience</a></li>
+                <li><a href="pages/research-projects.html">Research & Projects</a></li>
+                <li><a href="pages/contact.html">Contact</a></li>
             </ul>
             <div class="theme-toggles">
                 <button id="themeToggle" class="toggle-button" aria-label="Toggle theme">
@@ -49,11 +49,11 @@
                     </div>
                 </div>
                 <div class="terminal-content">
-                    <p class="typing-text">> Initializing system...</p>
-                    <p class="typing-text">> Loading profile...</p>
-                    <p class="typing-text">> Scanning for vulnerabilities...</p>
-                    <p class="typing-text">> Access granted.</p>
-                    <p class="typing-text">> Welcome</p>
+                    <p class="typing-text" data-delay="0">> Initializing system...</p>
+                    <p class="typing-text" data-delay="1">> Loading profile...</p>
+                    <p class="typing-text" data-delay="2">> Scanning for vulnerabilities...</p>
+                    <p class="typing-text" data-delay="3">> Access granted.</p>
+                    <p class="typing-text" data-delay="4">> Welcome</p>
                 </div>
             </div>
         </section>
@@ -107,29 +107,43 @@
         <p>&copy; 2024 Nikhill Vombatkere. All rights reserved.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
     <script>
         // Mobile navigation toggle
         const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
         const navLinks = document.querySelector('.nav-links');
+        const body = document.body;
         
-        mobileNavToggle.addEventListener('click', () => {
+        mobileNavToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
             navLinks.classList.toggle('active');
             mobileNavToggle.classList.toggle('active');
+            body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+        });
+
+        // Close mobile menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileNavToggle.classList.remove('active');
+                body.style.overflow = '';
+            });
         });
 
         // Close mobile menu when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.nav-links') && !e.target.closest('.mobile-nav-toggle')) {
+            if (navLinks.classList.contains('active') && 
+                !e.target.closest('.nav-links') && 
+                !e.target.closest('.mobile-nav-toggle')) {
                 navLinks.classList.remove('active');
                 mobileNavToggle.classList.remove('active');
+                body.style.overflow = '';
             }
         });
 
         // Theme toggle functionality
         const themeToggle = document.getElementById('themeToggle');
         const rainToggle = document.getElementById('rainToggle');
-        const body = document.body;
         const canvas = document.getElementById('matrixRain');
 
         // Check for saved theme preference
