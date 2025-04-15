@@ -75,7 +75,7 @@ nav {
 
 .logo-link {
     text-decoration: none;
-    margin-right: 4rem;
+    margin-right: 6rem;
 }
 
 .logo {
@@ -92,8 +92,8 @@ nav {
     padding: 0;
     list-style: none;
     flex: 1;
-    justify-content: flex-start;
-    margin-left: 2rem;
+    justify-content: center;
+    margin-left: 0;
 }
 
 .nav-links a {
@@ -377,10 +377,11 @@ h2 {
     overflow: hidden;
     border-right: 2px solid var(--primary-color);
     white-space: nowrap;
-    margin: 0;
+    margin: 0.5rem 0;
     animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
     max-width: 100%;
     display: inline-block;
+    text-align: left;
 }
 
 @keyframes typing {
@@ -410,6 +411,11 @@ h2 {
 }
 
 .terminal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     padding: 1rem;
     min-height: 200px;
     overflow-x: auto;
@@ -2041,8 +2047,8 @@ nav {
     padding: 0;
     list-style: none;
     flex: 1;
-    justify-content: flex-start;
-    margin-left: 3rem;
+    justify-content: center;
+    margin-left: 0;
 }
 
 /* Theme Toggle Animation */
@@ -2133,4 +2139,43 @@ body {
     .toggle-switch.active::before {
         transform: translateX(25px);
     }
+}
+
+/* Terminal Content Centering */
+.terminal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+    min-height: 200px;
+    overflow-x: auto;
+}
+
+.typing-text {
+    overflow: hidden;
+    border-right: 2px solid var(--primary-color);
+    white-space: nowrap;
+    margin: 0.5rem 0;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    max-width: 100%;
+    display: inline-block;
+    text-align: left;
+}
+
+/* Ensure consistent text colors in light mode */
+.light-theme p,
+.light-theme li,
+.light-theme span,
+.light-theme .cyber-text,
+.light-theme .terminal-content p,
+.light-theme .research-intro p,
+.light-theme .projects-intro p,
+.light-theme .page-header p {
+    color: var(--text-color);
+}
+
+.light-theme .terminal-content p {
+    color: var(--text-color);
 } 
