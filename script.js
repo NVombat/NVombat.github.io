@@ -201,4 +201,117 @@ document.querySelectorAll('.cyber-link').forEach(link => {
     link.addEventListener('mouseleave', () => {
         link.style.textShadow = 'none';
     });
+});
+
+// Theme and Rain Toggle Functionality
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('themeToggle');
+    const rainToggle = document.getElementById('rainToggle');
+    const canvas = document.getElementById('matrixRain');
+    let isRainActive = true;
+
+    // Theme Toggle
+    themeToggle.addEventListener('click', () => {
+        document.body.setAttribute('data-theme', 
+            document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'
+        );
+        themeToggle.classList.toggle('active');
+        
+        // Save theme preference
+        localStorage.setItem('theme', document.body.getAttribute('data-theme'));
+    });
+
+    // Rain Toggle
+    rainToggle.addEventListener('click', () => {
+        isRainActive = !isRainActive;
+        rainToggle.classList.toggle('active');
+        
+        if (isRainActive) {
+            canvas.style.display = 'block';
+            startMatrixRain();
+        } else {
+            canvas.style.display = 'none';
+            stopMatrixRain();
+        }
+        
+        // Save rain preference
+        localStorage.setItem('rainActive', isRainActive);
+    });
+
+    // Load saved preferences
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.body.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'light') {
+            themeToggle.classList.add('active');
+        }
+    }
+
+    const savedRain = localStorage.getItem('rainActive');
+    if (savedRain === 'false') {
+        isRainActive = false;
+        rainToggle.classList.add('active');
+        canvas.style.display = 'none';
+    }
+
+    // Matrix Rain Animation
+    let animationId;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+
+    for (let i = 0; i < columns; i++) {
+        drops[i] = 1;
+    }
+
+    function drawMatrixRain() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#0F0';
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    function startMatrixRain() {
+        if (!animationId) {
+            function animate() {
+                drawMatrixRain();
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    }
+
+    function stopMatrixRain() {
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+    }
+
+    // Start matrix rain if active
+    if (isRainActive) {
+        startMatrixRain();
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
 }); 

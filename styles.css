@@ -8,6 +8,8 @@
     --card-bg: rgba(0, 255, 0, 0.05);
     --card-border: 1px solid var(--primary-color);
     --card-hover-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    --bg-color: #000;
+    --hover-color: #00FF00;
 }
 
 * {
@@ -18,10 +20,11 @@
 
 body {
     font-family: 'Courier New', monospace;
-    background-color: var(--background-color);
+    background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Matrix Rain Effect */
@@ -1400,6 +1403,7 @@ footer {
     color: var(--text-color);
     position: relative;
     z-index: 1;
+    margin-top: 60px;
 }
 
 .page-header h1 {
@@ -1407,6 +1411,7 @@ footer {
     margin-bottom: 1rem;
     text-transform: uppercase;
     letter-spacing: 2px;
+    color: var(--primary-color);
 }
 
 .page-header p {
@@ -1414,6 +1419,7 @@ footer {
     max-width: 600px;
     margin: 0 auto;
     opacity: 0.8;
+    color: var(--primary-color);
 }
 
 /* Tab Container */
@@ -2022,5 +2028,111 @@ footer {
     .skill-category,
     .experience-card {
         padding: 1rem;
+    }
+}
+
+/* Update main content area to account for fixed header */
+main {
+    position: relative;
+    z-index: 1;
+    padding-top: 60px;
+}
+
+/* Theme Toggle Styles */
+.theme-toggles {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-switch::before {
+    content: '';
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    background: var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.toggle-switch.active::before {
+    transform: translateX(30px);
+}
+
+.toggle-switch::after {
+    content: '🌙';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.toggle-switch.active::after {
+    content: '☀️';
+    left: 8px;
+    right: auto;
+    opacity: 1;
+}
+
+/* Light Theme Styles */
+.light-theme {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --accent-color: #007bff;
+    --border-color: #e0e0e0;
+}
+
+.light-theme .card {
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.light-theme .terminal {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+}
+
+/* Rain Toggle Styles */
+.rain-off .matrix-rain {
+    display: none;
+}
+
+/* Responsive Styles for Theme Toggles */
+@media (max-width: 768px) {
+    .theme-toggles {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+    
+    .toggle-switch {
+        width: 50px;
+        height: 25px;
+    }
+    
+    .toggle-switch::before {
+        width: 21px;
+        height: 21px;
+    }
+    
+    .toggle-switch.active::before {
+        transform: translateX(25px);
     }
 } 

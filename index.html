@@ -11,15 +11,23 @@
     <canvas id="matrixRain"></canvas>
     <div class="matrix-bg"></div>
     <header>
+        <div class="logo">NVombat</div>
+        <button class="mobile-nav-toggle" aria-label="Toggle navigation">
+            <span class="hamburger"></span>
+        </button>
+        <div class="theme-toggles">
+            <div class="toggle-switch" id="themeToggle" aria-label="Toggle theme">
+                <span class="toggle-label">Theme</span>
+            </div>
+            <div class="toggle-switch" id="rainToggle" aria-label="Toggle matrix rain">
+                <span class="toggle-label">Rain</span>
+            </div>
+        </div>
         <nav>
-            <div class="logo">NVombat</div>
-            <button class="mobile-nav-toggle" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="experience.html">Experience</a></li>
                 <li><a href="research-projects.html">Research & Projects</a></li>
+                <li><a href="experience.html">Experience</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
         </nav>
@@ -84,18 +92,55 @@
 
     <script src="script.js"></script>
     <script>
-        // Mobile Navigation Toggle
-        document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
-            document.querySelector('.nav-links').classList.toggle('active');
+        // Mobile navigation toggle
+        const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileNavToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileNavToggle.classList.toggle('active');
         });
 
         // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const nav = document.querySelector('nav');
-            const navLinks = document.querySelector('.nav-links');
-            if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-links') && !e.target.closest('.mobile-nav-toggle')) {
                 navLinks.classList.remove('active');
+                mobileNavToggle.classList.remove('active');
             }
+        });
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const rainToggle = document.getElementById('rainToggle');
+        const body = document.body;
+        const canvas = document.getElementById('matrixRain');
+
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        const savedRain = localStorage.getItem('rain');
+        
+        if (savedTheme === 'light') {
+            body.classList.add('light-theme');
+            themeToggle.classList.add('active');
+        }
+        
+        if (savedRain === 'off') {
+            canvas.style.display = 'none';
+            rainToggle.classList.add('active');
+        }
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-theme');
+            themeToggle.classList.toggle('active');
+            localStorage.setItem('theme', body.classList.contains('light-theme') ? 'light' : 'dark');
+        });
+
+        // Rain toggle
+        rainToggle.addEventListener('click', () => {
+            canvas.style.display = canvas.style.display === 'none' ? 'block' : 'none';
+            rainToggle.classList.toggle('active');
+            localStorage.setItem('rain', canvas.style.display === 'none' ? 'off' : 'on');
         });
     </script>
 </body>
