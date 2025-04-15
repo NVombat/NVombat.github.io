@@ -32,7 +32,8 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    opacity: 0.07;
+    opacity: 0.15;
+    background: #000;
 }
 
 /* Matrix Background Effect */
@@ -1395,17 +1396,24 @@ footer {
 /* Page Header */
 .page-header {
     text-align: center;
-    padding: 3rem 1rem 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 120px 0 60px;
+    color: var(--text-color);
+    position: relative;
+    z-index: 1;
 }
 
 .page-header h1 {
-    color: var(--primary-color);
     font-size: 2.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     text-transform: uppercase;
     letter-spacing: 2px;
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0.8;
 }
 
 /* Tab Container */
@@ -1607,6 +1615,412 @@ footer {
 
     .skill-category,
     .extracurricular-card {
+        padding: 1rem;
+    }
+}
+
+/* Experience Page Styles */
+.page-header {
+    text-align: center;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    color: #00ff00;
+    margin-bottom: 1rem;
+}
+
+.page-header p {
+    color: #00ff00;
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+/* Education Section */
+.education-section {
+    padding: 2rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.education-section h2 {
+    text-align: center;
+    color: #00ff00;
+    margin-bottom: 2rem;
+}
+
+.education-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.education-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ff00;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.education-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.education-icon {
+    font-size: 2rem;
+    color: #00ff00;
+    margin-bottom: 1rem;
+}
+
+.education-card h3 {
+    color: #00ff00;
+    margin-bottom: 0.5rem;
+}
+
+.education-card .location,
+.education-card .degree,
+.education-card .specialization,
+.education-card .date {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.education-card ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.education-card ul li {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.education-card ul li:before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #00ff00;
+}
+
+/* Awards Section */
+.awards-section {
+    padding: 2rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.awards-section h2 {
+    text-align: center;
+    color: #00ff00;
+    margin-bottom: 2rem;
+}
+
+.awards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.award-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ff00;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.award-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.award-icon {
+    font-size: 2rem;
+    color: #00ff00;
+    margin-bottom: 1rem;
+}
+
+.award-card h3 {
+    color: #00ff00;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.award-card .amount {
+    color: #00ff00;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.award-card p {
+    color: #00ff00;
+    opacity: 0.8;
+}
+
+/* Leadership Section */
+.leadership-section {
+    padding: 2rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.leadership-section h2 {
+    text-align: center;
+    color: #00ff00;
+    margin-bottom: 2rem;
+}
+
+.leadership-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.leadership-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ff00;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.leadership-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.leadership-icon {
+    font-size: 2rem;
+    color: #00ff00;
+    margin-bottom: 1rem;
+}
+
+.leadership-card h3 {
+    color: #00ff00;
+    margin-bottom: 0.5rem;
+}
+
+.leadership-card .location {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+}
+
+.leadership-card .role {
+    margin-bottom: 1.5rem;
+}
+
+.leadership-card .role h4 {
+    color: #00ff00;
+    margin-bottom: 0.5rem;
+}
+
+.leadership-card .role .date {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.leadership-card .role p,
+.leadership-card .role ul {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.leadership-card .role ul {
+    list-style-type: none;
+    padding-left: 1rem;
+}
+
+.leadership-card .role ul li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.leadership-card .role ul li:before {
+    content: ">";
+    position: absolute;
+    left: -1rem;
+    color: #00ff00;
+}
+
+/* Skills Section */
+.skills-section {
+    padding: 2rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.skills-section h2 {
+    text-align: center;
+    color: #00ff00;
+    margin-bottom: 2rem;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.skill-category {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ff00;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.skill-category:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.skill-category h3 {
+    color: #00ff00;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.skill-category h3 i {
+    font-size: 1.2rem;
+}
+
+.skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-tag {
+    background: rgba(0, 255, 0, 0.1);
+    color: #00ff00;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #00ff00;
+    transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+    background: rgba(0, 255, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Experience Section */
+.experience-section {
+    padding: 2rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.experience-section h2 {
+    text-align: center;
+    color: #00ff00;
+    margin-bottom: 2rem;
+}
+
+.experience-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.experience-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #00ff00;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.experience-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.experience-icon {
+    font-size: 2rem;
+    color: #00ff00;
+    margin-bottom: 1rem;
+}
+
+.experience-card h3 {
+    color: #00ff00;
+    margin-bottom: 0.5rem;
+}
+
+.experience-card .company {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+}
+
+.experience-card .date {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+}
+
+.experience-card ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.experience-card ul li {
+    color: #00ff00;
+    opacity: 0.8;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.experience-card ul li:before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: #00ff00;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .page-header p {
+        font-size: 1rem;
+    }
+
+    .education-grid,
+    .awards-grid,
+    .leadership-grid,
+    .skills-grid,
+    .experience-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .education-card,
+    .award-card,
+    .leadership-card,
+    .skill-category,
+    .experience-card {
         padding: 1rem;
     }
 } 

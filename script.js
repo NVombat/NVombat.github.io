@@ -1,72 +1,69 @@
 // Matrix Rain Effect
 const canvas = document.getElementById('matrixRain');
-const ctx = canvas.getContext('2d');
+if (canvas) {
+    const ctx = canvas.getContext('2d');
 
-// Set canvas size to window size
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-
-// Initial resize
-resizeCanvas();
-
-// Resize canvas when window is resized
-window.addEventListener('resize', resizeCanvas);
-
-// Characters to use in the rain
-const chars = '0123456789ABCDEF';
-const charSize = 14;
-const columns = canvas.width / charSize;
-const drops = [];
-
-// Initialize drops
-for (let i = 0; i < columns; i++) {
-    drops[i] = Math.floor(Math.random() * -canvas.height);
-}
-
-// Draw the rain
-function draw() {
-    // Semi-transparent black background to create fade effect
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Set text properties
-    ctx.fillStyle = '#0F0';
-    ctx.font = charSize + 'px monospace';
-
-    // Draw each drop
-    for (let i = 0; i < drops.length; i++) {
-        // Random character
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        
-        // Draw the character
-        const x = i * charSize;
-        const y = drops[i] * charSize;
-        
-        // Vary the opacity based on position
-        const opacity = Math.random() * 0.5 + 0.5;
-        ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
-        ctx.fillText(char, x, y);
-
-        // Reset drop to top when it reaches bottom
-        if (y > canvas.height) {
-            drops[i] = 0;
-        }
-        
-        // Move drop down
-        drops[i]++;
+    // Set canvas size to window size
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
-}
 
-// Animate
-function animate() {
-    draw();
-    requestAnimationFrame(animate);
-}
+    // Initial resize
+    resizeCanvas();
 
-// Start animation
-animate();
+    // Resize canvas when window is resized
+    window.addEventListener('resize', resizeCanvas);
+
+    // Matrix characters
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+    const charArray = chars.split('');
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+
+    // Initialize drops
+    for (let i = 0; i < columns; i++) {
+        drops[i] = 1;
+    }
+
+    // Draw the matrix rain
+    function drawMatrixRain() {
+        // Semi-transparent black background to create fade effect
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Green text
+        ctx.fillStyle = '#0F0';
+        ctx.font = fontSize + 'px monospace';
+
+        // Draw characters
+        for (let i = 0; i < drops.length; i++) {
+            // Random character
+            const char = charArray[Math.floor(Math.random() * charArray.length)];
+            
+            // Draw the character
+            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+            // Reset drop to top with random delay if it's at the bottom
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+
+            // Move drop
+            drops[i]++;
+        }
+    }
+
+    // Animation loop
+    function animate() {
+        drawMatrixRain();
+        requestAnimationFrame(animate);
+    }
+
+    // Start animation
+    animate();
+}
 
 // Existing mobile navigation code
 document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
