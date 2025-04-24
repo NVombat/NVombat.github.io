@@ -86,6 +86,7 @@ class TypingEffect {
         this.text = text;
         this.speed = speed;
         this.currentChar = 0;
+        this.element.textContent = ''; // Clear any existing content
         this.type();
     }
 
@@ -149,9 +150,43 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // Initialize terminal effect
 document.addEventListener('DOMContentLoaded', () => {
-    const terminalText = document.querySelector('.typing-text');
-    if (terminalText) {
-        new TerminalSimulator(terminalText);
+    // Initialize system terminal on home page
+    const systemTerminal = document.querySelector('.terminal-window .terminal-content');
+    if (systemTerminal) {
+        const terminalTexts = systemTerminal.querySelectorAll('.typing-text');
+        terminalTexts.forEach((text, index) => {
+            const originalText = text.textContent;
+            text.textContent = ''; // Clear the text before starting animation
+            setTimeout(() => {
+                new TypingEffect(text, originalText, 50);
+            }, index * 1000); // Stagger the start of each line
+        });
+    }
+
+    // Initialize research terminal
+    const researchTerminal = document.querySelector('.research-terminal .terminal-content');
+    if (researchTerminal) {
+        const terminalTexts = researchTerminal.querySelectorAll('.typing-text');
+        terminalTexts.forEach((text, index) => {
+            const originalText = text.textContent;
+            text.textContent = ''; // Clear the text before starting animation
+            setTimeout(() => {
+                new TypingEffect(text, originalText, 50);
+            }, index * 800); // Slightly faster than system terminal
+        });
+    }
+
+    // Initialize projects terminal
+    const projectsTerminal = document.querySelector('.projects-terminal .terminal-content');
+    if (projectsTerminal) {
+        const terminalTexts = projectsTerminal.querySelectorAll('.typing-text');
+        terminalTexts.forEach((text, index) => {
+            const originalText = text.textContent;
+            text.textContent = ''; // Clear the text before starting animation
+            setTimeout(() => {
+                new TypingEffect(text, originalText, 50);
+            }, index * 800); // Match research terminal speed
+        });
     }
 });
 

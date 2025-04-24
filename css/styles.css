@@ -445,19 +445,12 @@ h2 {
     max-width: 100%;
     display: inline-block;
     text-align: left;
-    opacity: 0;
-    animation: fadeIn 0.5s forwards, typing 2s steps(40, end) forwards, blink-caret 0.75s step-end infinite;
-    animation-delay: calc(var(--delay, 0) * 1.5s);
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
+    opacity: 1;
+    color: var(--text-color);
+    animation: blink-caret 0.75s step-end infinite;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 @keyframes blink-caret {
@@ -466,30 +459,48 @@ h2 {
 }
 
 /* Terminal Window */
-.terminal-window {
+.terminal-window, .research-terminal, .projects-terminal {
     background: var(--terminal-bg);
     border: var(--card-border);
     border-radius: 5px;
-    margin: 2rem 0;
+    margin: 2rem auto;
     overflow: hidden;
-    max-width: 100%;
+    max-width: 800px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .terminal-header {
     background: var(--primary-color);
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     color: var(--background-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.terminal-title {
+    font-weight: bold;
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.terminal-control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--background-color);
 }
 
 .terminal-content {
+    padding: 1.5rem;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 1rem;
-    min-height: 200px;
-    overflow-x: auto;
+    gap: 0.5rem;
+    background: var(--terminal-bg);
 }
 
 /* Research Section */
@@ -557,11 +568,6 @@ h2 {
 .research-links {
     display: flex;
     gap: 1rem;
-}
-
-.research-terminal {
-    max-width: 800px;
-    margin: 3rem auto;
 }
 
 /* Projects Section */
@@ -1506,398 +1512,6 @@ footer {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .skills-grid,
-    .extracurricular-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .skill-category,
-    .extracurricular-card {
-        padding: 1rem;
-    }
-}
-
-/* Experience Page Styles */
-.page-header {
-    text-align: center;
-    padding: 2rem 0;
-    margin-bottom: 2rem;
-}
-
-.page-header h1 {
-    font-size: 2.5rem;
-    color: #00ff00;
-    margin-bottom: 1rem;
-}
-
-.page-header p {
-    color: #00ff00;
-    font-size: 1.2rem;
-    opacity: 0.8;
-}
-
-/* Education Section */
-.education-section {
-    padding: 2rem 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.education-section h2 {
-    text-align: center;
-    color: #00ff00;
-    margin-bottom: 2rem;
-}
-
-.education-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 0 1rem;
-}
-
-.education-card {
-    background: rgba(0, 0, 0, 0.8);
-    border: 1px solid #00ff00;
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.education-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-}
-
-.education-icon {
-    font-size: 2rem;
-    color: #00ff00;
-    margin-bottom: 1rem;
-}
-
-.education-card h3 {
-    color: #00ff00;
-    margin-bottom: 0.5rem;
-}
-
-.education-card .location,
-.education-card .degree,
-.education-card .specialization,
-.education-card .date {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-}
-
-.education-card ul {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 1rem;
-}
-
-.education-card ul li {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-    padding-left: 1rem;
-    position: relative;
-}
-
-.education-card ul li:before {
-    content: ">";
-    position: absolute;
-    left: 0;
-    color: #00ff00;
-}
-
-/* Awards Section */
-.awards-section {
-    padding: 2rem 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.awards-section h2 {
-    text-align: center;
-    color: #00ff00;
-    margin-bottom: 2rem;
-}
-
-.awards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    padding: 0 1rem;
-}
-
-.award-card {
-    background: rgba(0, 0, 0, 0.8);
-    border: 1px solid #00ff00;
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.award-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-}
-
-.award-icon {
-    font-size: 2rem;
-    color: #00ff00;
-    margin-bottom: 1rem;
-}
-
-.award-card h3 {
-    color: #00ff00;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-}
-
-.award-card .amount {
-    color: #00ff00;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.award-card p {
-    color: #00ff00;
-    opacity: 0.8;
-}
-
-/* Leadership Section */
-.leadership-section {
-    padding: 2rem 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.leadership-section h2 {
-    text-align: center;
-    color: #00ff00;
-    margin-bottom: 2rem;
-}
-
-.leadership-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 0 1rem;
-}
-
-.leadership-card {
-    background: rgba(0, 0, 0, 0.8);
-    border: 1px solid #00ff00;
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.leadership-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-}
-
-.leadership-icon {
-    font-size: 2rem;
-    color: #00ff00;
-    margin-bottom: 1rem;
-}
-
-.leadership-card h3 {
-    color: #00ff00;
-    margin-bottom: 0.5rem;
-}
-
-.leadership-card .location {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 1rem;
-}
-
-.leadership-card .role {
-    margin-bottom: 1.5rem;
-}
-
-.leadership-card .role h4 {
-    color: #00ff00;
-    margin-bottom: 0.5rem;
-}
-
-.leadership-card .role .date {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-}
-
-.leadership-card .role p,
-.leadership-card .role ul {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-}
-
-.leadership-card .role ul {
-    list-style-type: none;
-    padding-left: 1rem;
-}
-
-.leadership-card .role ul li {
-    margin-bottom: 0.5rem;
-    position: relative;
-}
-
-.leadership-card .role ul li:before {
-    content: ">";
-    position: absolute;
-    left: -1rem;
-    color: #00ff00;
-}
-
-/* Skills Section */
-.skills-section {
-    padding: 2rem 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.skills-section h2 {
-    text-align: center;
-    color: #00ff00;
-    margin-bottom: 2rem;
-}
-
-.skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    padding: 0 1rem;
-}
-
-.skill-category {
-    background: rgba(0, 0, 0, 0.8);
-    border: 1px solid #00ff00;
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.skill-category:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-}
-
-.skill-category h3 {
-    color: #00ff00;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.skill-category h3 i {
-    font-size: 1.2rem;
-}
-
-.skill-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.skill-tag {
-    background: rgba(0, 255, 0, 0.1);
-    color: #00ff00;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    border: 1px solid #00ff00;
-    transition: all 0.3s ease;
-}
-
-.skill-tag:hover {
-    background: rgba(0, 255, 0, 0.2);
-    transform: translateY(-2px);
-}
-
-/* Experience Section */
-.experience-section {
-    padding: 2rem 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.experience-section h2 {
-    text-align: center;
-    color: #00ff00;
-    margin-bottom: 2rem;
-}
-
-.experience-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 0 1rem;
-}
-
-.experience-card {
-    background: rgba(0, 0, 0, 0.8);
-    border: 1px solid #00ff00;
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.experience-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-}
-
-.experience-icon {
-    font-size: 2rem;
-    color: #00ff00;
-    margin-bottom: 1rem;
-}
-
-.experience-card h3 {
-    color: #00ff00;
-    margin-bottom: 0.5rem;
-}
-
-.experience-card .company {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-}
-
-.experience-card .date {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 1rem;
-}
-
-.experience-card ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.experience-card ul li {
-    color: #00ff00;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-    padding-left: 1rem;
-    position: relative;
-}
-
-.experience-card ul li:before {
-    content: ">";
-    position: absolute;
-    left: 0;
-    color: #00ff00;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
     .page-header h1 {
         font-size: 2rem;
     }
@@ -1990,17 +1604,17 @@ main {
 
 /* Light Theme Styles */
 .light-theme {
-    --primary-color: #007bff;
-    --secondary-color: #00a0ff;
-    --background-color: #f5f5f5;
-    --text-color: #333;
-    --accent-color: #0056b3;
+    --primary-color: #0066cc;
+    --secondary-color: #0099ff;
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --accent-color: #6600cc;
     --terminal-bg: rgba(0, 0, 0, 0.05);
-    --card-bg: rgba(0, 123, 255, 0.05);
+    --card-bg: rgba(0, 102, 204, 0.05);
     --card-border: 1px solid var(--primary-color);
-    --card-hover-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
-    --bg-color: #fff;
-    --hover-color: #0056b3;
+    --card-hover-shadow: 0 0 20px rgba(0, 102, 204, 0.2);
+    --bg-color: #ffffff;
+    --hover-color: #0066cc;
 }
 
 .light-theme body {
