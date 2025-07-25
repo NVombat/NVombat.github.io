@@ -25,9 +25,6 @@
                 <li><a href="contact.html">Contact</a></li>
             </ul>
             <div class="theme-toggles">
-                <button id="themeToggle" class="toggle-button" aria-label="Toggle theme">
-                    <i class="fas fa-moon"></i>
-                </button>
                 <button id="rainToggle" class="toggle-button" aria-label="Toggle matrix rain">
                     <i class="fas fa-cloud-rain"></i>
                 </button>
@@ -44,6 +41,18 @@
         <section class="experience-section">
             <h2>Experience</h2>
             <div class="experience-grid">
+                <div class="experience-card">
+                    <div class="experience-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <h3>Graduate Research Assistant</h3>
+                    <p class="company">University of Calgary</p>
+                    <p class="date">May 2025 - Aug 2025</p>
+                    <ul>
+                        <li>Working in the area of Zero Trust Access Control under the supervision of Prof. Philip W.L. Fong</li>
+                    </ul>
+                </div>
+
                 <div class="experience-card">
                     <div class="experience-icon">
                         <i class="fas fa-microscope"></i>
@@ -167,86 +176,95 @@
 
         <section class="education-section">
             <h2>Education</h2>
-            <div class="education-grid">
-                <div class="education-card">
-                    <div class="education-icon">
-                        <i class="fas fa-university"></i>
+            <div class="timeline education-timeline">
+                <div class="timeline-entry">
+                    <div class="timeline-dot"><i class="fas fa-university"></i></div>
+                    <div class="timeline-content">
+                        <h3>UNIVERSITY OF CALGARY</h3>
+                        <p class="location">Calgary, Canada</p>
+                        <p class="degree">MSc in Computer Science</p>
+                        <p class="date">Anticipated May 2025</p>
+                        <ul>
+                            <li>CGPA 3.93/4.00; Area of Research: Zero-Trust Architectures & Policy Mining; Research Supervisor: Prof. Philip W.L. Fong.</li>
+                            <li>Relevant Courses: Principles of Computer Security, Networking Systems, Foundations of Access Control, Network Security.</li>
+                        </ul>
                     </div>
-                    <h3>UNIVERSITY OF CALGARY</h3>
-                    <p class="location">CALGARY, CANADA</p>
-                    <p class="degree">MSc in Computer Science</p>
-                    <p class="date">Anticipated May 2025</p>
-                    <ul>
-                        <li>CGPA 3.93/4.00; Area of Research: Zero-Trust Architectures & Policy Mining; Research Supervisor: Prof. Philip W.L. Fong.</li>
-                        <li>Relevant Courses: Principles of Computer Security, Networking Systems, Foundations of Access Control, Network Security.</li>
-                    </ul>
                 </div>
-
-                <div class="education-card">
-                    <div class="education-icon">
-                        <i class="fas fa-graduation-cap"></i>
+                <div class="timeline-entry">
+                    <div class="timeline-dot"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="timeline-content">
+                        <h3>SRM INSTITUTE OF SCIENCE & TECHNOLOGY</h3>
+                        <p class="location">Kattankulathur, Chennai, India</p>
+                        <p class="degree">BTech in Computer Science & Engineering</p>
+                        <p class="specialization">Specialization in Cyber Security</p>
+                        <p class="date">May 2023</p>
+                        <ul>
+                            <li>CGPA 9.53/10.00; Awarded performance-based scholarship as class topper in 4th Semester.</li>
+                        </ul>
                     </div>
-                    <h3>SRM INSTITUTE OF SCIENCE & TECHNOLOGY</h3>
-                    <p class="location">KATTANKULATHUR, CHENNAI, INDIA</p>
-                    <p class="degree">BTech in Computer Science & Engineering</p>
-                    <p class="specialization">Specialization in Cyber Security</p>
-                    <p class="date">May 2023</p>
-                    <ul>
-                        <li>CGPA 9.53/10.00; Awarded performance-based scholarship as class topper in 4th Semester.</li>
-                    </ul>
                 </div>
             </div>
         </section>
 
         <section class="leadership-section">
             <h2>Teaching & Leadership</h2>
-            <div class="leadership-grid">
-                <div class="leadership-card">
-                    <div class="leadership-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>UNIVERSITY OF CALGARY</h3>
-                    <p class="location">CALGARY, CANADA</p>
-                    <div class="role">
-                        <h4>Graduate Student Representative, Awards Committee, Faculty of Science</h4>
-                        <p class="date">Sep 2024 – present</p>
-                        <p>Adjudication of internal Faculty of Science Awards of Excellence and identification of external awards and nominees.</p>
-                    </div>
-                    <div class="role">
-                        <h4>Graduate Student Representative, Info-Sec Hiring Committee (Tenure Track Research Stream)</h4>
-                        <p class="date">Sep 2024 – present</p>
-                        <p>Scrutiny of applications, short-listing of candidates in applied cybersecurity and privacy & citizenship.</p>
-                    </div>
-                    <div class="role">
-                        <h4>Graduate Student Representative, Info-Sec Hiring Committee (Limited-term Teaching Stream)</h4>
-                        <p class="date">Apr – Aug 2024</p>
-                        <ul>
-                            <li>Received diversity training for equitable and inclusive hiring for academic selection.</li>
-                            <li>Scrutinized applications, short-listed applicants, attended hiring committee meetings as a full voting member of the committee, and all formal in-person interviews, including candidate presentations.</li>
-                        </ul>
-                    </div>
-                    <div class="role">
-                        <h4>Teaching Assistant</h4>
-                        <ul>
-                            <li>CPSC 505/604: Foundations of Access Control (Jan 2025 - present)</li>
-                            <li>CPSC 319: Data Structures, Algorithms & their Applications (Jan 2025 - present)</li>
-                            <li>CPSC 331: Data Structures, Algorithms & their Analysis (Aug – Dec 2024)</li>
-                            <li>CPSC 331: Data Structures, Algorithms & their Analysis (Jan – Apr 2024)</li>
-                            <li>CPSC 457: Principles of Operating Systems (Sep - Dec 2023)</li>
-                        </ul>
+            <div class="leadership-columns">
+                <div class="leadership-col">
+                    <h3><i class="fas fa-chalkboard-teacher"></i> Teaching</h3>
+                    <div class="leadership-role-card">
+                        <div class="role-icon"><i class="fas fa-university"></i></div>
+                        <div class="role-content">
+                            <h4>Teaching Assistant</h4>
+                            <p class="institution">University of Calgary</p>
+                            <ul>
+                                <li>CPSC 505/604: Foundations of Access Control (Jan 2025 - present)</li>
+                                <li>CPSC 319: Data Structures, Algorithms & their Applications (Jan 2025 - present)</li>
+                                <li>CPSC 331: Data Structures, Algorithms & their Analysis (Aug – Dec 2024, Jan – Apr 2024)</li>
+                                <li>CPSC 457: Principles of Operating Systems (Sep - Dec 2023)</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-
-                <div class="leadership-card">
-                    <div class="leadership-icon">
-                        <i class="fas fa-laptop-code"></i>
+                <div class="leadership-col">
+                    <h3><i class="fas fa-users"></i> Leadership</h3>
+                    <div class="leadership-role-card">
+                        <div class="role-icon"><i class="fas fa-award"></i></div>
+                        <div class="role-content">
+                            <h4>Graduate Student Representative, Awards Committee, Faculty of Science</h4>
+                            <p class="institution">University of Calgary</p>
+                            <p class="date">Sep 2024 – present</p>
+                            <p>Adjudication of internal Faculty of Science Awards of Excellence and identification of external awards and nominees.</p>
+                        </div>
                     </div>
-                    <h3>SRM INSTITUTE OF SCIENCE & TECHNOLOGY</h3>
-                    <p class="location">KATTANKULATHUR, CHENNAI, INDIA</p>
-                    <div class="role">
-                        <h4>Co-founder & Technical Lead of Product Development Club SRM</h4>
-                        <p class="date">Jan 2022 – May 2023</p>
-                        <p>Designed the backend application framework and led a team of students that developed and are maintaining a Sports Event Management & Planning mobile application for M/s Ardent Sport, which is live on PlayStore.</p>
+                    <div class="leadership-role-card">
+                        <div class="role-icon"><i class="fas fa-user-shield"></i></div>
+                        <div class="role-content">
+                            <h4>Graduate Student Representative, Info-Sec Hiring Committee (Tenure Track Research Stream)</h4>
+                            <p class="institution">University of Calgary</p>
+                            <p class="date">Sep 2024 – present</p>
+                            <p>Scrutiny of applications, short-listing of candidates in applied cybersecurity and privacy & citizenship.</p>
+                        </div>
+                    </div>
+                    <div class="leadership-role-card">
+                        <div class="role-icon"><i class="fas fa-user-tie"></i></div>
+                        <div class="role-content">
+                            <h4>Graduate Student Representative, Info-Sec Hiring Committee (Limited-term Teaching Stream)</h4>
+                            <p class="institution">University of Calgary</p>
+                            <p class="date">Apr – Aug 2024</p>
+                            <ul>
+                                <li>Received diversity training for equitable and inclusive hiring for academic selection.</li>
+                                <li>Scrutinized applications, short-listed applicants, attended hiring committee meetings as a full voting member of the committee, and all formal in-person interviews, including candidate presentations.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="leadership-role-card">
+                        <div class="role-icon"><i class="fas fa-laptop-code"></i></div>
+                        <div class="role-content">
+                            <h4>Co-founder & Technical Lead of Product Development Club SRM</h4>
+                            <p class="institution">SRM Institute of Science & Technology</p>
+                            <p class="date">Jan 2022 – May 2023</p>
+                            <p>Designed the backend application framework and led a team of students that developed and are maintaining a Sports Event Management & Planning mobile application for M/s Ardent Sport, which is live on PlayStore.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -254,40 +272,37 @@
 
         <section class="awards-section">
             <h2>Awards & Scholarships</h2>
-            <div class="awards-grid">
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-award"></i>
+            <div class="awards-carousel">
+                <div class="award-card-carousel">
+                    <div class="award-icon"><i class="fas fa-award"></i></div>
+                    <div class="award-info">
+                        <h3>University of Calgary Research & Teaching Assistantships</h3>
+                        <p class="amount">CAD 56,000</p>
+                        <p class="desc">Recruitment & Tuition Awards</p>
                     </div>
-                    <h3>University of Calgary Research & Teaching Assistantships</h3>
-                    <p class="amount">CAD 56,000</p>
-                    <p>Recruitment & Tuition Awards</p>
                 </div>
-
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-globe"></i>
+                <div class="award-card-carousel">
+                    <div class="award-icon"><i class="fas fa-globe"></i></div>
+                    <div class="award-info">
+                        <h3>MITACS Globalink Graduate Fellowship</h3>
+                        <p class="amount">CAD 15,000</p>
                     </div>
-                    <h3>MITACS Globalink Graduate Fellowship</h3>
-                    <p class="amount">CAD 15,000</p>
                 </div>
-
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-medal"></i>
+                <div class="award-card-carousel">
+                    <div class="award-icon"><i class="fas fa-medal"></i></div>
+                    <div class="award-info">
+                        <h3>Alberta Graduate Excellence Scholarship</h3>
+                        <p class="amount">CAD 11,000</p>
+                        <p class="desc">2024</p>
                     </div>
-                    <h3>Alberta Graduate Excellence Scholarship</h3>
-                    <p class="amount">CAD 11,000</p>
-                    <p>2024</p>
                 </div>
-
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-lightbulb"></i>
+                <div class="award-card-carousel">
+                    <div class="award-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div class="award-info">
+                        <h3>Alberta Innovates Graduate Student Scholarship</h3>
+                        <p class="amount">CAD 15,000</p>
+                        <p class="desc">2024</p>
                     </div>
-                    <h3>Alberta Innovates Graduate Student Scholarship</h3>
-                    <p class="amount">CAD 15,000</p>
-                    <p>2024</p>
                 </div>
             </div>
         </section>
@@ -301,7 +316,7 @@
             <a href="https://github.com/NVombat" target="_blank" title="GitHub">
                 <i class="fab fa-github"></i>
             </a>
-            <a href="https://linkedin.com/in/your-profile" target="_blank" title="LinkedIn">
+            <a href="https://www.linkedin.com/in/nikhill-vombatkere-1a0b9a192/" target="_blank" title="LinkedIn">
                 <i class="fab fa-linkedin"></i>
             </a>
             <a href="https://scholar.google.com/citations?user=your-id" target="_blank" title="Google Scholar">

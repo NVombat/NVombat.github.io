@@ -239,23 +239,15 @@ document.querySelectorAll('.cyber-link').forEach(link => {
 });
 
 // Theme Toggle Functionality
+// Remove theme toggle logic, keep only rain toggle
+
 document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('themeToggle');
     const rainToggle = document.getElementById('rainToggle');
     const body = document.body;
     const matrixRain = document.getElementById('matrixRain');
 
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
+    // Check for saved rain preference
     const savedRain = localStorage.getItem('rain');
-
-    // Apply saved theme
-    if (savedTheme === 'light') {
-        body.classList.add('light-theme');
-        themeToggle.classList.add('active');
-        themeToggle.querySelector('i').classList.remove('fa-moon');
-        themeToggle.querySelector('i').classList.add('fa-sun');
-    }
 
     // Apply saved rain preference
     if (savedRain === 'off') {
@@ -265,23 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
             matrixRain.style.display = 'none';
         }
     }
-
-    // Theme toggle click handler
-    themeToggle.addEventListener('click', () => {
-        body.classList.toggle('light-theme');
-        themeToggle.classList.toggle('active');
-        const icon = themeToggle.querySelector('i');
-        
-        if (body.classList.contains('light-theme')) {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
-            localStorage.setItem('theme', 'light');
-        } else {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-            localStorage.setItem('theme', 'dark');
-        }
-    });
 
     // Rain toggle click handler
     rainToggle.addEventListener('click', () => {
