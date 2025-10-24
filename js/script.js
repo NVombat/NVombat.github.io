@@ -190,17 +190,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Form submission handling
+// Form submission handling with Formspree
 const contactForm = document.querySelector('.contact-form');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData(contactForm);
-        // Add your form submission logic here
-        console.log('Form submitted:', Object.fromEntries(formData));
-        // Show success message
-        alert('Message sent successfully!');
-        contactForm.reset();
+        const formStatus = document.getElementById('form-status');
+        const submitBtn = contactForm.querySelector('.btn');
+
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        formStatus.textContent = '';
+        formStatus.className = 'form-status';
     });
 }
 
@@ -272,9 +273,84 @@ document.addEventListener('DOMContentLoaded', () => {
 // Terminal text animation
 document.addEventListener('DOMContentLoaded', function() {
     const typingTexts = document.querySelectorAll('.typing-text');
-    
+
     typingTexts.forEach(text => {
         const delay = text.getAttribute('data-delay');
         text.style.setProperty('--delay', delay);
     });
-}); 
+});
+
+// Awards Carousel Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const carouselCards = document.querySelectorAll('.award-carousel-card');
+    const indicators = document.querySelectorAll('.carousel-indicators .indicator');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+
+    let currentIndex = 0;
+    let autoplayInterval;
+
+    function showCard(index) {
+        // Remove active class from all cards and indicators
+        carouselCards.forEach(card => card.classList.remove('active'));
+        indicators.forEach(indicator => indicator.classList.remove('active'));
+
+        // Add active class to current card and indicator
+        if (carouselCards[index]) {
+            carouselCards[index].classList.add('active');
+        }
+        if (indicators[index]) {
+            indicators[index].classList.add('active');
+        }
+
+        currentIndex = index;
+    }
+
+    function nextCard() {
+        let nextIndex = (currentIndex + 1) % carouselCards.length;
+        showCard(nextIndex);
+    }
+
+    function prevCard() {
+        let prevIndex = (currentIndex - 1 + carouselCards.length) % carouselCards.length;
+        showCard(prevIndex);
+    }
+
+    function startAutoplay() {
+        autoplayInterval = setInterval(nextCard, 5000);
+    }
+
+    function stopAutoplay() {
+        clearInterval(autoplayInterval);
+    }
+
+    // Event listeners
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            stopAutoplay();
+            prevCard();
+            startAutoplay();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            stopAutoplay();
+            nextCard();
+            startAutoplay();
+        });
+    }
+
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            stopAutoplay();
+            showCard(index);
+            startAutoplay();
+        });
+    });
+
+    // Start autoplay if carousel exists
+    if (carouselCards.length > 0) {
+        startAutoplay();
+    }
+});

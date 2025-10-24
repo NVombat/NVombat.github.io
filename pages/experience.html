@@ -22,9 +22,11 @@
                 <li><a href="../index.html">Home</a></li>
                 <li><a href="experience.html" class="active">Experience</a></li>
                 <li><a href="research-projects.html">Research & Projects</a></li>
-                <li><a href="contact.html">Contact</a></li>
             </ul>
             <div class="theme-toggles">
+                <button id="themeToggle" class="toggle-button" aria-label="Toggle light/dark theme">
+                    <i class="fas fa-sun"></i>
+                </button>
                 <button id="rainToggle" class="toggle-button" aria-label="Toggle matrix rain">
                     <i class="fas fa-cloud-rain"></i>
                 </button>
@@ -39,7 +41,6 @@
         </section>
 
         <section class="experience-section">
-            <h2>Experience</h2>
             <div class="experience-grid">
                 <div class="experience-card">
                     <div class="experience-icon">
@@ -174,43 +175,11 @@
             </div>
         </section>
 
-        <section class="education-section">
-            <h2>Education</h2>
-            <div class="timeline education-timeline">
-                <div class="timeline-entry">
-                    <div class="timeline-dot"><i class="fas fa-university"></i></div>
-                    <div class="timeline-content">
-                        <h3>UNIVERSITY OF CALGARY</h3>
-                        <p class="location">Calgary, Canada</p>
-                        <p class="degree">MSc in Computer Science</p>
-                        <p class="date">Anticipated May 2025</p>
-                        <ul>
-                            <li>CGPA 3.93/4.00; Area of Research: Zero-Trust Architectures & Policy Mining; Research Supervisor: Prof. Philip W.L. Fong.</li>
-                            <li>Relevant Courses: Principles of Computer Security, Networking Systems, Foundations of Access Control, Network Security.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="timeline-entry">
-                    <div class="timeline-dot"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="timeline-content">
-                        <h3>SRM INSTITUTE OF SCIENCE & TECHNOLOGY</h3>
-                        <p class="location">Kattankulathur, Chennai, India</p>
-                        <p class="degree">BTech in Computer Science & Engineering</p>
-                        <p class="specialization">Specialization in Cyber Security</p>
-                        <p class="date">May 2023</p>
-                        <ul>
-                            <li>CGPA 9.53/10.00; Awarded performance-based scholarship as class topper in 4th Semester.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section class="leadership-section">
-            <h2>Teaching & Leadership</h2>
-            <div class="leadership-columns">
-                <div class="leadership-col">
-                    <h3><i class="fas fa-chalkboard-teacher"></i> Teaching & Academic</h3>
+            <h2><i class="fas fa-chalkboard-user"></i> Academic Leadership & Service</h2>
+            <div class="leadership-unified">
+                <div class="leadership-subsection">
+                    <h3><i class="fas fa-chalkboard-teacher"></i> Teaching</h3>
                     <div class="leadership-role-card">
                         <div class="role-icon"><i class="fas fa-university"></i></div>
                         <div class="role-content">
@@ -224,6 +193,10 @@
                             </ul>
                         </div>
                     </div>
+                </div>
+
+                <div class="leadership-subsection">
+                    <h3><i class="fas fa-handshake"></i> Committee Service</h3>
                     <div class="leadership-role-card">
                         <div class="role-icon"><i class="fas fa-award"></i></div>
                         <div class="role-content">
@@ -242,9 +215,6 @@
                             <p>Scrutiny of applications, short-listing of candidates in applied cybersecurity and privacy & citizenship.</p>
                         </div>
                     </div>
-                </div>
-                <div class="leadership-col">
-                    <h3><i class="fas fa-users"></i> Leadership & Committees</h3>
                     <div class="leadership-role-card">
                         <div class="role-icon"><i class="fas fa-user-tie"></i></div>
                         <div class="role-content">
@@ -257,6 +227,10 @@
                             </ul>
                         </div>
                     </div>
+                </div>
+
+                <div class="leadership-subsection">
+                    <h3><i class="fas fa-rocket"></i> Leadership Initiatives</h3>
                     <div class="leadership-role-card">
                         <div class="role-icon"><i class="fas fa-laptop-code"></i></div>
                         <div class="role-content">
@@ -271,39 +245,62 @@
         </section>
 
         <section class="awards-section">
-            <h2>Awards & Scholarships</h2>
-            <div class="awards-grid">
-                <div class="award-card-grid">
-                    <div class="award-icon"><i class="fas fa-award"></i></div>
-                    <div class="award-info">
-                        <h3>University of Calgary Research & Teaching Assistantships</h3>
-                        <p class="amount">CAD 56,000</p>
-                        <p class="desc">Recruitment & Tuition Awards</p>
+            <h2><i class="fas fa-trophy"></i> Awards & Scholarships</h2>
+            <div class="awards-carousel-container">
+                <button class="carousel-btn carousel-prev" aria-label="Previous award">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="awards-carousel">
+                    <div class="award-carousel-card active">
+                        <div class="award-card-inner">
+                            <div class="award-icon"><i class="fas fa-award"></i></div>
+                            <div class="award-info">
+                                <h3>University of Calgary Research & Teaching Assistantships</h3>
+                                <p class="amount">CAD 56,000</p>
+                                <p class="desc">Recruitment & Tuition Awards</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="award-carousel-card">
+                        <div class="award-card-inner">
+                            <div class="award-icon"><i class="fas fa-globe"></i></div>
+                            <div class="award-info">
+                                <h3>MITACS Globalink Graduate Fellowship</h3>
+                                <p class="amount">CAD 15,000</p>
+                                <p class="desc">International Research Fellowship</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="award-carousel-card">
+                        <div class="award-card-inner">
+                            <div class="award-icon"><i class="fas fa-medal"></i></div>
+                            <div class="award-info">
+                                <h3>Alberta Graduate Excellence Scholarship</h3>
+                                <p class="amount">CAD 11,000</p>
+                                <p class="desc">2024</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="award-carousel-card">
+                        <div class="award-card-inner">
+                            <div class="award-icon"><i class="fas fa-lightbulb"></i></div>
+                            <div class="award-info">
+                                <h3>Alberta Innovates Graduate Student Scholarship</h3>
+                                <p class="amount">CAD 15,000</p>
+                                <p class="desc">2024</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="award-card-grid">
-                    <div class="award-icon"><i class="fas fa-globe"></i></div>
-                    <div class="award-info">
-                        <h3>MITACS Globalink Graduate Fellowship</h3>
-                        <p class="amount">CAD 15,000</p>
-                    </div>
-                </div>
-                <div class="award-card-grid">
-                    <div class="award-icon"><i class="fas fa-medal"></i></div>
-                    <div class="award-info">
-                        <h3>Alberta Graduate Excellence Scholarship</h3>
-                        <p class="amount">CAD 11,000</p>
-                        <p class="desc">2024</p>
-                    </div>
-                </div>
-                <div class="award-card-grid">
-                    <div class="award-icon"><i class="fas fa-lightbulb"></i></div>
-                    <div class="award-info">
-                        <h3>Alberta Innovates Graduate Student Scholarship</h3>
-                        <p class="amount">CAD 15,000</p>
-                        <p class="desc">2024</p>
-                    </div>
-                </div>
+                <button class="carousel-btn carousel-next" aria-label="Next award">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="carousel-indicators">
+                <button class="indicator active" data-index="0" aria-label="Award 1"></button>
+                <button class="indicator" data-index="1" aria-label="Award 2"></button>
+                <button class="indicator" data-index="2" aria-label="Award 3"></button>
+                <button class="indicator" data-index="3" aria-label="Award 4"></button>
             </div>
         </section>
     </main>
