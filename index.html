@@ -203,38 +203,7 @@
             }
         });
 
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const rainToggle = document.getElementById('rainToggle');
-        const canvas = document.getElementById('matrixRain');
-
-        // Check for saved theme preference
-        const savedTheme = localStorage.getItem('theme');
-        const savedRain = localStorage.getItem('rain');
-        
-        if (savedTheme === 'light') {
-            body.classList.add('light-theme');
-            themeToggle.classList.add('active');
-        }
-        
-        if (savedRain === 'off') {
-            canvas.style.display = 'none';
-            rainToggle.classList.add('active');
-        }
-
-        // Theme toggle
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('light-theme');
-            themeToggle.classList.toggle('active');
-            localStorage.setItem('theme', body.classList.contains('light-theme') ? 'light' : 'dark');
-        });
-
-        // Rain toggle
-        rainToggle.addEventListener('click', () => {
-            canvas.style.display = canvas.style.display === 'none' ? 'block' : 'none';
-            rainToggle.classList.toggle('active');
-            localStorage.setItem('rain', canvas.style.display === 'none' ? 'off' : 'on');
-        });
+        // Theme and rain toggle functionality is handled by script.js
     </script>
 </body>
 </html> 

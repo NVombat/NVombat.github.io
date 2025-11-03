@@ -1,69 +1,135 @@
-// Matrix Rain Effect
-const canvas = document.getElementById('matrixRain');
-if (canvas) {
-    const ctx = canvas.getContext('2d');
+// Theme and Rain Toggle Functionality
+let matrixAnimationId = null;
 
-    // Set canvas size to window size
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('themeToggle');
+    const rainToggle = document.getElementById('rainToggle');
+    const html = document.documentElement;
+    const canvas = document.getElementById('matrixRain');
+
+    // Load saved preferences
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    let rainEnabled = localStorage.getItem('rainEnabled') !== 'false';
+
+    // Apply saved theme on load
+    if (savedTheme === 'light') {
+        html.classList.add('light-theme');
+        if (themeToggle) {
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
     }
 
-    // Initial resize
-    resizeCanvas();
+    // Apply rain visibility on load
+    if (!rainEnabled && canvas) {
+        canvas.style.display = 'none';
+    }
+    if (rainToggle) {
+        rainToggle.style.opacity = rainEnabled ? '1' : '0.5';
+    }
 
-    // Resize canvas when window is resized
-    window.addEventListener('resize', resizeCanvas);
+    // Theme toggle handler
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('light-theme');
+            const isLight = html.classList.contains('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeToggle.innerHTML = isLight ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        });
+    }
 
-    // Matrix characters
+    // Rain toggle handler
+    if (rainToggle && canvas) {
+        rainToggle.addEventListener('click', () => {
+            rainEnabled = !rainEnabled;
+
+            if (rainEnabled) {
+                canvas.style.display = 'block';
+                startMatrixRain();
+                rainToggle.style.opacity = '1';
+            } else {
+                stopMatrixRain();
+                canvas.style.display = 'none';
+                rainToggle.style.opacity = '0.5';
+            }
+
+            localStorage.setItem('rainEnabled', rainEnabled);
+        });
+    }
+});
+
+// Matrix Rain Control Functions
+function startMatrixRain() {
+    const canvas = document.getElementById('matrixRain');
+    if (!canvas || matrixAnimationId) return;
+
+    const ctx = canvas.getContext('2d');
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
-    const charArray = chars.split('');
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = [];
 
-    // Initialize drops
     for (let i = 0; i < columns; i++) {
         drops[i] = 1;
     }
 
-    // Draw the matrix rain
     function drawMatrixRain() {
-        // Semi-transparent black background to create fade effect
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Green text
         ctx.fillStyle = '#0F0';
         ctx.font = fontSize + 'px monospace';
 
-        // Draw characters
         for (let i = 0; i < drops.length; i++) {
-            // Random character
-            const char = charArray[Math.floor(Math.random() * charArray.length)];
-            
-            // Draw the character
-            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-            // Reset drop to top with random delay if it's at the bottom
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
                 drops[i] = 0;
             }
-
-            // Move drop
             drops[i]++;
         }
     }
 
-    // Animation loop
     function animate() {
         drawMatrixRain();
-        requestAnimationFrame(animate);
+        matrixAnimationId = requestAnimationFrame(animate);
     }
 
-    // Start animation
     animate();
 }
+
+function stopMatrixRain() {
+    if (matrixAnimationId) {
+        cancelAnimationFrame(matrixAnimationId);
+        matrixAnimationId = null;
+    }
+}
+
+// Initialize Matrix Rain on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('matrixRain');
+    if (canvas) {
+        // Set canvas size to window size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        // Initial resize
+        resizeCanvas();
+
+        // Resize canvas when window is resized
+        window.addEventListener('resize', resizeCanvas);
+
+        // Check if rain is enabled
+        const rainEnabled = localStorage.getItem('rainEnabled') !== 'false';
+
+        // Start rain animation if enabled
+        if (rainEnabled) {
+            startMatrixRain();
+        }
+    }
+});
 
 
 
