@@ -443,7 +443,7 @@ h2 {
     background: var(--terminal-bg);
     border: var(--card-border);
     border-radius: 5px;
-    margin: 2rem auto;
+    margin: 1rem auto 2rem;
     overflow: hidden;
     max-width: 1200px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -476,7 +476,7 @@ h2 {
 
 .terminal-content {
     padding: 1.5rem;
-    min-height: 200px;
+    min-height: 140px;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -507,6 +507,7 @@ h2 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
+    margin-top: 3rem;
     margin-bottom: 3rem;
 }
 
@@ -651,6 +652,7 @@ h2 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 2rem;
+    margin-top: 3rem;
     margin-bottom: 3rem;
 }
 
@@ -838,11 +840,6 @@ h2 {
 .opensource-links {
     display: flex;
     gap: 1rem;
-}
-
-.projects-terminal {
-    max-width: 800px;
-    margin: 3rem auto;
 }
 
 /* Contact Page Styles */
@@ -1333,23 +1330,45 @@ footer {
     position: relative;
     width: 48%;
     box-shadow: 0 4px 16px rgba(0, 255, 0, 0.08);
-    opacity: 0;
-    transform: translateY(30px);
-    animation: slideInCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 1;
+    transform: translateY(0);
+    animation: flickerLoad 0.8s ease-out forwards;
 }
 
 /* Stagger animation for each card */
-.experience-card:nth-child(1) { animation-delay: 0.1s; }
-.experience-card:nth-child(2) { animation-delay: 0.2s; }
+.experience-card:nth-child(1) { animation-delay: 0s; }
+.experience-card:nth-child(2) { animation-delay: 0.15s; }
 .experience-card:nth-child(3) { animation-delay: 0.3s; }
-.experience-card:nth-child(4) { animation-delay: 0.4s; }
-.experience-card:nth-child(5) { animation-delay: 0.5s; }
-.experience-card:nth-child(6) { animation-delay: 0.6s; }
+.experience-card:nth-child(4) { animation-delay: 0.45s; }
+.experience-card:nth-child(5) { animation-delay: 0.6s; }
+.experience-card:nth-child(6) { animation-delay: 0.75s; }
 
-@keyframes slideInCard {
-    to {
+@keyframes flickerLoad {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+        border-color: transparent;
+    }
+    20% {
+        opacity: 0.3;
+        border-color: var(--primary-color);
+    }
+    40% {
+        opacity: 0.6;
+        border-color: var(--accent-color);
+    }
+    60% {
+        opacity: 0.8;
+        border-color: var(--primary-color);
+    }
+    80% {
+        opacity: 0.95;
+        border-color: var(--accent-color);
+    }
+    100% {
         opacity: 1;
         transform: translateY(0);
+        border-color: var(--primary-color);
     }
 }
 
@@ -1568,7 +1587,7 @@ footer {
 /* Page Header */
 .page-header {
     text-align: center;
-    padding: 3rem 2rem 2rem;
+    padding: 3rem 2rem 0.5rem;
     color: var(--text-color);
     position: relative;
     z-index: 1;
@@ -2653,61 +2672,84 @@ body {
 .award-carousel-card {
   min-width: 100%;
   opacity: 0;
-  transform: translateX(100%);
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.8) rotateY(90deg);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: absolute;
   width: 100%;
+  perspective: 1000px;
 }
 
 .award-carousel-card.active {
   opacity: 1;
-  transform: translateX(0);
+  transform: scale(1) rotateY(0deg);
   position: relative;
 }
 
 .award-card-inner {
-  background: var(--card-bg);
-  border: var(--card-border);
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0, 255, 0, 0.03) 100%);
+  border: 2px solid var(--primary-color);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 255, 0, 0.1);
   padding: 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
   min-height: 300px;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated border effect */
+.award-card-inner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.award-carousel-card.active .award-card-inner::before {
+  left: 100%;
 }
 
 .award-carousel-card.active .award-card-inner {
-  box-shadow: 0 8px 24px rgba(0, 255, 0, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 255, 0, 0.2);
+  border-color: var(--accent-color);
 }
 
 .award-icon {
   font-size: 3rem;
-  color: var(--secondary-color);
+  color: var(--primary-color);
   margin-bottom: 1.5rem;
-  animation: pulseGlow 2.5s ease-in-out infinite;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .award-carousel-card.active .award-icon {
-  animation: pulseGlow 2.5s ease-in-out infinite;
+  animation: awardBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--accent-color);
+  text-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
 }
 
-@keyframes pulseGlow {
+@keyframes awardBounce {
   0% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0px rgba(0, 255, 0, 0.4));
+    transform: scale(0.5) translateY(20px);
+    opacity: 0;
   }
   50% {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 12px rgba(0, 255, 0, 0.6));
+    transform: scale(1.15);
   }
   100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0px rgba(0, 255, 0, 0.4));
+    transform: scale(1) translateY(0);
+    opacity: 1;
   }
 }
 
@@ -2747,16 +2789,18 @@ body {
   background: transparent;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+}
+
+.indicator:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
 }
 
 .indicator.active {
   background: var(--primary-color);
-  transform: scale(1.3);
-}
-
-.indicator:hover {
-  background: var(--primary-color);
-  opacity: 0.7;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+  transform: scale(1.2);
 }
 
 /* Legacy Grid Layout for Awards Section */
