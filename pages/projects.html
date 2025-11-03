@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Projects by Nikhill Vombatkere - Open source contributions, hackathon projects, and personal projects.">
+    <meta name="keywords" content="projects, open source, hackathon, development, portfolio">
+    <meta name="author" content="Nikhill Vombatkere">
+    <meta property="og:title" content="Projects - Nikhill Vombatkere">
+    <meta property="og:description" content="Portfolio of projects including open source contributions and hackathon entries.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nvombat.github.io/pages/projects.html">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Projects - Nikhill Vombatkere">
+    <meta name="twitter:description" content="My projects and contributions">
+    <title>Projects - Nikhill Vombatkere</title>
+    <link rel="canonical" href="https://nvombat.github.io/pages/projects.html">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <canvas id="matrixRain"></canvas>
+    <div class="matrix-bg"></div>
+    <header>
+        <nav>
+            <a href="../index.html" class="logo-link">
+                <div class="logo">NVombat</div>
+            </a>
+            <button class="mobile-nav-toggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="experience.html">Experience</a></li>
+                <li><a href="research.html">Research</a></li>
+                <li><a href="projects.html" class="active">Projects</a></li>
+            </ul>
+            <div class="theme-toggles">
+                <button id="themeToggle" class="toggle-button" aria-label="Toggle light/dark theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button id="rainToggle" class="toggle-button" aria-label="Toggle matrix rain">
+                    <i class="fas fa-cloud-rain"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1>Projects</h1>
+            <p>I've worked on various projects ranging from open-source contributions to hackathon applications. Here are some highlights of my work.</p>
+        </section>
+
+        <section class="projects-section">
+            <div class="projects-terminal">
+                <div class="terminal-header">
+                    <span class="terminal-title">projects_terminal</span>
+                    <div class="terminal-controls">
+                        <span class="terminal-control"></span>
+                        <span class="terminal-control"></span>
+                        <span class="terminal-control"></span>
+                    </div>
+                </div>
+                <div class="terminal-content">
+                    <p class="typing-text">> Loading project data...</p>
+                    <p class="typing-text">> Found 6 projects</p>
+                    <p class="typing-text">> 2 hackathon entries</p>
+                    <p class="typing-text">> 2 open source contributions</p>
+                    <p class="typing-text">> Displaying projects...</p>
+                </div>
+            </div>
+
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h3>The Algorithms</h3>
+                    <p class="project-date">2023 - Present</p>
+                    <p>Contributing to an open-source library of algorithms implemented in various programming languages. Focused on implementing and optimizing cybersecurity-related algorithms.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Java</span>
+                        <span class="tech-tag">Algorithms</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="https://github.com/TheAlgorithms" class="cyber-link" target="_blank"><i class="fab fa-github"></i> Repository</a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-icon">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <h3>GithubSRM</h3>
+                    <p class="project-date">2022 - 2023</p>
+                    <p>Developed a platform for SRM Institute students to showcase their projects and collaborate with peers. Implemented features for project management, version control, and team collaboration.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">React</span>
+                        <span class="tech-tag">Node.js</span>
+                        <span class="tech-tag">MongoDB</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="#" class="cyber-link" target="_blank"><i class="fab fa-github"></i> Repository</a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>CTF Competition Winner</h3>
+                    <p class="project-date">2023</p>
+                    <p>Won first place in a Capture The Flag competition focused on web security. Developed tools for automated vulnerability scanning and exploitation.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Web Security</span>
+                        <span class="tech-tag">Penetration Testing</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="#" class="cyber-link"><i class="fas fa-trophy"></i> Certificate</a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>HealthTech Hackathon</h3>
+                    <p class="project-date">2022</p>
+                    <p>Created a mobile application for remote patient monitoring during the pandemic. Implemented real-time health data tracking and alert systems.</p>
+                    <div class="project-tech">
+                        <span class="tech-tag">Flutter</span>
+                        <span class="tech-tag">Firebase</span>
+                        <span class="tech-tag">IoT</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="#" class="cyber-link"><i class="fab fa-github"></i> Repository</a>
+                    </div>
+                </div>
+            </div>
+
+            <section class="hackathons-section">
+                <h2><i class="fas fa-rocket"></i> Hackathons</h2>
+                <div class="hackathons-grid">
+                    <div class="hackathon-card">
+                        <div class="hackathon-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3>AI for Social Good</h3>
+                        <p class="hackathon-date">2023</p>
+                        <p>Developed an AI-powered application to assist visually impaired individuals with object recognition and navigation.</p>
+                        <div class="hackathon-links">
+                            <a href="#" class="cyber-link"><i class="fab fa-github"></i> Repository</a>
+                        </div>
+                    </div>
+
+                    <div class="hackathon-card">
+                        <div class="hackathon-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3>GreenTech Innovation</h3>
+                        <p class="hackathon-date">2022</p>
+                        <p>Created a platform for tracking and reducing carbon footprint through smart home integration and behavioral analytics.</p>
+                        <div class="hackathon-links">
+                            <a href="#" class="cyber-link"><i class="fab fa-github"></i> Repository</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="opensource-section">
+                <h2><i class="fas fa-code-branch"></i> Open Source Contributions</h2>
+                <div class="opensource-grid">
+                    <div class="opensource-card">
+                        <div class="opensource-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Security Tools</h3>
+                        <p class="opensource-date">2023</p>
+                        <p>Contributed to various security tools and libraries, including vulnerability scanners and encryption utilities.</p>
+                        <div class="opensource-links">
+                            <a href="#" class="cyber-link"><i class="fab fa-github"></i> Contributions</a>
+                        </div>
+                    </div>
+
+                    <div class="opensource-card">
+                        <div class="opensource-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3>Documentation</h3>
+                        <p class="opensource-date">2022 - 2023</p>
+                        <p>Improved documentation for several open-source projects, making them more accessible to new contributors.</p>
+                        <div class="opensource-links">
+                            <a href="#" class="cyber-link"><i class="fab fa-github"></i> Contributions</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://scholar.google.com/citations?user=DMYmvTEAAAAJ&hl=en" target="_blank" title="Google Scholar">
+                <i class="fas fa-graduation-cap"></i>
+            </a>
+            <a href="https://github.com/NVombat" target="_blank" title="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/nikhill-vombatkere-1a0b9a192/" target="_blank" title="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+        </div>
+        <p>&copy; 2024 Nikhill Vombatkere. All rights reserved.</p>
+    </footer>
+
+    <script src="../js/script.js"></script>
+    <script>
+        // Mobile Navigation Toggle
+        document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.querySelector('nav');
+            const navLinks = document.querySelector('.nav-links');
+            if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
+

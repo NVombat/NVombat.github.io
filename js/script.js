@@ -65,19 +65,7 @@ if (canvas) {
     animate();
 }
 
-// Existing mobile navigation code
-document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
-    document.querySelector('.nav-links').classList.toggle('active');
-});
 
-// Close mobile menu when clicking outside
-document.addEventListener('click', function(event) {
-    const nav = document.querySelector('nav');
-    const navLinks = document.querySelector('.nav-links');
-    if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
-        navLinks.classList.remove('active');
-    }
-});
 
 // Typing effect for terminal
 class TypingEffect {
@@ -95,41 +83,6 @@ class TypingEffect {
             this.element.textContent += this.text.charAt(this.currentChar);
             this.currentChar++;
             setTimeout(() => this.type(), this.speed);
-        }
-    }
-}
-
-// Terminal command simulation
-class TerminalSimulator {
-    constructor(element) {
-        this.element = element;
-        this.commands = [
-            '> Initializing system...',
-            '> Loading profile...',
-            '> Scanning for vulnerabilities...',
-            '> Access granted.',
-            '> Welcome to NVombat.dev'
-        ];
-        this.currentCommand = 0;
-        this.currentChar = 0;
-        this.element.textContent = '';
-        this.typeCommand();
-    }
-
-    typeCommand() {
-        if (this.currentCommand < this.commands.length) {
-            const command = this.commands[this.currentCommand];
-            
-            if (this.currentChar < command.length) {
-                this.element.textContent += command.charAt(this.currentChar);
-                this.currentChar++;
-                setTimeout(() => this.typeCommand(), 50);
-            } else {
-                this.element.textContent += '\n';
-                this.currentCommand++;
-                this.currentChar = 0;
-                setTimeout(() => this.typeCommand(), 500);
-            }
         }
     }
 }
@@ -190,12 +143,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Form submission handling with Formspree
+// Form validation and submission handling with Formspree
 const contactForm = document.querySelector('.contact-form');
 if (contactForm) {
+    // Real-time validation for form fields
+    const formInputs = contactForm.querySelectorAll('input, textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('blur', () => {
+            validateField(input);
+        });
+
+        input.addEventListener('input', () => {
+            // Remove error state while typing
+            input.classList.remove('error');
+        });
+    });
+
+    // Validate individual field
+    function validateField(field) {
+        const value = field.value.trim();
+
+        if (!value) {
+            field.classList.add('error');
+            return false;
+        }
+
+        if (field.type === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                field.classList.add('error');
+                return false;
+            }
+        }
+
+        field.classList.remove('error');
+        return true;
+    }
+
+    // Form submission handling
     contactForm.addEventListener('submit', (e) => {
         const formStatus = document.getElementById('form-status');
         const submitBtn = contactForm.querySelector('.btn');
+        let isValid = true;
+
+        // Validate all fields
+        formInputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            formStatus.textContent = 'Please fill in all fields correctly.';
+            formStatus.className = 'form-status error';
+            return;
+        }
 
         // Show loading state
         submitBtn.disabled = true;
@@ -212,61 +215,6 @@ document.querySelectorAll('.glitch').forEach(element => {
         setTimeout(() => {
             element.style.animation = 'glitch 1s infinite';
         }, 10);
-    });
-});
-
-// Add hover effect to cards
-document.querySelectorAll('.research-card, .project-card').forEach(card => {
-    card.addEventListener('mouseenter', () => {
-        card.style.transform = 'translateY(-10px)';
-        card.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.3)';
-    });
-
-    card.addEventListener('mouseleave', () => {
-        card.style.transform = 'translateY(0)';
-        card.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.2)';
-    });
-});
-
-// Add cyber-link hover effect
-document.querySelectorAll('.cyber-link').forEach(link => {
-    link.addEventListener('mouseenter', () => {
-        link.style.textShadow = '0 0 5px var(--secondary-color)';
-    });
-
-    link.addEventListener('mouseleave', () => {
-        link.style.textShadow = 'none';
-    });
-});
-
-// Theme Toggle Functionality
-// Remove theme toggle logic, keep only rain toggle
-
-document.addEventListener('DOMContentLoaded', () => {
-    const rainToggle = document.getElementById('rainToggle');
-    const body = document.body;
-    const matrixRain = document.getElementById('matrixRain');
-
-    // Check for saved rain preference
-    const savedRain = localStorage.getItem('rain');
-
-    // Apply saved rain preference
-    if (savedRain === 'off') {
-        body.classList.add('rain-off');
-        rainToggle.classList.add('active');
-        if (matrixRain) {
-            matrixRain.style.display = 'none';
-        }
-    }
-
-    // Rain toggle click handler
-    rainToggle.addEventListener('click', () => {
-        body.classList.toggle('rain-off');
-        rainToggle.classList.toggle('active');
-        if (matrixRain) {
-            matrixRain.style.display = body.classList.contains('rain-off') ? 'none' : 'block';
-        }
-        localStorage.setItem('rain', body.classList.contains('rain-off') ? 'off' : 'on');
     });
 });
 
@@ -354,3 +302,79 @@ document.addEventListener('DOMContentLoaded', function() {
         startAutoplay();
     }
 });
+
+// Interactive Timeline for Experience Page
+document.addEventListener('DOMContentLoaded', () => {
+    const experienceCards = document.querySelectorAll('.experience-card');
+
+    if (experienceCards.length === 0) return;
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                // Add a subtle glow effect when card comes into view
+                entry.target.style.boxShadow = '0 12px 32px rgba(0, 255, 0, 0.15)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all experience cards
+    experienceCards.forEach((card, index) => {
+        observer.observe(card);
+
+        // Add interactive hover effects
+        card.addEventListener('mouseenter', () => {
+            // Highlight the current card
+            card.style.borderColor = 'var(--accent-color)';
+
+            // Dim other cards slightly
+            experienceCards.forEach((otherCard, otherIndex) => {
+                if (otherIndex !== index) {
+                    otherCard.style.opacity = '0.6';
+                    otherCard.style.filter = 'blur(0.5px)';
+                }
+            });
+        });
+
+        card.addEventListener('mouseleave', () => {
+            // Reset all cards
+            experienceCards.forEach((otherCard) => {
+                otherCard.style.opacity = '1';
+                otherCard.style.filter = 'blur(0px)';
+                otherCard.style.borderColor = 'var(--primary-color)';
+            });
+        });
+
+        // Add click to expand/collapse details
+        card.addEventListener('click', () => {
+            card.classList.toggle('expanded');
+
+            // Smooth scroll to card
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+
+    // Add smooth scroll behavior to the entire page
+    document.documentElement.style.scrollBehavior = 'smooth';
+});
+
+// Add CSS for expanded state
+const style = document.createElement('style');
+style.textContent = `
+    .experience-card.expanded {
+        transform: scale(1.02);
+        box-shadow: 0 16px 40px rgba(0, 255, 0, 0.25) !important;
+    }
+
+    .experience-card.in-view {
+        animation: none;
+    }
+`;
+document.head.appendChild(style);
