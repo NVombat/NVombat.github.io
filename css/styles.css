@@ -1134,10 +1134,7 @@ footer {
 }
 
 .profile-container {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 4rem;
-    align-items: center;
+    display: block;
 }
 
 .profile-image {
@@ -1236,8 +1233,7 @@ footer {
 @media (max-width: 768px) {
     /* Profile Section Mobile */
     .profile-container {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
+        display: block;
     }
 
     .profile-image {
@@ -2294,8 +2290,7 @@ body {
     }
     
     .profile-container {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+        display: block;
     }
     
     .profile-image {
