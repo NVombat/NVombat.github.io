@@ -1436,6 +1436,69 @@ footer {
     border-radius: 8px;
 }
 
+.experience-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.experience-header h3 {
+    flex: 1;
+    color: var(--secondary-color);
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.github-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.github-link:hover {
+    background: rgba(0, 255, 0, 0.2);
+    color: var(--secondary-color);
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.3);
+    transform: translateY(-2px);
+    border-color: var(--secondary-color);
+}
+
+/* Head TA Badge */
+.head-ta-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 0, 0.1));
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0.5rem;
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.head-ta-badge:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(0, 255, 0, 0.2));
+    box-shadow: 0 0 16px rgba(0, 255, 0, 0.4);
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
 .experience-card h3 {
     color: var(--secondary-color);
     margin-bottom: 0.5rem;
@@ -2113,6 +2176,33 @@ body {
 
 .light-theme .experience-card ul li:before {
     color: var(--primary-color);
+}
+
+.light-theme .github-link {
+    background: rgba(26, 95, 122, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.light-theme .github-link:hover {
+    background: rgba(26, 95, 122, 0.2);
+    color: var(--secondary-color);
+    box-shadow: 0 0 12px rgba(26, 95, 122, 0.3);
+    border-color: var(--secondary-color);
+}
+
+.light-theme .head-ta-badge {
+    background: linear-gradient(135deg, rgba(26, 95, 122, 0.15), rgba(26, 95, 122, 0.08));
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(26, 95, 122, 0.15);
+}
+
+.light-theme .head-ta-badge:hover {
+    background: linear-gradient(135deg, rgba(26, 95, 122, 0.25), rgba(26, 95, 122, 0.15));
+    box-shadow: 0 0 16px rgba(26, 95, 122, 0.25);
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
 }
 
 /* Light theme links */
