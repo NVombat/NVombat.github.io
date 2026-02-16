@@ -725,6 +725,20 @@ h2 {
     border: 1px solid var(--primary-color);
 }
 
+.tech-tag.hackathon-tag {
+    background: linear-gradient(135deg, rgba(255, 0, 255, 0.15), rgba(255, 0, 255, 0.08));
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 8px rgba(255, 0, 255, 0.2);
+}
+
+.tech-tag.hackathon-tag:hover {
+    background: linear-gradient(135deg, rgba(255, 0, 255, 0.25), rgba(255, 0, 255, 0.15));
+    box-shadow: 0 0 12px rgba(255, 0, 255, 0.4);
+}
+
 .project-links {
     display: flex;
     gap: 1rem;
@@ -2193,6 +2207,18 @@ body {
 .light-theme .experience-card .date {
     color: var(--text-color);
     opacity: 0.7;
+}
+
+.light-theme .tech-tag.hackathon-tag {
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.12), rgba(0, 102, 204, 0.06));
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(0, 102, 204, 0.15);
+}
+
+.light-theme .tech-tag.hackathon-tag:hover {
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.2), rgba(0, 102, 204, 0.12));
+    box-shadow: 0 0 12px rgba(0, 102, 204, 0.3);
 }
 
 .light-theme .experience-card ul li {
