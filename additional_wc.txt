@@ -1,0 +1,3 @@
+####
+ - Add a Dark Horse Team selection on top of the 8 teams - which gets 2x points if correct but CANNOT BE top 10 teams in FIFA Rankings
+ - Ensure to keep it simple but creative and beautiful
