@@ -41,6 +41,7 @@ const STORAGE_KEY = "worldcup_predictions";
 
 // Form Elements
 const playerNameInput = document.getElementById("playerName");
+const playerUsernameInput = document.getElementById("playerUsername");
 const predictionForm = document.getElementById("predictionForm");
 const submitBtn = document.getElementById("submitBtn");
 const teamSelects = document.querySelectorAll(".team-select");
@@ -51,6 +52,7 @@ const formSection = document.getElementById("formSection");
 const entriesMessage = document.getElementById("entriesMessage");
 const predictionsSection = document.getElementById("predictionsSection");
 const leaderboardSection = document.getElementById("leaderboardSection");
+const predictionsModal = document.getElementById("predictionsModal");
 
 // Initialize
 function init() {
@@ -91,6 +93,7 @@ function addEventListeners() {
 // Validate form
 function validateForm() {
     const name = playerNameInput.value.trim();
+    const username = playerUsernameInput.value.trim();
     const email = document.getElementById("playerEmail")?.value.trim();
     const selections = Array.from(teamSelects)
         .map(s => s.value)
@@ -104,8 +107,12 @@ function validateForm() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const emailValid = email && emailRegex.test(email);
 
+    // Validate username (alphanumeric, @, underscore, 3-20 chars)
+    const usernameRegex = /^[@a-zA-Z0-9_]{3,20}$/;
+    const usernameValid = username && usernameRegex.test(username);
+
     // Check if form is complete
-    const isComplete = name && emailValid && selections.length === 8;
+    const isComplete = name && username && usernameValid && emailValid && selections.length === 8;
 
     if (isComplete) {
         // Check for duplicates
@@ -131,11 +138,18 @@ async function handleSubmit(e) {
     }
 
     const name = playerNameInput.value.trim();
+    const username = playerUsernameInput.value.trim();
     const email = document.getElementById("playerEmail")?.value.trim();
     const predictions = [];
 
     if (!email) {
         globalError.textContent = "Email is required";
+        globalError.style.display = "block";
+        return;
+    }
+
+    if (!username) {
+        globalError.textContent = "Username is required";
         globalError.style.display = "block";
         return;
     }
@@ -160,13 +174,14 @@ async function handleSubmit(e) {
 
     try {
         // Send to backend
-        const response = await fetch('http://localhost:5000/api/predictions/submit', {
+        const response = await fetch('http://localhost:5001/api/predictions/submit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 playerName: name,
+                playerUsername: username,
                 playerEmail: email,
                 predictions: predictions
             })
@@ -349,8 +364,33 @@ function renderLeaderboard() {
         return;
     }
 
-    // Calculate scores and sort
+    // Normalize entries to ensure consistency
+    // Handle both localStorage format (username) and API format (player_username)
     entries.forEach(entry => {
+        // Map player_username to username for consistency
+        if (entry.player_username && !entry.username) {
+            entry.username = entry.player_username;
+        }
+        // Map player_name to name for consistency
+        if (entry.player_name && !entry.name) {
+            entry.name = entry.player_name;
+        }
+        // Calculate totalScore if not present
+        if (!entry.totalScore) {
+            entry.totalScore = entry.total_score || 0;
+        }
+        // Build predictions array from individual fields if not present
+        if (!entry.predictions) {
+            entry.predictions = [];
+            if (entry.r32_1) entry.predictions.push({ team: entry.r32_1, predictedStage: "Round of 32" });
+            if (entry.r32_2) entry.predictions.push({ team: entry.r32_2, predictedStage: "Round of 32" });
+            if (entry.r16_1) entry.predictions.push({ team: entry.r16_1, predictedStage: "Round of 16" });
+            if (entry.r16_2) entry.predictions.push({ team: entry.r16_2, predictedStage: "Round of 16" });
+            if (entry.qf) entry.predictions.push({ team: entry.qf, predictedStage: "Quarter-final" });
+            if (entry.sf) entry.predictions.push({ team: entry.sf, predictedStage: "Semi-final" });
+            if (entry.final_team) entry.predictions.push({ team: entry.final_team, predictedStage: "Final" });
+            if (entry.winner) entry.predictions.push({ team: entry.winner, predictedStage: "Winner" });
+        }
         entry.totalScore = calculateTotalScore(entry.predictions);
         entry.correctCount = entry.predictions.filter(p => {
             const actualStage = ACTUAL_RESULTS[p.team];
@@ -392,19 +432,125 @@ function renderLeaderboard() {
             rankEmoji = "🥉";
         }
 
+        // Handle both property names
+        const username = entry.username || entry.player_username || 'user';
+        const totalScore = entry.totalScore || entry.total_score || 0;
+
         return `
-            <div class="leaderboard-card ${rankClass}">
+            <div class="leaderboard-card ${rankClass}" onclick="showPredictionsModal(${JSON.stringify(entry).replace(/"/g, '&quot;')})">
                 <div class="rank-badge">${rankEmoji}</div>
                 <div class="rank-badge number">#${rank}</div>
-                <h3>${entry.name}</h3>
-                <div class="leaderboard-score">${entry.totalScore}</div>
-                <div class="leaderboard-correct">${entry.correctCount} correct predictions</div>
+                <div class="leaderboard-username">@${username}</div>
+                <div class="leaderboard-score">${totalScore}</div>
+                <div class="leaderboard-click">Click to view predictions</div>
             </div>
         `;
     }).join("");
 
     leaderboardSection.style.display = "block";
 }
+
+// Modal Functions
+function showPredictionsModal(entry) {
+    const modal = document.getElementById("predictionsModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+
+    // Handle both property names (from localStorage: name, or from API: player_name)
+    const playerName = entry.name || entry.player_name || 'Player';
+    // Handle both property names (from localStorage: username, or from API: player_username)
+    const username = entry.username || entry.player_username || 'user';
+    // Handle both property names (from localStorage: totalScore, or from API: total_score)
+    const totalScore = entry.totalScore || entry.total_score || 0;
+
+    modalTitle.textContent = `${playerName} (@${username}) - ${totalScore} pts`;
+
+    // Stage points and ranks mapping
+    const STAGE_POINTS = {
+        "Round of 32": 1,
+        "Round of 16": 3,
+        "Quarter-final": 6,
+        "Semi-final": 10,
+        "Final": 15,
+        "Winner": 22
+    };
+
+    const STAGE_RANK = {
+        "Group Stage": 0,
+        "Round of 32": 1,
+        "Round of 16": 2,
+        "Quarter-final": 3,
+        "Semi-final": 4,
+        "Final": 5,
+        "Winner": 6
+    };
+
+    // Get actual results from ACTUAL_RESULTS global variable
+    const actualResults = ACTUAL_RESULTS || {};
+
+    // Build predictions display
+    const predictions = [
+        { stage: "Round of 32", teams: [entry.r32_1, entry.r32_2].filter(t => t), points: 1 },
+        { stage: "Round of 16", teams: [entry.r16_1, entry.r16_2].filter(t => t), points: 3 },
+        { stage: "Quarter-final", teams: [entry.qf].filter(t => t), points: 6 },
+        { stage: "Semi-final", teams: [entry.sf].filter(t => t), points: 10 },
+        { stage: "Final", teams: [entry.final_team].filter(t => t), points: 15 },
+        { stage: "Winner", teams: [entry.winner].filter(t => t), points: 22 }
+    ];
+
+    let html = '<div class="predictions-display">';
+    predictions.forEach(pred => {
+        if (pred.teams.length > 0) {
+            const teamsWithStatus = pred.teams.map(team => {
+                const actualStage = actualResults[team];
+                let icon = "❓"; // Default: stage not yet reached
+                let status = "not-started";
+
+                if (actualStage) {
+                    const predictedRank = STAGE_RANK[pred.stage] || 0;
+                    const actualRank = STAGE_RANK[actualStage] || 0;
+
+                    if (actualRank >= predictedRank) {
+                        // Team reached at least predicted stage = CORRECT
+                        icon = "✓";
+                        status = "correct";
+                    } else {
+                        // Team exited before predicted stage = WRONG
+                        icon = "✗";
+                        status = "wrong";
+                    }
+                }
+
+                return `<span class="team-with-status ${status}">${team} <span class="status-icon">${icon}</span></span>`;
+            }).join(", ");
+
+            html += `
+                <div class="prediction-row">
+                    <span class="prediction-stage">${pred.stage}</span>
+                    <span class="prediction-teams">${teamsWithStatus}</span>
+                    <span class="prediction-points">${pred.points} pts</span>
+                </div>
+            `;
+        }
+    });
+    html += '</div>';
+
+    modalBody.innerHTML = html;
+    modal.style.display = "flex";
+}
+
+function closePredictionsModal() {
+    const modal = document.getElementById("predictionsModal");
+    modal.style.display = "none";
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById("predictionsModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+};
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", init);
