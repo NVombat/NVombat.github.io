@@ -4,10 +4,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || 'gmail',
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
     }
 });
 
@@ -113,7 +115,7 @@ export async function sendConfirmationEmail(email, playerName, predictions, conf
 
     try {
         await transporter.sendMail({
-            from: process.env.EMAIL_USER,
+            from: process.env.SMTP_USER,
             to: email,
             subject: `🏆 World Cup Prediction Confirmed - ${playerName}`,
             html: htmlContent
@@ -136,7 +138,7 @@ export async function sendAdminNotification(adminEmail, playerName, playerEmail)
 
     try {
         await transporter.sendMail({
-            from: process.env.EMAIL_USER,
+            from: process.env.SMTP_USER,
             to: adminEmail,
             subject: `New WC Prediction: ${playerName}`,
             html: htmlContent

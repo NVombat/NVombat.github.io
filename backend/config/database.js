@@ -30,6 +30,7 @@ export async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS predictions (
                 id VARCHAR(36) PRIMARY KEY,
                 player_name VARCHAR(255) NOT NULL,
+                player_username VARCHAR(255) NOT NULL,
                 player_email VARCHAR(255) NOT NULL UNIQUE,
                 r32_1 VARCHAR(100),
                 r32_2 VARCHAR(100),

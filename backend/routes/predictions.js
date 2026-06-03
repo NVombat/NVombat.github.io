@@ -8,10 +8,10 @@ const router = express.Router();
 // Submit prediction
 router.post('/submit', async (req, res) => {
     try {
-        const { playerName, playerEmail, predictions } = req.body;
+        const { playerName, playerUsername, playerEmail, predictions } = req.body;
 
         // Validate input
-        if (!playerName || !playerEmail || !predictions) {
+        if (!playerName || !playerUsername || !playerEmail || !predictions) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
@@ -34,13 +34,14 @@ router.post('/submit', async (req, res) => {
         // Insert prediction into database
         await connection.query(
             `INSERT INTO predictions (
-                id, player_name, player_email, 
+                id, player_name, player_username, player_email,
                 r32_1, r32_2, r16_1, r16_2, qf, sf, final_team, winner,
                 confirmation_code, email_confirmed
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 predictionId,
                 playerName,
+                playerUsername,
                 playerEmail.toLowerCase(),
                 predictions[0]?.team || null,
                 predictions[1]?.team || null,
@@ -87,7 +88,7 @@ router.get('/all', async (req, res) => {
     try {
         const connection = await pool.getConnection();
         const [predictions] = await connection.query(
-            'SELECT player_name, r32_1, r32_2, r16_1, r16_2, qf, sf, final_team, winner, total_score, submitted_at FROM predictions WHERE email_confirmed = TRUE ORDER BY total_score DESC'
+            'SELECT player_name, player_username, r32_1, r32_2, r16_1, r16_2, qf, sf, final_team, winner, total_score, submitted_at FROM predictions WHERE email_confirmed = TRUE ORDER BY total_score DESC'
         );
         connection.release();
 
@@ -103,12 +104,13 @@ router.get('/leaderboard', async (req, res) => {
     try {
         const connection = await pool.getConnection();
         const [leaderboard] = await connection.query(`
-            SELECT 
+            SELECT
                 player_name,
+                player_username,
+                r32_1, r32_2, r16_1, r16_2, qf, sf, final_team, winner,
                 total_score,
-                submitted_at,
-                ROW_NUMBER() OVER (ORDER BY total_score DESC, submitted_at ASC) as rank
-            FROM predictions 
+                submitted_at
+            FROM predictions
             WHERE email_confirmed = TRUE
             ORDER BY total_score DESC, submitted_at ASC
         `);

@@ -159,14 +159,44 @@
             <!-- Results Tab -->
             <div id="results" class="tab-content">
                 <h2>Update Tournament Results</h2>
+                <p style="margin-bottom: 1.5rem; color: var(--secondary-color);">
+                    <i class="fas fa-info-circle"></i> Update team results after each knockout stage. Scores will auto-calculate.
+                </p>
+
+                <!-- Simple Stage-by-Stage Form -->
+                <div class="results-form">
+                    <div class="form-group">
+                        <label>Select Stage</label>
+                        <select id="stageSelect" onchange="loadStageTeams()">
+                            <option value="">-- Choose Stage --</option>
+                            <option value="Round of 32">Round of 32 (2 teams)</option>
+                            <option value="Round of 16">Round of 16 (2 teams)</option>
+                            <option value="Quarter-final">Quarter-final (1 team)</option>
+                            <option value="Semi-final">Semi-final (1 team)</option>
+                            <option value="Final">Final (1 team)</option>
+                            <option value="Winner">Winner (1 team)</option>
+                        </select>
+                    </div>
+
+                    <div id="stageTeamsContainer"></div>
+
+                    <button onclick="updateStageResults()" class="btn-primary" style="margin-top: 1rem;">
+                        <i class="fas fa-check"></i> Update Results & Recalculate Scores
+                    </button>
+                    <div id="resultsMessage"></div>
+                </div>
+
+                <hr style="margin: 2rem 0; border-color: var(--primary-color);">
+
+                <h3>Or Update via JSON (Advanced)</h3>
                 <div class="results-form">
                     <div class="form-group">
                         <label>Team Results (JSON Format)</label>
-                        <textarea id="resultsJson" rows="10" placeholder='{"Brazil": "Final", "Argentina": "Winner"}'></textarea>
-                        <small>Format: {"Team Name": "Stage"}</small>
+                        <textarea id="resultsJson" rows="8" placeholder='{"Brazil": "Final", "Argentina": "Winner", "France": "Semi-final"}'></textarea>
+                        <small>Format: {"Team Name": "Stage"} - Paste full tournament results</small>
                     </div>
-                    <button onclick="updateResults()" class="btn-primary">Update Results & Recalculate Scores</button>
-                    <div id="resultsMessage"></div>
+                    <button onclick="updateResults()" class="btn-primary">Update via JSON & Recalculate</button>
+                    <div id="jsonResultsMessage"></div>
                 </div>
             </div>
 
@@ -183,17 +213,35 @@
 
     <script>
         let authToken = '';
-        const API_URL = 'http://localhost:5000/api';
+        const API_URL = 'http://localhost:5001/api';
 
-        function authenticate() {
+        async function authenticate() {
             authToken = document.getElementById('adminToken').value;
             if (!authToken) {
                 showMessage('authMessage', 'Please enter admin token', 'error');
                 return;
             }
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('mainPanel').style.display = 'block';
-            loadPredictions();
+
+            // Verify token is correct by trying to fetch predictions
+            try {
+                const response = await fetch(`${API_URL}/admin/predictions`, {
+                    headers: { 'x-admin-token': authToken }
+                });
+
+                if (!response.ok) {
+                    showMessage('authMessage', '❌ Invalid admin token. Access denied.', 'error');
+                    authToken = ''; // Clear the token
+                    return;
+                }
+
+                // Token is valid, show admin panel
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainPanel').style.display = 'block';
+                loadPredictions();
+            } catch (error) {
+                showMessage('authMessage', 'Error: Could not verify token. ' + error.message, 'error');
+                authToken = '';
+            }
         }
 
         async function loadPredictions() {
@@ -238,6 +286,91 @@
             }
         }
 
+        // Stage-by-stage update
+        async function loadStageTeams() {
+            const stage = document.getElementById('stageSelect').value;
+            const container = document.getElementById('stageTeamsContainer');
+
+            if (!stage) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const teamCount = {
+                "Round of 32": 2,
+                "Round of 16": 2,
+                "Quarter-final": 1,
+                "Semi-final": 1,
+                "Final": 1,
+                "Winner": 1
+            }[stage];
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 1rem;">';
+            for (let i = 1; i <= teamCount; i++) {
+                html += `
+                    <div class="form-group">
+                        <label>Team ${i}</label>
+                        <input type="text" id="stageTeam${i}" placeholder="Enter team name" list="allTeams" style="padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid var(--primary-color); color: var(--text-color); border-radius: 6px;">
+                    </div>
+                `;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function updateStageResults() {
+            try {
+                const stage = document.getElementById('stageSelect').value;
+                if (!stage) {
+                    showMessage('resultsMessage', '❌ Please select a stage', 'error');
+                    return;
+                }
+
+                const teamCount = {
+                    "Round of 32": 2,
+                    "Round of 16": 2,
+                    "Quarter-final": 1,
+                    "Semi-final": 1,
+                    "Final": 1,
+                    "Winner": 1
+                }[stage];
+
+                const results = {};
+                for (let i = 1; i <= teamCount; i++) {
+                    const teamName = document.getElementById(`stageTeam${i}`)?.value?.trim();
+                    if (teamName) {
+                        results[teamName] = stage;
+                    }
+                }
+
+                if (Object.keys(results).length === 0) {
+                    showMessage('resultsMessage', '❌ Please enter at least one team', 'error');
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/admin/update-results`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-token': authToken
+                    },
+                    body: JSON.stringify({ results })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('resultsMessage', '✅ Stage updated and scores recalculated!', 'success');
+                    document.getElementById('stageSelect').value = '';
+                    document.getElementById('stageTeamsContainer').innerHTML = '';
+                    loadPredictions(); // Refresh predictions to show updated scores
+                } else {
+                    showMessage('resultsMessage', '❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('resultsMessage', '❌ Error: ' + error.message, 'error');
+            }
+        }
+
         async function updateResults() {
             try {
                 const resultsText = document.getElementById('resultsJson').value;
@@ -254,13 +387,14 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    showMessage('resultsMessage', '✅ Results updated successfully!', 'success');
+                    showMessage('jsonResultsMessage', '✅ Results updated successfully!', 'success');
                     document.getElementById('resultsJson').value = '';
+                    loadPredictions(); // Refresh predictions to show updated scores
                 } else {
-                    showMessage('resultsMessage', '❌ ' + data.error, 'error');
+                    showMessage('jsonResultsMessage', '❌ ' + data.error, 'error');
                 }
             } catch (error) {
-                showMessage('resultsMessage', '❌ Error: ' + error.message, 'error');
+                showMessage('jsonResultsMessage', '❌ Error: ' + error.message, 'error');
             }
         }
 
