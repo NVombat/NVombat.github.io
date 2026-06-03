@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WC Prediction Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: linear-gradient(135deg, #00ff00, #0ff);
+            color: #000;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .header h1 { margin-bottom: 0.5rem; }
+        .auth-section {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .auth-section input {
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #00ff00;
+            color: #fff;
+            border-radius: 4px;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .auth-section button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #00ff00;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active {
+            border-bottom-color: #00ff00;
+            color: #0ff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .predictions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+        }
+        .predictions-table th {
+            background: rgba(0, 255, 0, 0.2);
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #00ff00;
+        }
+        .predictions-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #00ff00;
+        }
+        .predictions-table tr:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+        .results-form {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            padding: 2rem;
+            border-radius: 8px;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #0ff; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #00ff00;
+            color: #fff;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .btn-primary {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary:hover { background: #0ff; }
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .alert-success { background: rgba(0, 255, 0, 0.2); border: 1px solid #00ff00; color: #0f0; }
+        .alert-error { background: rgba(255, 0, 0, 0.2); border: 1px solid #ff0000; color: #f00; }
+        .status { padding: 0.5rem 1rem; background: rgba(0, 255, 0, 0.2); border-radius: 4px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> World Cup Prediction Admin Panel</h1>
+            <p>Manage submissions, update results, and monitor the game</p>
+        </div>
+
+        <div class="auth-section" id="authSection">
+            <h2>🔐 Admin Authentication</h2>
+            <div class="form-group">
+                <label>Admin Token</label>
+                <input type="password" id="adminToken" placeholder="Enter your admin token">
+            </div>
+            <button onclick="authenticate()" class="btn-primary">Authenticate</button>
+            <div id="authMessage"></div>
+        </div>
+
+        <div id="mainPanel" style="display: none;">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('predictions')">📋 All Predictions</button>
+                <button class="tab-btn" onclick="switchTab('results')">🏆 Update Results</button>
+                <button class="tab-btn" onclick="switchTab('logs')">📊 Admin Logs</button>
+            </div>
+
+            <!-- Predictions Tab -->
+            <div id="predictions" class="tab-content active">
+                <h2>All Submissions</h2>
+                <button onclick="loadPredictions()" class="btn-primary" style="margin-bottom: 1rem;">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+                <div id="predictionsContainer"></div>
+            </div>
+
+            <!-- Results Tab -->
+            <div id="results" class="tab-content">
+                <h2>Update Tournament Results</h2>
+                <div class="results-form">
+                    <div class="form-group">
+                        <label>Team Results (JSON Format)</label>
+                        <textarea id="resultsJson" rows="10" placeholder='{"Brazil": "Final", "Argentina": "Winner"}'></textarea>
+                        <small>Format: {"Team Name": "Stage"}</small>
+                    </div>
+                    <button onclick="updateResults()" class="btn-primary">Update Results & Recalculate Scores</button>
+                    <div id="resultsMessage"></div>
+                </div>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="logs" class="tab-content">
+                <h2>Admin Action Logs</h2>
+                <button onclick="loadLogs()" class="btn-primary" style="margin-bottom: 1rem;">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+                <div id="logsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+        const API_URL = 'http://localhost:5000/api';
+
+        function authenticate() {
+            authToken = document.getElementById('adminToken').value;
+            if (!authToken) {
+                showMessage('authMessage', 'Please enter admin token', 'error');
+                return;
+            }
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('mainPanel').style.display = 'block';
+            loadPredictions();
+        }
+
+        async function loadPredictions() {
+            try {
+                const response = await fetch(`${API_URL}/admin/predictions`, {
+                    headers: { 'x-admin-token': authToken }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showMessage('authMessage', data.error, 'error');
+                    return;
+                }
+
+                const html = `
+                    <table class="predictions-table">
+                        <thead>
+                            <tr>
+                                <th>Player Name</th>
+                                <th>Email</th>
+                                <th>Score</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(p => `
+                                <tr>
+                                    <td>${p.player_name}</td>
+                                    <td>${p.player_email}</td>
+                                    <td><strong>${p.total_score}</strong></td>
+                                    <td>${new Date(p.submitted_at).toLocaleDateString()}</td>
+                                    <td><span class="status">${p.email_confirmed ? '✓ Confirmed' : '✗ Pending'}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                document.getElementById('predictionsContainer').innerHTML = html;
+            } catch (error) {
+                showMessage('predictionsContainer', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function updateResults() {
+            try {
+                const resultsText = document.getElementById('resultsJson').value;
+                const results = JSON.parse(resultsText);
+
+                const response = await fetch(`${API_URL}/admin/update-results`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-token': authToken
+                    },
+                    body: JSON.stringify({ results })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('resultsMessage', '✅ Results updated successfully!', 'success');
+                    document.getElementById('resultsJson').value = '';
+                } else {
+                    showMessage('resultsMessage', '❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('resultsMessage', '❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadLogs() {
+            try {
+                const response = await fetch(`${API_URL}/admin/logs`, {
+                    headers: { 'x-admin-token': authToken }
+                });
+                const data = await response.json();
+
+                const html = `
+                    <table class="predictions-table">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(log => `
+                                <tr>
+                                    <td>${log.action}</td>
+                                    <td><small>${log.details}</small></td>
+                                    <td>${new Date(log.created_at).toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                document.getElementById('logsContainer').innerHTML = html;
+            } catch (error) {
+                showMessage('logsContainer', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>

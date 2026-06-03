@@ -12,9 +12,7 @@
     <link rel="stylesheet" href="../css/predworldcup.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <canvas id="matrixRain"></canvas>
-    <div class="matrix-bg"></div>
+<body class="no-matrix">
     <header>
         <nav>
             <a href="../index.html" class="logo-link">
@@ -28,9 +26,9 @@
                 <li><a href="experience.html">Experience</a></li>
                 <li><a href="research.html">Research</a></li>
                 <li><a href="projects.html">Projects</a></li>
-                <li><a href="predworldcup.html" class="active">Predictions</a></li>
+                <li><a href="predworldcup.html" class="active">WCPrediction</a></li>
             </ul>
-            <div class="theme-toggles">
+            <div class="theme-toggles" style="display: none;">
                 <button id="themeToggle" class="toggle-button" aria-label="Toggle light/dark theme">
                     <i class="fas fa-sun"></i>
                 </button>
@@ -136,6 +134,11 @@
                         </ul>
                     </div>
                 </div>
+                <div class="world-cup-link">
+                    <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" class="fifa-link">
+                        <i class="fas fa-globe"></i> Visit Official FIFA World Cup 2026 Website
+                    </a>
+                </div>
             </section>
 
             <!-- Form Section -->
@@ -150,6 +153,11 @@
                         <label for="playerName">Your Name</label>
                         <input type="text" id="playerName" placeholder="Enter your name" required>
                         <small>This will be displayed on the leaderboard</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerEmail">Your Email</label>
+                        <input type="email" id="playerEmail" placeholder="your.email@example.com" required>
+                        <small>Confirmation email will be sent here. Cannot be changed after submission.</small>
                     </div>
 
                     <div class="predictions-grid">
@@ -281,7 +289,15 @@
         </div>
     </main>
 
-
+    <!-- Admin Footer -->
+    <footer class="predworldcup-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 World Cup Prediction Game</p>
+            <a href="../../backend/admin-panel.html" class="admin-link" title="Admin Panel">
+                <i class="fas fa-key"></i> Admin
+            </a>
+        </div>
+    </footer>
 
     <script src="../js/theme.js"></script>
     <script src="../js/matrix.js"></script>

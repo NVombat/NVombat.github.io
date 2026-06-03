@@ -78,6 +78,10 @@ function populateTeamSelects() {
 // Add event listeners
 function addEventListeners() {
     playerNameInput.addEventListener("input", validateForm);
+    const playerEmailInput = document.getElementById("playerEmail");
+    if (playerEmailInput) {
+        playerEmailInput.addEventListener("input", validateForm);
+    }
     teamSelects.forEach(select => {
         select.addEventListener("change", validateForm);
     });
@@ -87,6 +91,7 @@ function addEventListeners() {
 // Validate form
 function validateForm() {
     const name = playerNameInput.value.trim();
+    const email = document.getElementById("playerEmail")?.value.trim();
     const selections = Array.from(teamSelects)
         .map(s => s.value)
         .filter(v => v);
@@ -95,8 +100,12 @@ function validateForm() {
     document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
     globalError.style.display = "none";
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailValid = email && emailRegex.test(email);
+
     // Check if form is complete
-    const isComplete = name && selections.length === 8;
+    const isComplete = name && emailValid && selections.length === 8;
 
     if (isComplete) {
         // Check for duplicates
@@ -113,7 +122,7 @@ function validateForm() {
 }
 
 // Handle form submission
-function handleSubmit(e) {
+async function handleSubmit(e) {
     e.preventDefault();
 
     if (new Date() > REVEAL_DEADLINE) {
@@ -122,7 +131,14 @@ function handleSubmit(e) {
     }
 
     const name = playerNameInput.value.trim();
+    const email = document.getElementById("playerEmail")?.value.trim();
     const predictions = [];
+
+    if (!email) {
+        globalError.textContent = "Email is required";
+        globalError.style.display = "block";
+        return;
+    }
 
     teamSelects.forEach(select => {
         if (select.value) {
@@ -137,31 +153,60 @@ function handleSubmit(e) {
         }
     });
 
-    // Save entry
-    const entries = loadEntries();
-    const entry = {
-        id: Date.now().toString(),
-        name: name,
-        predictions: predictions,
-        totalScore: 0,
-        submittedAt: new Date().toISOString()
-    };
+    // Disable submit button during submission
+    submitBtn.disabled = true;
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-    entries.push(entry);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    try {
+        // Send to backend
+        const response = await fetch('http://localhost:5000/api/predictions/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                playerName: name,
+                playerEmail: email,
+                predictions: predictions
+            })
+        });
 
-    // Show success message
-    successMessage.style.display = "block";
-    document.getElementById("successName").textContent = `Thank you, ${name}!`;
-    predictionForm.style.display = "none";
+        const data = await response.json();
 
-    // Hide success after 5 seconds
-    setTimeout(() => {
-        successMessage.style.display = "none";
-        predictionForm.style.display = "flex";
-        predictionForm.reset();
-        validateForm();
-    }, 5000);
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to submit predictions');
+        }
+
+        // Show success message
+        successMessage.style.display = "block";
+        document.getElementById("successName").textContent = `Thank you, ${name}!`;
+        predictionForm.style.display = "none";
+        globalError.style.display = "none";
+
+        // Add message about confirmation email
+        const emailMsg = document.createElement('p');
+        emailMsg.innerHTML = `<i class="fas fa-envelope"></i> A confirmation email has been sent to <strong>${email}</strong>`;
+        emailMsg.style.marginTop = '1rem';
+        emailMsg.style.color = 'var(--secondary-color)';
+        successMessage.appendChild(emailMsg);
+
+        // Hide success after 7 seconds
+        setTimeout(() => {
+            successMessage.style.display = "none";
+            predictionForm.style.display = "flex";
+            predictionForm.reset();
+            validateForm();
+            emailMsg.remove();
+        }, 7000);
+
+    } catch (error) {
+        console.error('Submission error:', error);
+        globalError.textContent = error.message || 'Failed to submit predictions. Please try again.';
+        globalError.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
 }
 
 // Load entries from storage
