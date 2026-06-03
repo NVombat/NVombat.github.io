@@ -1,0 +1,614 @@
+/* World Cup Prediction Game Styles */
+
+.predworldcup-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.predworldcup-hero {
+    background: linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(255, 0, 255, 0.05) 100%);
+    text-align: center;
+    padding: 4rem 1rem !important;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.predworldcup-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.predworldcup-hero p {
+    font-size: 1.3rem;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+/* Countdown Section */
+.countdown-section {
+    margin: 4rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+.countdown-card {
+    background: linear-gradient(135deg, rgba(0, 255, 0, 0.08) 0%, rgba(255, 0, 255, 0.04) 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 15px;
+    padding: 3rem 2rem;
+    text-align: center;
+    max-width: 600px;
+    box-shadow: 0 8px 32px rgba(0, 255, 0, 0.1);
+}
+
+.countdown-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--secondary-color);
+}
+
+.countdown-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.countdown-item {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 1.5rem 1rem;
+}
+
+.countdown-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.countdown-label {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.countdown-deadline {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Rules Section */
+.rules-section {
+    margin: 4rem 0;
+}
+
+.rules-section h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2.2rem;
+}
+
+.rules-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.rule-card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0, 255, 0, 0.02) 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.rule-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0, 255, 0, 0.15);
+    border-color: var(--secondary-color);
+}
+
+.rule-icon {
+    font-size: 2.5rem;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+}
+
+.rule-card h3 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+.rule-card p {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.picks-list {
+    list-style: none;
+    padding: 0;
+}
+
+.picks-list li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.picks-list li::before {
+    content: '▸';
+    color: var(--secondary-color);
+    position: absolute;
+    left: 0;
+    font-size: 1.2rem;
+}
+
+.scoring-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin: 1rem 0;
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    background: rgba(0, 255, 0, 0.05);
+    border-left: 3px solid var(--secondary-color);
+    border-radius: 4px;
+}
+
+.score-stage {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.score-points {
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.rules-list {
+    list-style: none;
+    padding: 0;
+}
+
+.rules-list li {
+    padding: 0.6rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.rules-list li::before {
+    content: '✓';
+    color: var(--secondary-color);
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Form Section */
+.form-section {
+    margin: 4rem 0;
+    background: linear-gradient(135deg, rgba(0, 255, 0, 0.05) 0%, rgba(255, 0, 255, 0.02) 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 15px;
+    padding: 3rem 2rem;
+}
+
+.form-section h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--secondary-color);
+}
+
+.closed-message {
+    background: rgba(255, 0, 0, 0.1);
+    border: 2px solid #ff3333;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+}
+
+.closed-message i {
+    font-size: 2.5rem;
+    color: #ff3333;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.closed-message p {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.prediction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.form-group small {
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.85rem;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--primary-color);
+    color: var(--text-color);
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.form-group input::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+.predictions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.prediction-group {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.prediction-group legend {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: #ff3333;
+    font-size: 0.8rem;
+    display: block;
+}
+
+.global-error {
+    background: rgba(255, 51, 51, 0.15);
+    border: 1px solid #ff3333;
+    color: #ff9999;
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.submit-button {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    color: var(--background-color);
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.submit-button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 255, 0, 0.3);
+}
+
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.success-message {
+    background: rgba(0, 255, 0, 0.1);
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.success-message i {
+    font-size: 3rem;
+    color: var(--secondary-color);
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.success-message h3 {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.success-message p {
+    color: var(--text-color);
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+/* Entries Message */
+.entries-message {
+    margin: 4rem 0;
+    text-align: center;
+}
+
+.message-card {
+    background: linear-gradient(135deg, rgba(255, 0, 255, 0.1) 0%, rgba(0, 255, 0, 0.05) 100%);
+    border: 2px dashed var(--accent-color);
+    border-radius: 15px;
+    padding: 3rem 2rem;
+}
+
+.message-card i {
+    font-size: 3rem;
+    color: var(--accent-color);
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.message-card h2 {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.message-card p {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    margin: 0.8rem 0;
+    line-height: 1.6;
+}
+
+/* Predictions Table */
+.predictions-table-section {
+    margin: 4rem 0;
+}
+
+.predictions-table-section h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.predictions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.predictions-table thead {
+    background: rgba(0, 255, 0, 0.1);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.predictions-table th {
+    padding: 1rem;
+    text-align: left;
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.predictions-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--primary-color);
+    color: var(--text-color);
+}
+
+.predictions-table tbody tr:hover {
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.picks-col {
+    text-align: center;
+    width: 120px;
+}
+
+.score-col {
+    text-align: center;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.team-badge {
+    display: inline-block;
+    background: rgba(0, 255, 0, 0.2);
+    color: var(--primary-color);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-right: 0.3rem;
+    border: 1px solid var(--primary-color);
+    white-space: nowrap;
+}
+
+/* Leaderboard */
+.leaderboard-section {
+    margin: 4rem 0;
+}
+
+.leaderboard-section h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.leaderboard-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.leaderboard-card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0, 255, 0, 0.02) 100%);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.leaderboard-card.rank-1 {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(0, 255, 0, 0.05) 100%);
+    transform: scale(1.05);
+    order: -3;
+}
+
+.leaderboard-card.rank-2 {
+    border-color: #c0c0c0;
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.1) 0%, rgba(0, 255, 0, 0.05) 100%);
+    order: -2;
+}
+
+.leaderboard-card.rank-3 {
+    border-color: #cd7f32;
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.1) 0%, rgba(0, 255, 0, 0.05) 100%);
+    order: -1;
+}
+
+.rank-badge {
+    display: inline-block;
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.rank-1 .rank-badge {
+    color: #ffd700;
+}
+
+.rank-2 .rank-badge {
+    color: #c0c0c0;
+}
+
+.rank-3 .rank-badge {
+    color: #cd7f32;
+}
+
+.rank-badge.number {
+    font-size: 2rem;
+    color: var(--secondary-color);
+}
+
+.leaderboard-card h3 {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.leaderboard-score {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+.leaderboard-correct {
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .predworldcup-hero h1 {
+        font-size: 2rem;
+    }
+
+    .countdown-display {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .countdown-number {
+        font-size: 2rem;
+    }
+
+    .predictions-table {
+        font-size: 0.8rem;
+    }
+
+    .predictions-table th,
+    .predictions-table td {
+        padding: 0.7rem;
+    }
+
+    .leaderboard-container {
+        grid-template-columns: 1fr;
+    }
+
+    .leaderboard-card.rank-1 {
+        transform: scale(1);
+    }
+
+    .form-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .predictions-grid {
+        grid-template-columns: 1fr;
+    }
+}

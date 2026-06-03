@@ -25,6 +25,7 @@ A professional portfolio website showcasing my academic research, projects, and 
 - **Experience** - Professional experience timeline, teaching roles, committee service, and leadership initiatives
 - **Research** - Academic research publications with areas of research in terminal section
 - **Projects** - Featured projects with tech tags and GitHub repository links
+- **Predictions** - World Cup prediction game with leaderboard and scoring system
 
 ## Design & Layout
 
@@ -43,10 +44,40 @@ A professional portfolio website showcasing my academic research, projects, and 
 - **Animations** - Staggered load animations, carousel transitions, and typing effects
 - **Theme Persistence** - User preferences saved to localStorage
 
+## World Cup Prediction Game
+
+The **Predictions** page (`/pages/predworldcup.html`) is an interactive game where players can:
+
+- **Submit Predictions**: Select 8 teams (2 Round of 32, 2 Round of 16, 1 Quarter-final, 1 Semi-final, 1 Final, 1 Winner)
+- **Avoid Duplicates**: Same team cannot be selected twice in one entry
+- **Score Points**: Earn points based on how far teams actually progress
+- **View Leaderboard**: See rankings after June 12, 2026 12:30 AM IST deadline
+- **Live Updates**: Scores automatically recalculate as tournament results are entered
+
+### Scoring System
+| Stage | Points |
+|---|---:|
+| Round of 32 | 1 |
+| Round of 16 | 3 |
+| Quarter-final | 6 |
+| Semi-final | 10 |
+| Final | 15 |
+| Winner | 22 |
+
+**Maximum Score**: 61 points
+
+### Key Features
+- **Countdown Timer**: Shows time remaining until deadline
+- **Privacy Lock**: Entries hidden before tournament starts
+- **Form Validation**: Real-time validation with error messages
+- **LocalStorage**: Predictions stored locally (ready for backend integration)
+- **Responsive Tables**: Leaderboard and predictions table work on all devices
+- **Admin Updates**: Easy result updates for tournament progress
+
 ## Technologies
 
 - HTML5
 - CSS3 (with CSS variables for theming, flexbox layouts, and animations)
-- Vanilla JavaScript (DOM manipulation, localStorage, event handling)
+- Vanilla JavaScript (DOM manipulation, localStorage, event handling, countdown timers)
 - Font Awesome Icons
 - Formspree (contact form backend)
