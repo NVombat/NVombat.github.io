@@ -73,8 +73,9 @@ const STAGE_RANK = {
     "Winner": 6
 };
 
-// Backend API base URL (Railway deployment)
-const BACKEND_URL = "https://worldcup-prediction-backend-production.up.railway.app";
+// Backend API base URL (read from meta tag, configurable without code changes)
+const BACKEND_URL = document.querySelector('meta[name="backend-url"]')?.content ||
+                    "https://worldcup-prediction-backend-production.up.railway.app";
 
 // Populated from backend: { teamName: actualStage }
 let ACTUAL_RESULTS = {};
@@ -186,7 +187,7 @@ async function handleSubmit(e) {
     }
 
     const name = playerNameInput.value.trim();
-    const username = playerUsernameInput.value.trim();
+    const username = playerUsernameInput.value.trim().toLowerCase(); // Normalize to lowercase
     const email = document.getElementById("playerEmail")?.value.trim();
     const predictions = [];
 
@@ -258,6 +259,12 @@ async function handleSubmit(e) {
         document.getElementById("successName").textContent = `Thank you, ${name}!`;
         predictionForm.style.display = "none";
         globalError.style.display = "none";
+
+        // Remove any existing email message (prevent accumulation on rapid resubmits)
+        const existingEmailMsg = successMessage.querySelector('p');
+        if (existingEmailMsg) {
+            existingEmailMsg.remove();
+        }
 
         // Add message about confirmation email
         const emailMsg = document.createElement('p');
@@ -439,7 +446,7 @@ function renderLeaderboard(entries) {
         const totalScore = entry.totalScore || entry.total_score || 0;
 
         return `
-            <div class="leaderboard-card ${rankClass}" onclick="showPredictionsModal(${JSON.stringify(entry).replace(/"/g, '&quot;')})">
+            <div class="leaderboard-card ${rankClass}" data-entry-index="${index}">
                 <div class="rank-badge">${rankEmoji}</div>
                 <div class="rank-badge number">#${rank}</div>
                 <div class="leaderboard-username">@${username}</div>
@@ -448,6 +455,14 @@ function renderLeaderboard(entries) {
             </div>
         `;
     }).join("");
+
+    // Attach click listeners to leaderboard cards (safer than inline onclick)
+    document.querySelectorAll(".leaderboard-card").forEach((card, index) => {
+        card.addEventListener("click", () => {
+            showPredictionsModal(entries[index]);
+        });
+        card.style.cursor = "pointer";
+    });
 
     leaderboardSection.style.display = "block";
 }
