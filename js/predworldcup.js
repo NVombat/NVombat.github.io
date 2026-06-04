@@ -121,6 +121,7 @@ function populateTeamSelects() {
 // Add event listeners
 function addEventListeners() {
     playerNameInput.addEventListener("input", validateForm);
+    playerUsernameInput.addEventListener("input", validateForm);
     const playerEmailInput = document.getElementById("playerEmail");
     if (playerEmailInput) {
         playerEmailInput.addEventListener("input", validateForm);
@@ -463,27 +464,7 @@ function showPredictionsModal(entry) {
 
     modalTitle.textContent = `${playerName} (@${username}) - ${totalScore} pts`;
 
-    // Stage points and ranks mapping
-    const STAGE_POINTS = {
-        "Round of 32": 1,
-        "Round of 16": 3,
-        "Quarter-final": 6,
-        "Semi-final": 10,
-        "Final": 15,
-        "Winner": 22
-    };
-
-    const STAGE_RANK = {
-        "Group Stage": 0,
-        "Round of 32": 1,
-        "Round of 16": 2,
-        "Quarter-final": 3,
-        "Semi-final": 4,
-        "Final": 5,
-        "Winner": 6
-    };
-
-    // Get actual results from ACTUAL_RESULTS global variable
+    // Use global constants (defined at top of file)
     const actualResults = ACTUAL_RESULTS || {};
 
     // Build predictions display
