@@ -73,9 +73,11 @@ const STAGE_RANK = {
     "Winner": 6
 };
 
-// Backend API base URL (read from meta tag, configurable without code changes)
-const BACKEND_URL = document.querySelector('meta[name="backend-url"]')?.content ||
-                    "https://worldcup-prediction-backend-production.up.railway.app";
+// Backend API base URL (Railway production)
+const BACKEND_URL = "https://worldcup-prediction-backend-production.up.railway.app";
+
+// For LOCAL TESTING ONLY: temporarily swap this to "http://localhost:5001"
+// Make sure to revert to Railway URL before pushing to GitHub Pages!
 
 // Populated from backend: { teamName: actualStage }
 let ACTUAL_RESULTS = {};
