@@ -309,23 +309,12 @@ body.no-matrix .matrix-bg {
     order: 1;
 }
 
-/* Hide all helper text by default */
-.form-group small {
+/* Hide labels for team selections (in fieldsets) */
+.prediction-group .form-group label {
     display: none;
-    color: var(--text-color);
-    opacity: 0.7;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
-    line-height: 1.3;
 }
 
-/* Show helper text only for these fields */
-.form-group:has(#playerName) small,
-.form-group:has(#playerUsername) small,
-.form-group:has(#playerEmail) small {
-    display: block;
-    order: 3;
-}
+
 
 .form-group input,
 .form-group select {
