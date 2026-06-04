@@ -292,7 +292,7 @@ body.no-matrix .matrix-bg {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0;
     margin-bottom: 1.8rem;
 }
 
@@ -304,23 +304,27 @@ body.no-matrix .matrix-bg {
     letter-spacing: 0.5px;
     line-height: 1.2;
     display: block;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.6rem;
     padding: 0;
+    order: 1;
 }
 
+/* Hide all helper text by default */
 .form-group small {
     display: none;
-}
-
-/* Show helper text for name, username, and email fields */
-#playerName ~ small,
-#playerUsername ~ small,
-#playerEmail ~ small {
-    display: block;
     color: var(--text-color);
     opacity: 0.7;
     font-size: 0.8rem;
-    margin-top: 0.3rem;
+    margin-top: 0.5rem;
+    line-height: 1.3;
+}
+
+/* Show helper text only for these fields */
+.form-group:has(#playerName) small,
+.form-group:has(#playerUsername) small,
+.form-group:has(#playerEmail) small {
+    display: block;
+    order: 3;
 }
 
 .form-group input,
@@ -333,9 +337,10 @@ body.no-matrix .matrix-bg {
     font-family: 'Courier New', monospace;
     font-size: 0.95rem;
     transition: all 0.3s ease;
-    height: 2.6rem;
-    line-height: 1.2;
+    height: 2.5rem;
+    line-height: 1.4;
     appearance: none;
+    order: 2;
 }
 
 .form-group input {
