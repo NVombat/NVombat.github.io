@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../css/predworldcup.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="no-matrix">
+<body>
     <header>
         <nav>
             <a href="../index.html" class="logo-link">
@@ -28,14 +28,6 @@
                 <li><a href="projects.html">Projects</a></li>
                 <li><a href="predworldcup.html" class="active">WCPrediction</a></li>
             </ul>
-            <div class="theme-toggles" style="display: none;">
-                <button id="themeToggle" class="toggle-button" aria-label="Toggle light/dark theme">
-                    <i class="fas fa-sun"></i>
-                </button>
-                <button id="rainToggle" class="toggle-button" aria-label="Toggle matrix rain">
-                    <i class="fas fa-cloud-rain"></i>
-                </button>
-            </div>
         </nav>
     </header>
 
@@ -252,39 +244,6 @@
                 </div>
             </section>
 
-            <!-- Hidden Entries Message -->
-            <section class="entries-message" id="entriesMessage" style="display: none;">
-                <div class="message-card">
-                    <i class="fas fa-lock"></i>
-                    <h2>Entries Are Hidden</h2>
-                    <p>All predictions will be revealed on <strong>June 12, 2026 at 12:30 AM IST</strong></p>
-                    <p>Once the World Cup begins, you'll be able to see everyone's predictions and the live leaderboard!</p>
-                </div>
-            </section>
-
-            <!-- Predictions Table -->
-            <section class="predictions-table-section" id="predictionsSection" style="display: none;">
-                <h2><i class="fas fa-table"></i> All Predictions</h2>
-                <div class="table-wrapper">
-                    <table class="predictions-table" id="predictionsTable">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th class="picks-col">R32</th>
-                                <th class="picks-col">R16</th>
-                                <th class="picks-col">QF</th>
-                                <th class="picks-col">SF</th>
-                                <th class="picks-col">Final</th>
-                                <th class="picks-col">Winner</th>
-                                <th class="score-col">Score</th>
-                            </tr>
-                        </thead>
-                        <tbody id="predictionsTableBody">
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
             <!-- Leaderboard -->
             <section class="leaderboard-section" id="leaderboardSection" style="display: none;">
                 <h2><i class="fas fa-podium"></i> Leaderboard</h2>
@@ -309,14 +268,12 @@
     <footer class="predworldcup-footer">
         <div class="footer-content">
             <p>&copy; 2026 World Cup Prediction Game</p>
-            <a href="../../backend/admin-panel.html" class="admin-link" title="Admin Panel">
+            <a href="https://worldcup-prediction-backend-production.up.railway.app/admin" class="admin-link" title="Admin Panel" target="_blank" rel="noopener">
                 <i class="fas fa-key"></i> Admin
             </a>
         </div>
     </footer>
 
-    <script src="../js/theme.js"></script>
-    <script src="../js/matrix.js"></script>
     <script src="../js/predworldcup.js"></script>
 </body>
 </html>

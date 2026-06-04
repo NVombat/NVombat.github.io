@@ -73,11 +73,11 @@ const STAGE_RANK = {
     "Winner": 6
 };
 
-// Admin: Update actual results here
-let ACTUAL_RESULTS = {};
+// Backend API base URL (Railway deployment)
+const BACKEND_URL = "https://worldcup-prediction-backend-production.up.railway.app";
 
-// Storage
-const STORAGE_KEY = "worldcup_predictions";
+// Populated from backend: { teamName: actualStage }
+let ACTUAL_RESULTS = {};
 
 // Test Mode: Add ?testmode=true to URL to see leaderboard before deadline
 const urlParams = new URLSearchParams(window.location.search);
@@ -93,8 +93,6 @@ const closedMessage = document.getElementById("closedMessage");
 const successMessage = document.getElementById("successMessage");
 const globalError = document.getElementById("globalError");
 const formSection = document.getElementById("formSection");
-const entriesMessage = document.getElementById("entriesMessage");
-const predictionsSection = document.getElementById("predictionsSection");
 const leaderboardSection = document.getElementById("leaderboardSection");
 const predictionsModal = document.getElementById("predictionsModal");
 
@@ -105,7 +103,6 @@ function init() {
     updateCountdown();
     setInterval(updateCountdown, 1000);
     checkDeadlineAndUpdate();
-    renderPredictions();
 }
 
 // Populate team dropdowns
@@ -236,7 +233,7 @@ async function handleSubmit(e) {
 
     try {
         // Send to backend
-        const response = await fetch('http://localhost:5001/api/predictions/submit', {
+        const response = await fetch(`${BACKEND_URL}/api/predictions/submit`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -286,12 +283,6 @@ async function handleSubmit(e) {
     }
 }
 
-// Load entries from storage
-function loadEntries() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-}
-
 // Calculate points for a prediction
 function calculatePredictionPoints(predictedStage, actualStage) {
     if (!actualStage) return 0;
@@ -306,13 +297,29 @@ function calculatePredictionPoints(predictedStage, actualStage) {
     return 0;
 }
 
-// Calculate total score for an entry
-function calculateTotalScore(predictions) {
-    return predictions.reduce((total, pred) => {
-        const actualStage = ACTUAL_RESULTS[pred.team];
-        const points = calculatePredictionPoints(pred.predictedStage, actualStage);
-        return total + points;
-    }, 0);
+// Fetch actual tournament results from backend; populates ACTUAL_RESULTS
+async function fetchActualResults() {
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/predictions/results`);
+        if (!res.ok) return;
+        const rows = await res.json();
+        ACTUAL_RESULTS = {};
+        rows.forEach(r => { ACTUAL_RESULTS[r.team_name] = r.actual_stage; });
+    } catch (err) {
+        console.error('Failed to fetch actual results:', err);
+    }
+}
+
+// Fetch leaderboard from backend
+async function fetchLeaderboard() {
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/predictions/leaderboard`);
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (err) {
+        console.error('Failed to fetch leaderboard:', err);
+        return [];
+    }
 }
 
 // Update countdown timer
@@ -341,149 +348,75 @@ function updateCountdown() {
 }
 
 // Check deadline and update UI
-function checkDeadlineAndUpdate() {
+async function checkDeadlineAndUpdate() {
     const now = new Date();
     const isAfterDeadline = now > REVEAL_DEADLINE;
 
-    if (isAfterDeadline) {
-        // Hide form and show locked message
+    if (isAfterDeadline || TEST_MODE) {
+        // After deadline (or test mode): hide form, show closed message + leaderboard
         formSection.style.display = "block";
         predictionForm.style.display = "none";
         closedMessage.style.display = "block";
-        entriesMessage.style.display = "none";
 
-        // Show ACTUAL leaderboard (same one users will see)
-        renderPredictions();
-        renderLeaderboard();
+        // Fetch latest results + leaderboard from backend
+        await fetchActualResults();
+        const entries = await fetchLeaderboard();
+        renderLeaderboard(entries);
     } else {
-        // Before deadline - form visible, no leaderboard for users
+        // Before deadline: form visible, leaderboard hidden
         closedMessage.style.display = "none";
         formSection.style.display = "block";
         predictionForm.style.display = "flex";
-
-        if (loadEntries().length > 0) {
-            entriesMessage.style.display = "block";
-            predictionsSection.style.display = "none";
-            leaderboardSection.style.display = "none";
-        } else {
-            entriesMessage.style.display = "none";
-        }
+        leaderboardSection.style.display = "none";
     }
 }
 
-// Show leaderboard for admin preview (used by admin panel)
-function showLeaderboardForAdmin() {
-    renderPredictions();
-    renderLeaderboard();
-}
+// Render leaderboard from backend entries (API format: player_username, total_score, etc.)
+function renderLeaderboard(entries) {
+    const container = document.getElementById("leaderboardContainer");
 
-// Render predictions table
-function renderPredictions() {
-    const entries = loadEntries();
-    const tableBody = document.getElementById("predictionsTableBody");
-
-    if (entries.length === 0) {
-        tableBody.innerHTML = "<tr><td colspan='8' style='text-align: center; padding: 2rem;'>No predictions yet</td></tr>";
+    if (!entries || entries.length === 0) {
+        container.innerHTML = "<p style='text-align: center;'>No predictions yet</p>";
+        leaderboardSection.style.display = "block";
         return;
     }
 
-    // Sort by score descending
-    entries.sort((a, b) => {
-        const scoreA = calculateTotalScore(a.predictions);
-        const scoreB = calculateTotalScore(b.predictions);
-        return scoreB - scoreA;
-    });
-
-    tableBody.innerHTML = entries.map(entry => {
-        const predictions = entry.predictions;
-        const r32 = predictions.filter(p => p.predictedStage === "Round of 32").map(p => p.team);
-        const r16 = predictions.filter(p => p.predictedStage === "Round of 16").map(p => p.team);
-        const qf = predictions.find(p => p.predictedStage === "Quarter-final")?.team || "-";
-        const sf = predictions.find(p => p.predictedStage === "Semi-final")?.team || "-";
-        const final = predictions.find(p => p.predictedStage === "Final")?.team || "-";
-        const winner = predictions.find(p => p.predictedStage === "Winner")?.team || "-";
-        const score = calculateTotalScore(predictions);
-
-        const formatTeams = (teams) => teams.length > 0 ? teams.join(", ") : "-";
-
-        return `
-            <tr>
-                <td><strong>${entry.name}</strong></td>
-                <td class="picks-col">${formatTeams(r32)}</td>
-                <td class="picks-col">${formatTeams(r16)}</td>
-                <td class="picks-col">${qf}</td>
-                <td class="picks-col">${sf}</td>
-                <td class="picks-col">${final}</td>
-                <td class="picks-col">${winner}</td>
-                <td class="score-col">${score}</td>
-            </tr>
-        `;
-    }).join("");
-
-    predictionsSection.style.display = "block";
-}
-
-// Render leaderboard
-function renderLeaderboard() {
-    const entries = loadEntries();
-
-    if (entries.length === 0) {
-        leaderboardSection.innerHTML = "<p style='text-align: center;'>No predictions yet</p>";
-        return;
-    }
-
-    // Normalize entries to ensure consistency
-    // Handle both localStorage format (username) and API format (player_username)
+    // Normalize each entry: map API field names + build predictions array
     entries.forEach(entry => {
-        // Map player_username to username for consistency
-        if (entry.player_username && !entry.username) {
-            entry.username = entry.player_username;
-        }
-        // Map player_name to name for consistency
-        if (entry.player_name && !entry.name) {
-            entry.name = entry.player_name;
-        }
-        // Calculate totalScore if not present
-        if (!entry.totalScore) {
-            entry.totalScore = entry.total_score || 0;
-        }
-        // Build predictions array from individual fields if not present
-        if (!entry.predictions) {
-            entry.predictions = [];
-            if (entry.r32_1) entry.predictions.push({ team: entry.r32_1, predictedStage: "Round of 32" });
-            if (entry.r32_2) entry.predictions.push({ team: entry.r32_2, predictedStage: "Round of 32" });
-            if (entry.r16_1) entry.predictions.push({ team: entry.r16_1, predictedStage: "Round of 16" });
-            if (entry.r16_2) entry.predictions.push({ team: entry.r16_2, predictedStage: "Round of 16" });
-            if (entry.qf) entry.predictions.push({ team: entry.qf, predictedStage: "Quarter-final" });
-            if (entry.sf) entry.predictions.push({ team: entry.sf, predictedStage: "Semi-final" });
-            if (entry.final_team) entry.predictions.push({ team: entry.final_team, predictedStage: "Final" });
-            if (entry.winner) entry.predictions.push({ team: entry.winner, predictedStage: "Winner" });
-        }
-        entry.totalScore = calculateTotalScore(entry.predictions);
-        entry.correctCount = entry.predictions.filter(p => {
-            const actualStage = ACTUAL_RESULTS[p.team];
-            return calculatePredictionPoints(p.predictedStage, actualStage) > 0;
-        }).length;
+        entry.username = entry.player_username || entry.username || 'user';
+        entry.name = entry.player_name || entry.name || 'Player';
+        entry.predictions = [];
+        if (entry.r32_1) entry.predictions.push({ team: entry.r32_1, predictedStage: "Round of 32" });
+        if (entry.r32_2) entry.predictions.push({ team: entry.r32_2, predictedStage: "Round of 32" });
+        if (entry.r16_1) entry.predictions.push({ team: entry.r16_1, predictedStage: "Round of 16" });
+        if (entry.r16_2) entry.predictions.push({ team: entry.r16_2, predictedStage: "Round of 16" });
+        if (entry.qf) entry.predictions.push({ team: entry.qf, predictedStage: "Quarter-final" });
+        if (entry.sf) entry.predictions.push({ team: entry.sf, predictedStage: "Semi-final" });
+        if (entry.final_team) entry.predictions.push({ team: entry.final_team, predictedStage: "Final" });
+        if (entry.winner) entry.predictions.push({ team: entry.winner, predictedStage: "Winner" });
+        // Recompute from current ACTUAL_RESULTS so the UI reflects fresh admin updates
+        entry.totalScore = entry.predictions.reduce(
+            (sum, p) => sum + calculatePredictionPoints(p.predictedStage, ACTUAL_RESULTS[p.team]),
+            0
+        );
     });
 
+    // Sort: score desc, then correct winner, then correct finalist, then earliest submission
     entries.sort((a, b) => {
         if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
-        // Tie-breaker: correct winner
         const aWinner = a.predictions.find(p => p.predictedStage === "Winner");
         const bWinner = b.predictions.find(p => p.predictedStage === "Winner");
         const aWinnerCorrect = aWinner && ACTUAL_RESULTS[aWinner.team] === "Winner" ? 1 : 0;
         const bWinnerCorrect = bWinner && ACTUAL_RESULTS[bWinner.team] === "Winner" ? 1 : 0;
         if (bWinnerCorrect !== aWinnerCorrect) return bWinnerCorrect - aWinnerCorrect;
-        // Tie-breaker: correct finalist
         const aFinal = a.predictions.find(p => p.predictedStage === "Final");
         const bFinal = b.predictions.find(p => p.predictedStage === "Final");
         const aFinalCorrect = aFinal && (ACTUAL_RESULTS[aFinal.team] === "Final" || ACTUAL_RESULTS[aFinal.team] === "Winner") ? 1 : 0;
         const bFinalCorrect = bFinal && (ACTUAL_RESULTS[bFinal.team] === "Final" || ACTUAL_RESULTS[bFinal.team] === "Winner") ? 1 : 0;
         if (bFinalCorrect !== aFinalCorrect) return bFinalCorrect - aFinalCorrect;
-        return a.submittedAt - b.submittedAt;
+        return new Date(a.submitted_at) - new Date(b.submitted_at);
     });
 
-    const container = document.getElementById("leaderboardContainer");
     container.innerHTML = entries.map((entry, index) => {
         const rank = index + 1;
         let rankClass = "";
@@ -524,11 +457,8 @@ function showPredictionsModal(entry) {
     const modalTitle = document.getElementById("modalTitle");
     const modalBody = document.getElementById("modalBody");
 
-    // Handle both property names (from localStorage: name, or from API: player_name)
     const playerName = entry.name || entry.player_name || 'Player';
-    // Handle both property names (from localStorage: username, or from API: player_username)
     const username = entry.username || entry.player_username || 'user';
-    // Handle both property names (from localStorage: totalScore, or from API: total_score)
     const totalScore = entry.totalScore || entry.total_score || 0;
 
     modalTitle.textContent = `${playerName} (@${username}) - ${totalScore} pts`;
