@@ -172,6 +172,12 @@ function validateForm() {
     submitBtn.disabled = !isComplete;
 }
 
+// Email validation function
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
 // Handle form submission
 async function handleSubmit(e) {
     e.preventDefault();
@@ -186,14 +192,26 @@ async function handleSubmit(e) {
     const email = document.getElementById("playerEmail")?.value.trim();
     const predictions = [];
 
-    if (!email) {
-        globalError.textContent = "Email is required";
+    if (!name) {
+        globalError.textContent = "Name is required";
         globalError.style.display = "block";
         return;
     }
 
     if (!username) {
         globalError.textContent = "Username is required";
+        globalError.style.display = "block";
+        return;
+    }
+
+    if (!email) {
+        globalError.textContent = "Email is required";
+        globalError.style.display = "block";
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        globalError.textContent = "Please enter a valid email address (e.g., user@example.com)";
         globalError.style.display = "block";
         return;
     }
