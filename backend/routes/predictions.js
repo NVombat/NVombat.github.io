@@ -17,14 +17,25 @@ router.post('/submit', async (req, res) => {
 
         // Check if email already exists
         const connection = await pool.getConnection();
-        const [existingPredictions] = await connection.query(
+        const [existingEmail] = await connection.query(
             'SELECT id FROM predictions WHERE player_email = ?',
             [playerEmail.toLowerCase()]
         );
 
-        if (existingPredictions.length > 0) {
+        if (existingEmail.length > 0) {
             connection.release();
             return res.status(409).json({ error: 'Email already submitted predictions' });
+        }
+
+        // Check if username already exists
+        const [existingUsername] = await connection.query(
+            'SELECT id FROM predictions WHERE player_username = ?',
+            [playerUsername]
+        );
+
+        if (existingUsername.length > 0) {
+            connection.release();
+            return res.status(409).json({ error: 'Username already taken. Please choose a different username.' });
         }
 
         // Generate confirmation code

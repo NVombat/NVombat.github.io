@@ -23,12 +23,14 @@ Full-stack World Cup prediction game with email confirmation, SQL database, and 
   - **✗ Red** = Team exited before predicted stage (wrong)
   - **❓ Orange** = Stage not yet reached (pending)
 - **Email-Locked Submissions**: Same email cannot submit twice (database UNIQUE constraint)
+- **Username-Locked Submissions**: Same username cannot be used twice (database UNIQUE constraint)
 - **Contractual Emails**: Confirmation includes ₹500 fee mention and "hunted down" payment language
 - **Form Reappears**: After submission, form resets for next user
 - **Deadline Management**: Form closes June 12, 2026 12:30 AM IST, leaderboard shows
 - **Admin Panel**: View predictions, update results stage-by-stage, view logs
 - **Automatic Scoring**: Points recalculated when tournament results updated
 - **Security**: Prepared statements, token authentication, audit logging
+- **48 Teams**: All 48 2026 World Cup participating nations in dropdown
 
 ---
 
@@ -52,11 +54,18 @@ CREATE DATABASE worldcup_predictions;
 EXIT;
 ```
 
+**If updating existing database** (add username UNIQUE constraint):
+```bash
+mysql -u root worldcup_predictions
+ALTER TABLE predictions ADD UNIQUE INDEX uq_player_username (player_username);
+EXIT;
+```
+
 Additional Commands
 ```
 SHOW DATABASES;
-
-DROP DATABASE db_name
+DROP DATABASE db_name;
+DESCRIBE predictions;  # View table structure
 ```
 
 ### Step 2: Install Backend Dependencies
@@ -96,7 +105,24 @@ mysql -u root    # Should connect successfully
 exit             # Type exit to quit
 ```
 
-### Step 5: Start Backend (Terminal 1)
+### Step 5: Preview Actual Leaderboard (Optional - Before Deadline)
+
+**During Development**, you can preview the ACTUAL leaderboard that users will see after June 12:
+
+**Recommended: Using Admin Panel** (Backend)
+- Go to: `http://localhost:8000/backend/admin-panel.html`
+- Authenticate with admin token: `winnerwinner$$chickendinner`
+- Click **"🎯 Leaderboard"** tab
+- This shows the EXACT same leaderboard users will see after deadline
+- Click any username to view their predictions
+
+**Debug Mode: Using URL Parameter** (Frontend Only)
+```
+http://localhost:8000/pages/predworldcup.html?testmode=true
+```
+Shows the leaderboard view even before June 12 (debug method only).
+
+### Step 7: Start Backend (Terminal 1)
 ```bash
 # From backend folder
 npm run dev
@@ -112,7 +138,7 @@ Should show:
 
 **IMPORTANT: Keep this terminal open!**
 
-### Step 6: Start Frontend Server (Terminal 2 - NEW)
+### Step 8: Start Frontend Server (Terminal 2)
 ```bash
 # From project root directory
 python3 -m http.server 8000
@@ -123,13 +149,13 @@ Should show:
 Serving HTTP on 0.0.0.0 port 8000
 ```
 
-### Step 7: Access the Website
+### Step 9: Access the Website
 Open your browser and go to:
 ```
 http://localhost:8000/pages/predworldcup.html
 ```
 
-### Step 8: Test Everything
+### Step 10: Test Everything
 1. **Test user submission:**
    - Fill name, username (@username), email, select 8 teams
    - Click "Submit"
@@ -304,8 +330,8 @@ Paste full tournament results:
 ```sql
 - id (UUID PRIMARY KEY)
 - player_name (VARCHAR)
-- player_username (VARCHAR) ← Unique username for leaderboard
-- player_email (VARCHAR UNIQUE) ← Prevents duplicate submissions
+- player_username (VARCHAR UNIQUE) ← Unique username - each user can only use once
+- player_email (VARCHAR UNIQUE) ← Prevents duplicate email submissions
 - r32_1, r32_2 (VARCHAR - Team names)
 - r16_1, r16_2 (VARCHAR - Team names)
 - qf, sf, final_team, winner (VARCHAR - Team names)
@@ -314,6 +340,12 @@ Paste full tournament results:
 - confirmation_code (VARCHAR)
 - submitted_at (TIMESTAMP)
 - created_at (TIMESTAMP)
+
+CONSTRAINTS:
+- PRIMARY KEY (id)
+- UNIQUE (player_email) - prevents same email twice
+- UNIQUE (player_username) - prevents same username twice
+- INDEX (player_email, player_username, email_confirmed)
 ```
 
 ### actual_results table
@@ -341,6 +373,19 @@ Paste full tournament results:
 3. **Error Response**: Returns 409 status with "Email already submitted"
 
 **Result**: Same email locked forever. Different emails allowed.
+
+---
+
+## 🔐 Username Uniqueness System
+
+**How it prevents duplicate usernames:**
+
+1. **Database Level**: UNIQUE constraint on player_username
+2. **Backend Level**: Query checks if username exists before insert
+3. **Frontend Level**: Username regex validation (3-20 chars, alphanumeric + @ and _)
+4. **Error Response**: Returns 409 status with "Username already taken"
+
+**Result**: Each username can only be used ONCE across all entries. Different usernames required for multiple entries.
 
 ---
 

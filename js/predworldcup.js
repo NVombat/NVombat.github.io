@@ -4,14 +4,54 @@
 const REVEAL_DEADLINE = new Date("2026-06-12T00:30:00+05:30");
 
 const TEAMS = [
-    "Mexico", "South Africa", "Republic of Korea", "Czechia", "Canada", "Switzerland",
-    "Qatar", "Bosnia and Herzegovina", "Brazil", "Morocco", "Scotland", "Haiti",
-    "USA", "Paraguay", "Australia", "Turkey", "Germany", "Ecuador", "Ivory Coast",
-    "Curaçao", "Netherlands", "Japan", "Sweden", "Tunisia", "Belgium", "Egypt",
-    "Iran", "New Zealand", "Spain", "Uruguay", "Saudi Arabia", "Cape Verde",
-    "France", "Senegal", "Norway", "Iraq", "Argentina", "Austria", "Algeria",
-    "Jordan", "Portugal", "Colombia", "DR Congo", "Uzbekistan", "England",
-    "Croatia", "Ghana", "Panama"
+    "Mexico",
+    "South Africa",
+    "Korea Republic",
+    "Czechia",
+    "Canada",
+    "Bosnia and Herzegovina",
+    "Qatar",
+    "Switzerland",
+    "Brazil",
+    "Morocco",
+    "Haiti",
+    "Scotland",
+    "United States",
+    "Paraguay",
+    "Australia",
+    "Türkiye",
+    "Germany",
+    "Curaçao",
+    "Ivory Coast",
+    "Ecuador",
+    "Netherlands",
+    "Japan",
+    "Sweden",
+    "Tunisia",
+    "Belgium",
+    "Egypt",
+    "Iran",
+    "New Zealand",
+    "Spain",
+    "Cape Verde",
+    "Saudi Arabia",
+    "Uruguay",
+    "France",
+    "Senegal",
+    "Iraq",
+    "Norway",
+    "Argentina",
+    "Algeria",
+    "Austria",
+    "Jordan",
+    "Portugal",
+    "DR Congo",
+    "Uzbekistan",
+    "Colombia",
+    "England",
+    "Croatia",
+    "Ghana",
+    "Panama"
 ];
 
 const STAGE_POINTS = {
@@ -38,6 +78,10 @@ let ACTUAL_RESULTS = {};
 
 // Storage
 const STORAGE_KEY = "worldcup_predictions";
+
+// Test Mode: Add ?testmode=true to URL to see leaderboard before deadline
+const urlParams = new URLSearchParams(window.location.search);
+const TEST_MODE = urlParams.get('testmode') === 'true';
 
 // Form Elements
 const playerNameInput = document.getElementById("playerName");
@@ -290,11 +334,11 @@ function checkDeadlineAndUpdate() {
         closedMessage.style.display = "block";
         entriesMessage.style.display = "none";
 
-        // Show predictions and leaderboard
+        // Show ACTUAL leaderboard (same one users will see)
         renderPredictions();
         renderLeaderboard();
     } else {
-        // Before deadline
+        // Before deadline - form visible, no leaderboard for users
         closedMessage.style.display = "none";
         formSection.style.display = "block";
         predictionForm.style.display = "flex";
@@ -307,6 +351,12 @@ function checkDeadlineAndUpdate() {
             entriesMessage.style.display = "none";
         }
     }
+}
+
+// Show leaderboard for admin preview (used by admin panel)
+function showLeaderboardForAdmin() {
+    renderPredictions();
+    renderLeaderboard();
 }
 
 // Render predictions table

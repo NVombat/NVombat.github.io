@@ -312,6 +312,8 @@ body.no-matrix .matrix-bg {
     color: var(--text-color);
     opacity: 0.7;
     font-size: 0.8rem;
+    margin-top: 0.5rem;
+    display: block;
 }
 
 .form-group input,
@@ -325,8 +327,7 @@ body.no-matrix .matrix-bg {
     font-size: 0.95rem;
     transition: all 0.3s ease;
     height: auto;
-    min-height: 3rem;
-    line-height: 1.6;
+    line-height: 1.5;
     appearance: none;
 }
 

@@ -30,7 +30,7 @@ export async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS predictions (
                 id VARCHAR(36) PRIMARY KEY,
                 player_name VARCHAR(255) NOT NULL,
-                player_username VARCHAR(255) NOT NULL,
+                player_username VARCHAR(255) NOT NULL UNIQUE,
                 player_email VARCHAR(255) NOT NULL UNIQUE,
                 r32_1 VARCHAR(100),
                 r32_2 VARCHAR(100),
@@ -46,6 +46,7 @@ export async function initializeDatabase() {
                 submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 INDEX(player_email),
+                INDEX(player_username),
                 INDEX(email_confirmed)
             )
         `);
