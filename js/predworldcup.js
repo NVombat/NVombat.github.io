@@ -97,7 +97,12 @@ const successMessage = document.getElementById("successMessage");
 const globalError = document.getElementById("globalError");
 const formSection = document.getElementById("formSection");
 const leaderboardSection = document.getElementById("leaderboardSection");
+const countdownSection = document.getElementById("countdownSection");
 const predictionsModal = document.getElementById("predictionsModal");
+
+// Leaderboard refresh control
+let leaderboardRefreshInterval = null;
+let currentLeaderboardMetadata = {};
 
 // Initialize
 function init() {
@@ -320,15 +325,23 @@ async function fetchActualResults() {
     }
 }
 
-// Fetch leaderboard from backend
+// Fetch leaderboard from backend (returns { entries, metadata })
 async function fetchLeaderboard() {
     try {
         const res = await fetch(`${BACKEND_URL}/api/predictions/leaderboard`);
-        if (!res.ok) return [];
-        return await res.json();
+        if (!res.ok) return { entries: [], metadata: {} };
+
+        const data = await res.json();
+
+        // Handle both old format (array) and new format (object with entries)
+        if (Array.isArray(data)) {
+            return { entries: data, metadata: { hasR32Results: true } };
+        }
+
+        return data;
     } catch (err) {
         console.error('Failed to fetch leaderboard:', err);
-        return [];
+        return { entries: [], metadata: {} };
     }
 }
 
@@ -363,26 +376,48 @@ async function checkDeadlineAndUpdate() {
     const isAfterDeadline = now > REVEAL_DEADLINE;
 
     if (isAfterDeadline || TEST_MODE) {
-        // After deadline (or test mode): hide form, show closed message + leaderboard
+        // After deadline (or test mode): hide countdown, show leaderboard at top, hide form
+        countdownSection.style.display = "none";
+        leaderboardSection.style.display = "block";
         formSection.style.display = "block";
         predictionForm.style.display = "none";
         closedMessage.style.display = "block";
 
         // Fetch latest results + leaderboard from backend
         await fetchActualResults();
-        const entries = await fetchLeaderboard();
-        renderLeaderboard(entries);
+        const leaderboardData = await fetchLeaderboard();
+        const entries = leaderboardData.entries || leaderboardData;
+        const metadata = leaderboardData.metadata || {};
+        renderLeaderboard(entries, metadata);
+
+        // Start real-time leaderboard updates (refresh every 5 seconds to catch admin updates)
+        if (!leaderboardRefreshInterval) {
+            leaderboardRefreshInterval = setInterval(async () => {
+                await fetchActualResults();
+                const updatedData = await fetchLeaderboard();
+                const updatedEntries = updatedData.entries || updatedData;
+                const updatedMetadata = updatedData.metadata || {};
+                renderLeaderboard(updatedEntries, updatedMetadata);
+            }, 5000); // Refresh every 5 seconds
+        }
     } else {
-        // Before deadline: form visible, leaderboard hidden
+        // Before deadline: show countdown, hide leaderboard, show form
+        countdownSection.style.display = "block";
+        leaderboardSection.style.display = "none";
         closedMessage.style.display = "none";
         formSection.style.display = "block";
         predictionForm.style.display = "flex";
-        leaderboardSection.style.display = "none";
+
+        // Stop leaderboard refresh if it's running
+        if (leaderboardRefreshInterval) {
+            clearInterval(leaderboardRefreshInterval);
+            leaderboardRefreshInterval = null;
+        }
     }
 }
 
 // Render leaderboard from backend entries (API format: player_username, total_score, etc.)
-function renderLeaderboard(entries) {
+function renderLeaderboard(entries, metadata) {
     const container = document.getElementById("leaderboardContainer");
 
     if (!entries || entries.length === 0) {
@@ -390,6 +425,9 @@ function renderLeaderboard(entries) {
         leaderboardSection.style.display = "block";
         return;
     }
+
+    // Store metadata for future reference
+    currentLeaderboardMetadata = metadata || {};
 
     // Normalize each entry: map API field names + build predictions array
     entries.forEach(entry => {
@@ -411,21 +449,21 @@ function renderLeaderboard(entries) {
         );
     });
 
-    // Sort: score desc, then correct winner, then correct finalist, then earliest submission
-    entries.sort((a, b) => {
-        if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
-        const aWinner = a.predictions.find(p => p.predictedStage === "Winner");
-        const bWinner = b.predictions.find(p => p.predictedStage === "Winner");
-        const aWinnerCorrect = aWinner && ACTUAL_RESULTS[aWinner.team] === "Winner" ? 1 : 0;
-        const bWinnerCorrect = bWinner && ACTUAL_RESULTS[bWinner.team] === "Winner" ? 1 : 0;
-        if (bWinnerCorrect !== aWinnerCorrect) return bWinnerCorrect - aWinnerCorrect;
-        const aFinal = a.predictions.find(p => p.predictedStage === "Final");
-        const bFinal = b.predictions.find(p => p.predictedStage === "Final");
-        const aFinalCorrect = aFinal && (ACTUAL_RESULTS[aFinal.team] === "Final" || ACTUAL_RESULTS[aFinal.team] === "Winner") ? 1 : 0;
-        const bFinalCorrect = bFinal && (ACTUAL_RESULTS[bFinal.team] === "Final" || ACTUAL_RESULTS[bFinal.team] === "Winner") ? 1 : 0;
-        if (bFinalCorrect !== aFinalCorrect) return bFinalCorrect - aFinalCorrect;
-        return new Date(a.submitted_at) - new Date(b.submitted_at);
-    });
+    // Get R32 status from metadata returned by backend
+    // Backend determines this based on actual_results table
+    const hasR32Results = metadata && metadata.hasR32Results !== undefined ? metadata.hasR32Results : false;
+
+    if (hasR32Results) {
+        // After R32: Sort by score DESC only (no tiebreaker logic)
+        entries.sort((a, b) => {
+            return b.totalScore - a.totalScore;
+        });
+    } else {
+        // Before R32: Sort alphabetically by username (lexicographic)
+        entries.sort((a, b) => {
+            return a.username.localeCompare(b.username);
+        });
+    }
 
     container.innerHTML = entries.map((entry, index) => {
         const rank = index + 1;

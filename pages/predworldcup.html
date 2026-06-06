@@ -40,8 +40,15 @@
         </section>
 
         <div class="predworldcup-container">
-            <!-- Countdown Section -->
-            <section class="countdown-section">
+            <!-- Leaderboard (shown after deadline, positioned at top) -->
+            <section class="leaderboard-section" id="leaderboardSection" style="display: none;">
+                <h2><i class="fas fa-ranking-star"></i> Leaderboard</h2>
+                <div class="leaderboard-container" id="leaderboardContainer">
+                </div>
+            </section>
+
+            <!-- Countdown Section (hidden after deadline) -->
+            <section class="countdown-section" id="countdownSection">
                 <div class="countdown-card">
                     <h2><i class="fas fa-hourglass-end"></i> Submission Deadline</h2>
                     <div class="countdown-display">
@@ -124,6 +131,17 @@
                             <li>No duplicate teams in your entry</li>
                             <li>If a team reaches at least your predicted stage, you score!</li>
                             <li>Max score: 61 points</li>
+                        </ul>
+                    </div>
+
+                    <div class="rule-card">
+                        <div class="rule-icon"><i class="fas fa-crown"></i></div>
+                        <h3>Winning</h3>
+                        <ul class="rules-list">
+                            <li>The leaderboard will display all users ranked by points (highest points first)</li>
+                            <li>The user with the <strong>most points wins</strong></li>
+                            <li><strong>Tie-breaking:</strong> If multiple players have the same score, we are exploring the fairest approach and will announce the tie-breaking method shortly</li>
+                            <li>Check the leaderboard after June 12, 2026 to see final rankings</li>
                         </ul>
                     </div>
                 </div>
@@ -239,13 +257,6 @@
                     <h3>Predictions Submitted!</h3>
                     <p id="successName"></p>
                     <p>Your predictions have been recorded. Check back after the World Cup starts to see the leaderboard.</p>
-                </div>
-            </section>
-
-            <!-- Leaderboard -->
-            <section class="leaderboard-section" id="leaderboardSection" style="display: none;">
-                <h2><i class="fas fa-ranking-star"></i> Leaderboard</h2>
-                <div class="leaderboard-container" id="leaderboardContainer">
                 </div>
             </section>
         </div>

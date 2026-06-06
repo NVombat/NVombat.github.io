@@ -292,8 +292,8 @@ body.no-matrix .matrix-bg {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0;
-    margin-bottom: 1.8rem;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 .form-group label {
@@ -302,9 +302,9 @@ body.no-matrix .matrix-bg {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    line-height: 1.2;
+    line-height: 1.4;
     display: block;
-    margin-bottom: 0.6rem;
+    margin: 0;
     padding: 0;
     order: 1;
 }
@@ -318,7 +318,7 @@ body.no-matrix .matrix-bg {
 
 .form-group input,
 .form-group select {
-    padding: 0.75rem 1rem;
+    padding: 0.85rem 1rem;
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--primary-color);
     color: var(--text-color);
@@ -326,8 +326,8 @@ body.no-matrix .matrix-bg {
     font-family: 'Courier New', monospace;
     font-size: 0.95rem;
     transition: all 0.3s ease;
-    height: 2.5rem;
-    line-height: 1.4;
+    height: 2.8rem;
+    line-height: 1.6;
     appearance: none;
     order: 2;
 }
