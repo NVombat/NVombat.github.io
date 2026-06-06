@@ -57,6 +57,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Shared mobile navigation
+document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.querySelector('.mobile-nav-toggle');
+    const links = document.querySelector('.nav-links');
+    if (!toggle || !links) return;
+
+    const closeMenu = () => {
+        links.classList.remove('active');
+        toggle.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+    };
+
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', event => {
+        event.stopPropagation();
+        const isOpen = links.classList.toggle('active');
+        toggle.classList.toggle('active', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+    links.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+    document.addEventListener('click', event => {
+        if (links.classList.contains('active')
+            && !event.target.closest('.nav-links')
+            && !event.target.closest('.mobile-nav-toggle')) {
+            closeMenu();
+        }
+    });
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) closeMenu();
+    });
+});
+
 // Matrix Rain Control Functions
 function startMatrixRain() {
     const canvas = document.getElementById('matrixRain');
@@ -111,8 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (canvas) {
         // Set canvas size to window size
         function resizeCanvas() {
+            const wasRunning = Boolean(matrixAnimationId);
+            if (wasRunning) stopMatrixRain();
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            if (wasRunning) startMatrixRain();
         }
 
         // Initial resize
@@ -156,9 +193,11 @@ class TypingEffect {
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const selector = this.getAttribute('href');
+        if (!selector || selector === '#') return;
+        const target = document.querySelector(selector);
         if (target) {
+            e.preventDefault();
             target.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
@@ -381,19 +420,18 @@ document.addEventListener('DOMContentLoaded', () => {
         rootMargin: '0px 0px -50px 0px'
     };
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('in-view');
-                // Add a subtle glow effect when card comes into view
-                entry.target.style.boxShadow = '0 12px 32px rgba(0, 255, 0, 0.15)';
-            }
-        });
-    }, observerOptions);
+    const observer = 'IntersectionObserver' in window
+        ? new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('in-view');
+            });
+        }, observerOptions)
+        : null;
 
     // Observe all experience cards
     experienceCards.forEach((card, index) => {
-        observer.observe(card);
+        if (observer) observer.observe(card);
+        else card.classList.add('in-view');
 
         // Add interactive hover effects
         card.addEventListener('mouseenter', () => {
@@ -419,7 +457,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Add click to expand/collapse details
-        card.addEventListener('click', () => {
+        card.addEventListener('click', event => {
+            if (event.target.closest('a, button')) return;
             card.classList.toggle('expanded');
 
             // Smooth scroll to card
@@ -430,17 +469,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add smooth scroll behavior to the entire page
     document.documentElement.style.scrollBehavior = 'smooth';
 });
-
-// Add CSS for expanded state
-const style = document.createElement('style');
-style.textContent = `
-    .experience-card.expanded {
-        transform: scale(1.02);
-        box-shadow: 0 16px 40px rgba(0, 255, 0, 0.25) !important;
-    }
-
-    .experience-card.in-view {
-        animation: none;
-    }
-`;
-document.head.appendChild(style);

@@ -88,7 +88,7 @@
                         <span class="research-status">TBA</span>
                     </div>
                     <div class="research-links">
-                        <a href="#" class="cyber-link" target="_blank"><i class="fas fa-file-pdf"></i> Paper</a>
+                        <span class="cyber-link disabled-link" aria-disabled="true"><i class="fas fa-file-pdf"></i> Paper pending</span>
                     </div>
                 </div>
 
@@ -183,21 +183,5 @@
     </footer>
 
     <script src="../js/script.js"></script>
-    <script>
-        // Mobile Navigation Toggle
-        document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
-            document.querySelector('.nav-links').classList.toggle('active');
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const nav = document.querySelector('nav');
-            const navLinks = document.querySelector('.nav-links');
-            if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
-                navLinks.classList.remove('active');
-            }
-        });
-    </script>
 </body>
 </html>
-

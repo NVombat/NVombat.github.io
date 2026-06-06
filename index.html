@@ -248,40 +248,5 @@
     </footer>
 
     <script src="js/script.js"></script>
-    <script>
-        // Mobile navigation toggle
-        const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
-        const navLinks = document.querySelector('.nav-links');
-        const body = document.body;
-
-        mobileNavToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navLinks.classList.toggle('active');
-            mobileNavToggle.classList.toggle('active');
-            body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
-        });
-
-        // Close mobile menu when clicking a link
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-                mobileNavToggle.classList.remove('active');
-                body.style.overflow = '';
-            });
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (navLinks.classList.contains('active') &&
-                !e.target.closest('.nav-links') &&
-                !e.target.closest('.mobile-nav-toggle')) {
-                navLinks.classList.remove('active');
-                mobileNavToggle.classList.remove('active');
-                body.style.overflow = '';
-            }
-        });
-
-        // Theme and rain toggle functionality is handled by script.js
-    </script>
 </body>
 </html>

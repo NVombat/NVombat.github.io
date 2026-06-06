@@ -1,9 +1,8 @@
-// World Cup Prediction Game - Core Logic
+// World Cup Prediction Game - frontend integration
 
-// Constants
-const REVEAL_DEADLINE = new Date("2026-06-12T00:30:00+05:30");
+const DEFAULT_REVEAL_DEADLINE = new Date("2026-06-12T00:30:00+05:30");
 
-const TEAMS = [
+const FALLBACK_TEAMS = [
     "Mexico",
     "South Africa",
     "Korea Republic",
@@ -54,14 +53,16 @@ const TEAMS = [
     "Panama"
 ];
 
-const STAGE_POINTS = {
-    "Round of 32": 1,
-    "Round of 16": 3,
-    "Quarter-final": 6,
-    "Semi-final": 10,
-    "Final": 15,
-    "Winner": 22
-};
+const FALLBACK_PREDICTION_SLOTS = [
+    { id: "r32-1", stage: "Round of 32", points: 1 },
+    { id: "r32-2", stage: "Round of 32", points: 1 },
+    { id: "r16-1", stage: "Round of 16", points: 3 },
+    { id: "r16-2", stage: "Round of 16", points: 3 },
+    { id: "qf", stage: "Quarter-final", points: 6 },
+    { id: "sf", stage: "Semi-final", points: 10 },
+    { id: "final", stage: "Final", points: 15 },
+    { id: "winner", stage: "Winner", points: 22 }
+];
 
 const STAGE_RANK = {
     "Group Stage": 0,
@@ -73,518 +74,587 @@ const STAGE_RANK = {
     "Winner": 6
 };
 
-// Backend API base URL (Railway production)
-const BACKEND_URL = "https://worldcup-prediction-backend-production.up.railway.app";
+const backendMeta = document.querySelector('meta[name="backend-url"]');
+const isLocalFrontend = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const BACKEND_URL = isLocalFrontend
+    ? `http://${window.location.hostname}:5001`
+    : backendMeta?.content?.replace(/\/$/, "")
+        || "https://worldcup-prediction-backend-production.up.railway.app";
 
-// For LOCAL TESTING ONLY: temporarily swap this to "http://localhost:5001"
-// Make sure to revert to Railway URL before pushing to GitHub Pages!
+let revealDeadline = new Date(DEFAULT_REVEAL_DEADLINE);
+let TEAMS = [...FALLBACK_TEAMS];
+let PREDICTION_SLOTS = FALLBACK_PREDICTION_SLOTS.map(slot => ({ ...slot }));
+let actualResults = {};
+let leaderboardRefreshInterval = null;
+let deadlineState = null;
 
-// Populated from backend: { teamName: actualStage }
-let ACTUAL_RESULTS = {};
-
-// Test Mode: Add ?testmode=true to URL to see leaderboard before deadline
-const urlParams = new URLSearchParams(window.location.search);
-const TEST_MODE = urlParams.get('testmode') === 'true';
-
-// Form Elements
 const playerNameInput = document.getElementById("playerName");
 const playerUsernameInput = document.getElementById("playerUsername");
+const playerEmailInput = document.getElementById("playerEmail");
 const predictionForm = document.getElementById("predictionForm");
 const submitBtn = document.getElementById("submitBtn");
-const teamSelects = document.querySelectorAll(".team-select");
+const teamSelects = Array.from(document.querySelectorAll(".team-select"));
 const closedMessage = document.getElementById("closedMessage");
 const successMessage = document.getElementById("successMessage");
+const submissionStatus = document.getElementById("submissionStatus");
 const globalError = document.getElementById("globalError");
 const formSection = document.getElementById("formSection");
 const leaderboardSection = document.getElementById("leaderboardSection");
 const countdownSection = document.getElementById("countdownSection");
 const predictionsModal = document.getElementById("predictionsModal");
+const modalClose = document.getElementById("modalClose");
 
-// Leaderboard refresh control
-let leaderboardRefreshInterval = null;
-let currentLeaderboardMetadata = {};
-
-// Initialize
-function init() {
+async function init() {
+    await syncGameConfig();
     populateTeamSelects();
     addEventListeners();
     updateCountdown();
-    setInterval(updateCountdown, 1000);
-    checkDeadlineAndUpdate();
+    await checkDeadlineAndUpdate();
+    window.setInterval(updateCountdown, 1000);
 }
 
-// Populate team dropdowns
+async function syncGameConfig() {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/game-config`, {
+            headers: { Accept: "application/json" }
+        });
+        if (!response.ok) throw new Error(`Game config request returned ${response.status}`);
+        const data = await readJson(response);
+        const slots = Array.isArray(data.predictionSlots) ? data.predictionSlots : [];
+        const validTeams = Array.isArray(data.teams)
+            && data.teams.length === 48
+            && new Set(data.teams).size === data.teams.length
+            && data.teams.every(team => typeof team === "string" && team.trim());
+        const validSlots = slots.length === FALLBACK_PREDICTION_SLOTS.length
+            && slots.every((slot, index) => (
+                slot?.stage === FALLBACK_PREDICTION_SLOTS[index].stage
+                && Number(slot?.points) === FALLBACK_PREDICTION_SLOTS[index].points
+            ));
+        if (!validTeams || !validSlots) {
+            throw new Error("Backend returned invalid game configuration");
+        }
+
+        TEAMS = [...data.teams];
+        PREDICTION_SLOTS = slots.map((slot, index) => ({
+            id: FALLBACK_PREDICTION_SLOTS[index].id,
+            stage: slot.stage,
+            points: Number(slot.points)
+        }));
+        if (!setRevealDeadline(data.revealDeadline)) {
+            throw new Error("Backend returned an invalid reveal deadline");
+        }
+    } catch (error) {
+        console.warn("Using fallback game configuration:", error);
+        await syncRevealDeadline();
+    }
+}
+
 function populateTeamSelects() {
     teamSelects.forEach(select => {
-        select.innerHTML = '<option value="">-- Select a team --</option>';
-        TEAMS.forEach(team => {
-            const option = document.createElement("option");
-            option.value = team;
-            option.textContent = team;
-            select.appendChild(option);
-        });
+        select.replaceChildren(new Option("-- Select a team --", ""));
+        TEAMS.forEach(team => select.appendChild(new Option(team, team)));
     });
 }
 
-// Add event listeners
 function addEventListeners() {
-    playerNameInput.addEventListener("input", validateForm);
-    playerUsernameInput.addEventListener("input", validateForm);
-    const playerEmailInput = document.getElementById("playerEmail");
-    if (playerEmailInput) {
-        playerEmailInput.addEventListener("input", validateForm);
-    }
-    teamSelects.forEach(select => {
-        select.addEventListener("change", validateForm);
+    [playerNameInput, playerUsernameInput, playerEmailInput].forEach(input => {
+        input.addEventListener("input", validateForm);
     });
+    teamSelects.forEach(select => select.addEventListener("change", validateForm));
     predictionForm.addEventListener("submit", handleSubmit);
+    modalClose.addEventListener("click", closePredictionsModal);
+    predictionsModal.addEventListener("click", event => {
+        if (event.target === predictionsModal) closePredictionsModal();
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closePredictionsModal();
+    });
 }
 
-// Validate form
+async function readJson(response) {
+    try {
+        return await response.json();
+    } catch {
+        return {};
+    }
+}
+
+function setRevealDeadline(value) {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return false;
+    revealDeadline = parsed;
+    updateDeadlineText();
+    return true;
+}
+
+async function syncRevealDeadline() {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/health`, {
+            headers: { Accept: "application/json" }
+        });
+        if (!response.ok) throw new Error(`Health request returned ${response.status}`);
+        const data = await readJson(response);
+        if (!setRevealDeadline(data.revealDeadline)) {
+            throw new Error("Backend returned an invalid reveal deadline");
+        }
+    } catch (error) {
+        console.warn("Using fallback reveal deadline:", error);
+        updateDeadlineText();
+    }
+}
+
+function updateDeadlineText() {
+    const deadlineText = document.getElementById("deadlineText");
+    const deadlineRuleText = document.getElementById("deadlineRuleText");
+    const formatted = new Intl.DateTimeFormat("en-IN", {
+        dateStyle: "long",
+        timeStyle: "short",
+        timeZone: "Asia/Kolkata"
+    }).format(revealDeadline);
+    deadlineText.textContent = `${formatted} IST`;
+    deadlineRuleText.textContent = `Check the leaderboard after ${formatted} IST to see rankings`;
+}
+
+function normalizeUsername(value) {
+    const username = value.trim().toLowerCase();
+    return username.startsWith("@") ? username.slice(1) : username;
+}
+
+function collectPredictions() {
+    return PREDICTION_SLOTS.map(slot => {
+        const select = document.getElementById(slot.id);
+        return {
+            team: select.value,
+            predictedStage: slot.stage,
+            pointsPossible: slot.points
+        };
+    });
+}
+
 function validateForm() {
     const name = playerNameInput.value.trim();
-    const username = playerUsernameInput.value.trim();
-    const email = document.getElementById("playerEmail")?.value.trim();
-    const selections = Array.from(teamSelects)
-        .map(s => s.value)
-        .filter(v => v);
+    const username = normalizeUsername(playerUsernameInput.value);
+    const email = playerEmailInput.value.trim();
+    const predictions = collectPredictions();
+    const selectedTeams = predictions.map(prediction => prediction.team).filter(Boolean);
 
-    // Clear previous errors
-    document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
-    globalError.style.display = "none";
+    document.querySelectorAll(".error-message").forEach(element => {
+        element.textContent = "";
+    });
+    hideGlobalError();
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const emailValid = email && emailRegex.test(email);
+    const nameValid = name.length >= 2 && name.length <= 100
+        && !/[\u0000-\u001F\u007F]/.test(name);
+    const usernameValid = /^[A-Za-z0-9_]{3,20}$/.test(username);
+    const emailValid = email.length <= 255 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const hasAllPredictions = selectedTeams.length === PREDICTION_SLOTS.length;
+    const hasUniqueTeams = new Set(selectedTeams).size === selectedTeams.length;
+    const usesCanonicalTeams = selectedTeams.every(team => TEAMS.includes(team));
+    const isBeforeDeadline = Date.now() < revealDeadline.getTime();
 
-    // Validate username (alphanumeric, @, underscore, 3-20 chars)
-    const usernameRegex = /^[@a-zA-Z0-9_]{3,20}$/;
-    const usernameValid = username && usernameRegex.test(username);
-
-    // Check if form is complete
-    const isComplete = name && username && usernameValid && emailValid && selections.length === 8;
-
-    if (isComplete) {
-        // Check for duplicates
-        const hasDuplicates = new Set(selections).size !== selections.length;
-        if (hasDuplicates) {
-            globalError.textContent = "You have already selected this team. Each team can only be used once.";
-            globalError.style.display = "block";
-            submitBtn.disabled = true;
-            return;
-        }
+    if (hasAllPredictions && !hasUniqueTeams) {
+        showGlobalError("Each team can only be selected once.");
     }
 
-    submitBtn.disabled = !isComplete;
+    submitBtn.disabled = !(
+        nameValid
+        && usernameValid
+        && emailValid
+        && hasAllPredictions
+        && hasUniqueTeams
+        && usesCanonicalTeams
+        && isBeforeDeadline
+    );
+
+    return !submitBtn.disabled;
 }
 
-// Email validation function
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+function showGlobalError(message) {
+    globalError.textContent = message;
+    globalError.style.display = "block";
 }
 
-// Handle form submission
-async function handleSubmit(e) {
-    e.preventDefault();
+function hideGlobalError() {
+    globalError.textContent = "";
+    globalError.style.display = "none";
+}
 
-    if (new Date() > REVEAL_DEADLINE) {
-        alert("Entries are now closed!");
+function setSubmitLoading(isLoading) {
+    submitBtn.replaceChildren();
+    const icon = document.createElement("i");
+    icon.className = isLoading ? "fas fa-spinner fa-spin" : "fas fa-paper-plane";
+    submitBtn.append(icon, document.createTextNode(
+        isLoading ? " Submitting..." : " Submit My Predictions"
+    ));
+    submitBtn.disabled = isLoading;
+}
+
+async function handleSubmit(event) {
+    event.preventDefault();
+    hideGlobalError();
+
+    if (Date.now() >= revealDeadline.getTime()) {
+        await checkDeadlineAndUpdate(true);
+        return;
+    }
+    if (!validateForm()) {
+        showGlobalError("Please complete every field and select eight unique teams.");
         return;
     }
 
     const name = playerNameInput.value.trim();
-    const username = playerUsernameInput.value.trim().toLowerCase(); // Normalize to lowercase
-    const email = document.getElementById("playerEmail")?.value.trim();
-    const predictions = [];
-
-    if (!name) {
-        globalError.textContent = "Name is required";
-        globalError.style.display = "block";
-        return;
-    }
-
-    if (!username) {
-        globalError.textContent = "Username is required";
-        globalError.style.display = "block";
-        return;
-    }
-
-    if (!email) {
-        globalError.textContent = "Email is required";
-        globalError.style.display = "block";
-        return;
-    }
-
-    if (!isValidEmail(email)) {
-        globalError.textContent = "Please enter a valid email address (e.g., user@example.com)";
-        globalError.style.display = "block";
-        return;
-    }
-
-    teamSelects.forEach(select => {
-        if (select.value) {
-            const stage = select.dataset.stage;
-            predictions.push({
-                team: select.value,
-                predictedStage: stage,
-                pointsPossible: STAGE_POINTS[stage],
-                isCorrect: false,
-                pointsAwarded: 0
-            });
-        }
-    });
-
-    // Disable submit button during submission
-    submitBtn.disabled = true;
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    const username = normalizeUsername(playerUsernameInput.value);
+    const email = playerEmailInput.value.trim().toLowerCase();
+    const predictions = collectPredictions();
+    setSubmitLoading(true);
 
     try {
-        // Send to backend
         const response = await fetch(`${BACKEND_URL}/api/predictions/submit`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json",
+                Accept: "application/json"
             },
             body: JSON.stringify({
                 playerName: name,
                 playerUsername: username,
                 playerEmail: email,
-                predictions: predictions
+                predictions
             })
         });
+        const data = await readJson(response);
 
-        const data = await response.json();
-
+        if (response.status === 403) {
+            if (data.revealDeadline) setRevealDeadline(data.revealDeadline);
+            showGlobalError(data.error || "Submissions are closed.");
+            await checkDeadlineAndUpdate(true);
+            return;
+        }
+        if (response.status === 429) {
+            showGlobalError(data.error || "Too many attempts. Please wait and try again.");
+            return;
+        }
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to submit predictions');
+            showGlobalError(data.error || "Failed to submit predictions.");
+            return;
         }
 
-        // Show success message
-        successMessage.style.display = "block";
-        document.getElementById("successName").textContent = `Thank you, ${name}!`;
-        predictionForm.style.display = "none";
-        globalError.style.display = "none";
-
-        // Remove any existing email message (prevent accumulation on rapid resubmits)
-        const existingEmailMsg = successMessage.querySelector('p');
-        if (existingEmailMsg) {
-            existingEmailMsg.remove();
-        }
-
-        // Add message about confirmation email
-        const emailMsg = document.createElement('p');
-        emailMsg.innerHTML = `<i class="fas fa-envelope"></i> A confirmation email has been sent to <strong>${email}</strong>`;
-        emailMsg.style.marginTop = '1rem';
-        emailMsg.style.color = 'var(--secondary-color)';
-        successMessage.appendChild(emailMsg);
-
-        // Hide success after 7 seconds
-        setTimeout(() => {
-            successMessage.style.display = "none";
-            predictionForm.style.display = "flex";
-            predictionForm.reset();
-            validateForm();
-            emailMsg.remove();
-        }, 7000);
-
+        const emailSent = response.status === 200 && data.emailSent === true;
+        showSubmissionOutcome({ name, email, emailSent });
     } catch (error) {
-        console.error('Submission error:', error);
-        globalError.textContent = error.message || 'Failed to submit predictions. Please try again.';
-        globalError.style.display = "block";
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        console.error("Submission error:", error);
+        showGlobalError("Could not reach the prediction service. Please try again.");
+    } finally {
+        setSubmitLoading(false);
     }
 }
 
-// Calculate points for a prediction
-function calculatePredictionPoints(predictedStage, actualStage) {
-    if (!actualStage) return 0;
+function showSubmissionOutcome({ name, email, emailSent }) {
+    predictionForm.style.display = "none";
+    successMessage.style.display = "block";
+    document.getElementById("successName").textContent = `Thank you, ${name}!`;
+    submissionStatus.replaceChildren();
 
-    const predictedRank = STAGE_RANK[predictedStage];
-    const actualRank = STAGE_RANK[actualStage];
+    const message = document.createElement("p");
+    message.className = emailSent ? "submission-confirmed" : "submission-warning";
+    message.textContent = emailSent
+        ? `Your entry is accepted. A confirmation email was sent to ${email}.`
+        : "Your entry is accepted and will appear on the leaderboard. "
+            + "The confirmation email could not be sent, so you can retry the receipt below.";
+    submissionStatus.appendChild(message);
 
-    if (actualRank >= predictedRank) {
-        return STAGE_POINTS[predictedStage];
+    if (emailSent) {
+        window.setTimeout(resetForAnotherEntry, 7000);
+        return;
     }
 
-    return 0;
+    const actions = document.createElement("div");
+    actions.className = "submission-actions";
+    const resendButton = createActionButton("Resend confirmation", async () => {
+        await resendConfirmation(email, resendButton, message);
+    });
+    const anotherEntryButton = createActionButton("Submit another entry", resetForAnotherEntry);
+    actions.append(resendButton, anotherEntryButton);
+    submissionStatus.appendChild(actions);
 }
 
-// Fetch actual tournament results from backend; populates ACTUAL_RESULTS
+function createActionButton(label, onClick) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "status-action-button";
+    button.textContent = label;
+    button.addEventListener("click", onClick);
+    return button;
+}
+
+async function resendConfirmation(email, button, message) {
+    button.disabled = true;
+    button.textContent = "Sending...";
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/email/resend-confirmation`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({ playerEmail: email })
+        });
+        const data = await readJson(response);
+        if (response.status === 429) {
+            message.textContent = data.error || "Too many resend attempts. Please wait.";
+            return;
+        }
+        if (!response.ok) {
+            message.textContent = data.error || "Unable to resend right now. Please try again.";
+            return;
+        }
+        message.className = "submission-confirmed";
+        message.textContent = data.message
+            || "If a submission exists for that email, a confirmation email will be sent.";
+        button.remove();
+    } catch (error) {
+        console.error("Resend error:", error);
+        message.textContent = "Could not reach the email service. Please try again.";
+    } finally {
+        if (button.isConnected) {
+            button.disabled = false;
+            button.textContent = "Resend confirmation";
+        }
+    }
+}
+
+function resetForAnotherEntry() {
+    successMessage.style.display = "none";
+    submissionStatus.replaceChildren();
+    predictionForm.reset();
+    if (Date.now() >= revealDeadline.getTime()) {
+        checkDeadlineAndUpdate(true);
+        return;
+    }
+    predictionForm.style.display = "flex";
+    validateForm();
+}
+
 async function fetchActualResults() {
     try {
-        const res = await fetch(`${BACKEND_URL}/api/predictions/results`);
-        if (!res.ok) return;
-        const rows = await res.json();
-        ACTUAL_RESULTS = {};
-        rows.forEach(r => { ACTUAL_RESULTS[r.team_name] = r.actual_stage; });
-    } catch (err) {
-        console.error('Failed to fetch actual results:', err);
+        const response = await fetch(`${BACKEND_URL}/api/predictions/results`);
+        if (!response.ok) return;
+        const rows = await readJson(response);
+        actualResults = Object.fromEntries(
+            (Array.isArray(rows) ? rows : []).map(row => [row.team_name, row.actual_stage])
+        );
+    } catch (error) {
+        console.error("Failed to fetch actual results:", error);
     }
 }
 
-// Fetch leaderboard from backend (returns { entries, metadata })
 async function fetchLeaderboard() {
     try {
-        const res = await fetch(`${BACKEND_URL}/api/predictions/leaderboard`);
-        if (!res.ok) return { entries: [], metadata: {} };
-
-        const data = await res.json();
-
-        // Handle both old format (array) and new format (object with entries)
-        if (Array.isArray(data)) {
-            return { entries: data, metadata: { hasR32Results: true } };
+        const response = await fetch(`${BACKEND_URL}/api/predictions/leaderboard`);
+        const data = await readJson(response);
+        if (response.status === 403 && data.revealDeadline) {
+            setRevealDeadline(data.revealDeadline);
+            await checkDeadlineAndUpdate(true);
+            return { entries: [], metadata: {} };
         }
-
-        return data;
-    } catch (err) {
-        console.error('Failed to fetch leaderboard:', err);
+        if (!response.ok) return { entries: [], metadata: {} };
+        return {
+            entries: Array.isArray(data.entries) ? data.entries : [],
+            metadata: data.metadata && typeof data.metadata === "object" ? data.metadata : {}
+        };
+    } catch (error) {
+        console.error("Failed to fetch leaderboard:", error);
         return { entries: [], metadata: {} };
     }
 }
 
-// Update countdown timer
 function updateCountdown() {
-    const now = new Date();
-    const diff = REVEAL_DEADLINE - now;
-
-    if (diff <= 0) {
-        document.getElementById("days").textContent = "0";
-        document.getElementById("hours").textContent = "0";
-        document.getElementById("minutes").textContent = "0";
-        document.getElementById("seconds").textContent = "0";
+    const difference = revealDeadline.getTime() - Date.now();
+    if (difference <= 0) {
+        ["days", "hours", "minutes", "seconds"].forEach(id => {
+            document.getElementById(id).textContent = "0";
+        });
         checkDeadlineAndUpdate();
         return;
     }
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
+    const days = Math.floor(difference / 86400000);
+    const hours = Math.floor((difference % 86400000) / 3600000);
+    const minutes = Math.floor((difference % 3600000) / 60000);
+    const seconds = Math.floor((difference % 60000) / 1000);
     document.getElementById("days").textContent = String(days).padStart(2, "0");
     document.getElementById("hours").textContent = String(hours).padStart(2, "0");
     document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
     document.getElementById("seconds").textContent = String(seconds).padStart(2, "0");
 }
 
-// Check deadline and update UI
-async function checkDeadlineAndUpdate() {
-    const now = new Date();
-    const isAfterDeadline = now > REVEAL_DEADLINE;
+async function checkDeadlineAndUpdate(force = false) {
+    const isClosed = Date.now() >= revealDeadline.getTime();
+    const nextState = isClosed ? "leaderboard" : "form";
+    if (!force && deadlineState === nextState) return;
+    deadlineState = nextState;
 
-    if (isAfterDeadline || TEST_MODE) {
-        // After deadline (or test mode): hide countdown, show leaderboard at top, hide form
+    if (nextState === "leaderboard") {
         countdownSection.style.display = "none";
         leaderboardSection.style.display = "block";
         formSection.style.display = "block";
         predictionForm.style.display = "none";
+        successMessage.style.display = "none";
         closedMessage.style.display = "block";
-
-        // Fetch latest results + leaderboard from backend
-        await fetchActualResults();
-        const leaderboardData = await fetchLeaderboard();
-        const entries = leaderboardData.entries || leaderboardData;
-        const metadata = leaderboardData.metadata || {};
-        renderLeaderboard(entries, metadata);
-
-        // Start real-time leaderboard updates (refresh every 5 seconds to catch admin updates)
+        await refreshLeaderboard();
         if (!leaderboardRefreshInterval) {
-            leaderboardRefreshInterval = setInterval(async () => {
-                await fetchActualResults();
-                const updatedData = await fetchLeaderboard();
-                const updatedEntries = updatedData.entries || updatedData;
-                const updatedMetadata = updatedData.metadata || {};
-                renderLeaderboard(updatedEntries, updatedMetadata);
-            }, 5000); // Refresh every 5 seconds
+            leaderboardRefreshInterval = window.setInterval(refreshLeaderboard, 5000);
         }
-    } else {
-        // Before deadline: show countdown, hide leaderboard, show form
-        countdownSection.style.display = "flex";
-        leaderboardSection.style.display = "none";
-        closedMessage.style.display = "none";
-        formSection.style.display = "block";
-        predictionForm.style.display = "flex";
-
-        // Stop leaderboard refresh if it's running
-        if (leaderboardRefreshInterval) {
-            clearInterval(leaderboardRefreshInterval);
-            leaderboardRefreshInterval = null;
-        }
-    }
-}
-
-// Render leaderboard from backend entries (API format: player_username, total_score, etc.)
-function renderLeaderboard(entries, metadata) {
-    const container = document.getElementById("leaderboardContainer");
-
-    if (!entries || entries.length === 0) {
-        container.innerHTML = "<p style='text-align: center;'>No predictions yet</p>";
-        leaderboardSection.style.display = "block";
         return;
     }
 
-    // Store metadata for future reference
-    currentLeaderboardMetadata = metadata || {};
-
-    // Normalize each entry: map API field names + build predictions array
-    entries.forEach(entry => {
-        entry.username = entry.player_username || entry.username || 'user';
-        entry.name = entry.player_name || entry.name || 'Player';
-        entry.predictions = [];
-        if (entry.r32_1) entry.predictions.push({ team: entry.r32_1, predictedStage: "Round of 32" });
-        if (entry.r32_2) entry.predictions.push({ team: entry.r32_2, predictedStage: "Round of 32" });
-        if (entry.r16_1) entry.predictions.push({ team: entry.r16_1, predictedStage: "Round of 16" });
-        if (entry.r16_2) entry.predictions.push({ team: entry.r16_2, predictedStage: "Round of 16" });
-        if (entry.qf) entry.predictions.push({ team: entry.qf, predictedStage: "Quarter-final" });
-        if (entry.sf) entry.predictions.push({ team: entry.sf, predictedStage: "Semi-final" });
-        if (entry.final_team) entry.predictions.push({ team: entry.final_team, predictedStage: "Final" });
-        if (entry.winner) entry.predictions.push({ team: entry.winner, predictedStage: "Winner" });
-        // Recompute from current ACTUAL_RESULTS so the UI reflects fresh admin updates
-        entry.totalScore = entry.predictions.reduce(
-            (sum, p) => sum + calculatePredictionPoints(p.predictedStage, ACTUAL_RESULTS[p.team]),
-            0
-        );
-    });
-
-    // Get R32 status from metadata returned by backend
-    // Backend determines this based on actual_results table
-    const hasR32Results = metadata && metadata.hasR32Results !== undefined ? metadata.hasR32Results : false;
-
-    if (hasR32Results) {
-        // After R32: Sort by score DESC only (no tiebreaker logic)
-        entries.sort((a, b) => {
-            return b.totalScore - a.totalScore;
-        });
-    } else {
-        // Before R32: Sort alphabetically by username (lexicographic)
-        entries.sort((a, b) => {
-            return a.username.localeCompare(b.username);
-        });
+    countdownSection.style.display = "flex";
+    leaderboardSection.style.display = "none";
+    closedMessage.style.display = "none";
+    formSection.style.display = "block";
+    predictionForm.style.display = "flex";
+    if (leaderboardRefreshInterval) {
+        window.clearInterval(leaderboardRefreshInterval);
+        leaderboardRefreshInterval = null;
     }
-
-    container.innerHTML = entries.map((entry, index) => {
-        const rank = index + 1;
-        let rankClass = "";
-        let rankEmoji = "🏅";
-
-        if (rank === 1) {
-            rankClass = "rank-1";
-            rankEmoji = "🥇";
-        } else if (rank === 2) {
-            rankClass = "rank-2";
-            rankEmoji = "🥈";
-        } else if (rank === 3) {
-            rankClass = "rank-3";
-            rankEmoji = "🥉";
-        }
-
-        // Handle both property names
-        const username = entry.username || entry.player_username || 'user';
-        const totalScore = entry.totalScore || entry.total_score || 0;
-
-        return `
-            <div class="leaderboard-card ${rankClass}" data-entry-index="${index}">
-                <div class="rank-badge">${rankEmoji}</div>
-                <div class="rank-badge number">#${rank}</div>
-                <div class="leaderboard-username">@${username}</div>
-                <div class="leaderboard-score">${totalScore}</div>
-                <div class="leaderboard-click">Click to view predictions</div>
-            </div>
-        `;
-    }).join("");
-
-    // Attach click listeners to leaderboard cards (safer than inline onclick)
-    document.querySelectorAll(".leaderboard-card").forEach((card, index) => {
-        card.addEventListener("click", () => {
-            showPredictionsModal(entries[index]);
-        });
-        card.style.cursor = "pointer";
-    });
-
-    leaderboardSection.style.display = "block";
+    validateForm();
 }
 
-// Modal Functions
+async function refreshLeaderboard() {
+    const [, leaderboard] = await Promise.all([
+        fetchActualResults(),
+        fetchLeaderboard()
+    ]);
+    renderLeaderboard(leaderboard.entries, leaderboard.metadata);
+}
+
+function normalizeLeaderboardEntry(entry) {
+    return {
+        ...entry,
+        name: entry.player_name || "Player",
+        username: entry.player_username || "user",
+        totalScore: Number(entry.total_score) || 0
+    };
+}
+
+function renderLeaderboard(entries, metadata) {
+    const container = document.getElementById("leaderboardContainer");
+    container.replaceChildren();
+
+    const sortStatus = document.createElement("p");
+    sortStatus.className = "leaderboard-sort-status";
+    sortStatus.textContent = metadata.sortBy === "score"
+        ? "Ranked by score. Equal scores are ordered by submission time."
+        : "Listed alphabetically until tournament results are recorded.";
+    container.appendChild(sortStatus);
+
+    if (!Array.isArray(entries) || entries.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "leaderboard-empty";
+        empty.textContent = "No predictions yet.";
+        container.appendChild(empty);
+        return;
+    }
+
+    entries.map(normalizeLeaderboardEntry).forEach((entry, index) => {
+        const rank = index + 1;
+        const card = document.createElement("article");
+        card.className = `leaderboard-card${rank <= 3 ? ` rank-${rank}` : ""}`;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `View predictions for ${entry.username}`);
+
+        const badge = document.createElement("div");
+        badge.className = "rank-badge";
+        badge.textContent = rank === 1 ? "1st" : rank === 2 ? "2nd" : rank === 3 ? "3rd" : `#${rank}`;
+        const username = document.createElement("div");
+        username.className = "leaderboard-username";
+        username.textContent = `@${entry.username}`;
+        const score = document.createElement("div");
+        score.className = "leaderboard-score";
+        score.textContent = String(entry.totalScore);
+        const instruction = document.createElement("div");
+        instruction.className = "leaderboard-click";
+        instruction.textContent = "Click to view predictions";
+
+        card.append(badge, username, score, instruction);
+        const openModal = () => showPredictionsModal(entry);
+        card.addEventListener("click", openModal);
+        card.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openModal();
+            }
+        });
+        container.appendChild(card);
+    });
+}
+
+function predictionRows(entry) {
+    return [
+        { stage: "Round of 32", teams: [entry.r32_1, entry.r32_2].filter(Boolean), points: 1 },
+        { stage: "Round of 16", teams: [entry.r16_1, entry.r16_2].filter(Boolean), points: 3 },
+        { stage: "Quarter-final", teams: [entry.qf].filter(Boolean), points: 6 },
+        { stage: "Semi-final", teams: [entry.sf].filter(Boolean), points: 10 },
+        { stage: "Final", teams: [entry.final_team].filter(Boolean), points: 15 },
+        { stage: "Winner", teams: [entry.winner].filter(Boolean), points: 22 }
+    ];
+}
+
 function showPredictionsModal(entry) {
-    const modal = document.getElementById("predictionsModal");
     const modalTitle = document.getElementById("modalTitle");
     const modalBody = document.getElementById("modalBody");
+    modalTitle.textContent = `${entry.name} (@${entry.username}) - ${entry.totalScore} pts`;
+    modalBody.replaceChildren();
 
-    const playerName = entry.name || entry.player_name || 'Player';
-    const username = entry.username || entry.player_username || 'user';
-    const totalScore = entry.totalScore || entry.total_score || 0;
+    const display = document.createElement("div");
+    display.className = "predictions-display";
+    predictionRows(entry).forEach(prediction => {
+        if (prediction.teams.length === 0) return;
+        const row = document.createElement("div");
+        row.className = "prediction-row";
 
-    modalTitle.textContent = `${playerName} (@${username}) - ${totalScore} pts`;
-
-    // Use global constants (defined at top of file)
-    const actualResults = ACTUAL_RESULTS || {};
-
-    // Build predictions display
-    const predictions = [
-        { stage: "Round of 32", teams: [entry.r32_1, entry.r32_2].filter(t => t), points: 1 },
-        { stage: "Round of 16", teams: [entry.r16_1, entry.r16_2].filter(t => t), points: 3 },
-        { stage: "Quarter-final", teams: [entry.qf].filter(t => t), points: 6 },
-        { stage: "Semi-final", teams: [entry.sf].filter(t => t), points: 10 },
-        { stage: "Final", teams: [entry.final_team].filter(t => t), points: 15 },
-        { stage: "Winner", teams: [entry.winner].filter(t => t), points: 22 }
-    ];
-
-    let html = '<div class="predictions-display">';
-    predictions.forEach(pred => {
-        if (pred.teams.length > 0) {
-            const teamsWithStatus = pred.teams.map(team => {
-                const actualStage = actualResults[team];
-                let icon = "❓"; // Default: stage not yet reached
-                let status = "not-started";
-
-                if (actualStage) {
-                    const predictedRank = STAGE_RANK[pred.stage] || 0;
-                    const actualRank = STAGE_RANK[actualStage] || 0;
-
-                    if (actualRank >= predictedRank) {
-                        // Team reached at least predicted stage = CORRECT
-                        icon = "✓";
-                        status = "correct";
-                    } else {
-                        // Team exited before predicted stage = WRONG
-                        icon = "✗";
-                        status = "wrong";
-                    }
-                }
-
-                return `<span class="team-with-status ${status}">${team} <span class="status-icon">${icon}</span></span>`;
-            }).join(", ");
-
-            html += `
-                <div class="prediction-row">
-                    <span class="prediction-stage">${pred.stage}</span>
-                    <span class="prediction-teams">${teamsWithStatus}</span>
-                    <span class="prediction-points">${pred.points} pts</span>
-                </div>
-            `;
-        }
+        const stage = document.createElement("span");
+        stage.className = "prediction-stage";
+        stage.textContent = prediction.stage;
+        const teams = document.createElement("span");
+        teams.className = "prediction-teams";
+        prediction.teams.forEach(team => {
+            teams.appendChild(createTeamStatus(team, prediction.stage));
+        });
+        const points = document.createElement("span");
+        points.className = "prediction-points";
+        points.textContent = `${prediction.points} pts`;
+        row.append(stage, teams, points);
+        display.appendChild(row);
     });
-    html += '</div>';
 
-    modalBody.innerHTML = html;
-    modal.style.display = "flex";
+    modalBody.appendChild(display);
+    predictionsModal.style.display = "flex";
+}
+
+function createTeamStatus(team, predictedStage) {
+    const actualStage = actualResults[team];
+    const wrapper = document.createElement("span");
+    let status = "not-started";
+    let icon = "?";
+    if (actualStage) {
+        status = STAGE_RANK[actualStage] >= STAGE_RANK[predictedStage]
+            ? "correct"
+            : "wrong";
+        icon = status === "correct" ? "✓" : "✗";
+    }
+    wrapper.className = `team-with-status ${status}`;
+    wrapper.append(document.createTextNode(`${team} `));
+    const statusIcon = document.createElement("span");
+    statusIcon.className = "status-icon";
+    statusIcon.textContent = icon;
+    wrapper.appendChild(statusIcon);
+    return wrapper;
 }
 
 function closePredictionsModal() {
-    const modal = document.getElementById("predictionsModal");
-    modal.style.display = "none";
+    predictionsModal.style.display = "none";
 }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById("predictionsModal");
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-};
-
-// Initialize on page load
 document.addEventListener("DOMContentLoaded", init);

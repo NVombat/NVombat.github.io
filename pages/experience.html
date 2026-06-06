@@ -293,20 +293,5 @@
     </footer>
 
     <script src="../js/script.js"></script>
-    <script>
-        // Mobile Navigation Toggle
-        document.querySelector('.mobile-nav-toggle').addEventListener('click', function() {
-            document.querySelector('.nav-links').classList.toggle('active');
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const nav = document.querySelector('nav');
-            const navLinks = document.querySelector('.nav-links');
-            if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
-                navLinks.classList.remove('active');
-            }
-        });
-    </script>
 </body>
 </html>

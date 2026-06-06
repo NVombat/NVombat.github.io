@@ -140,8 +140,8 @@
                         <ul class="rules-list">
                             <li>The leaderboard will display all users ranked by points (highest points first)</li>
                             <li>The user with the <strong>most points wins</strong></li>
-                            <li><strong>Tie-breaking:</strong> If multiple players have the same score, we are exploring the fairest approach and will announce the tie-breaking method shortly</li>
-                            <li>Check the leaderboard after June 12, 2026 to see final rankings</li>
+                            <li><strong>Tie-breaking:</strong> Equal scores are ordered by earliest submission time</li>
+                            <li id="deadlineRuleText">Check the leaderboard after the submission deadline to see rankings</li>
                         </ul>
                     </div>
                 </div>
@@ -157,20 +157,20 @@
                 <h2><i class="fas fa-edit"></i> Submit Your Predictions</h2>
                 <div id="closedMessage" class="closed-message" style="display: none;">
                     <i class="fas fa-lock"></i>
-                    <p>Entries are now closed. Predictions are locked.</p>
+                    <p id="closedMessageText">Entries are now closed. Predictions are locked.</p>
                 </div>
                 <form id="predictionForm" class="prediction-form">
                     <div class="form-group">
                         <label for="playerName">Your Name</label>
-                        <input type="text" id="playerName" placeholder="Enter your full name" required>
+                        <input type="text" id="playerName" placeholder="Enter your full name" minlength="2" maxlength="100" required>
                     </div>
                     <div class="form-group">
                         <label for="playerUsername">Your Username</label>
-                        <input type="text" id="playerUsername" placeholder="Choose a unique username" required>
+                        <input type="text" id="playerUsername" placeholder="3-20 letters, numbers, or underscores" minlength="3" maxlength="21" required>
                     </div>
                     <div class="form-group">
                         <label for="playerEmail">Your Email</label>
-                        <input type="email" id="playerEmail" placeholder="your.email@example.com" required>
+                        <input type="email" id="playerEmail" placeholder="your.email@example.com" maxlength="255" required>
                     </div>
 
                     <div class="predictions-grid">
@@ -245,18 +245,18 @@
                         </fieldset>
                     </div>
 
-                    <div id="globalError" class="global-error" style="display: none;"></div>
+                    <div id="globalError" class="global-error" role="alert" aria-live="assertive" style="display: none;"></div>
 
                     <button type="submit" id="submitBtn" class="submit-button" disabled>
                         <i class="fas fa-paper-plane"></i> Submit My Predictions
                     </button>
                 </form>
 
-                <div id="successMessage" class="success-message" style="display: none;">
+                <div id="successMessage" class="success-message" role="status" aria-live="polite" style="display: none;">
                     <i class="fas fa-check-circle"></i>
                     <h3>Predictions Submitted!</h3>
                     <p id="successName"></p>
-                    <p>Your predictions have been recorded. Check back after the World Cup starts to see the leaderboard.</p>
+                    <div id="submissionStatus" aria-live="polite"></div>
                 </div>
             </section>
         </div>
@@ -267,7 +267,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle"></h2>
-                <button class="modal-close" onclick="closePredictionsModal()">&times;</button>
+                <button class="modal-close" id="modalClose" type="button" aria-label="Close predictions">&times;</button>
             </div>
             <div class="modal-body" id="modalBody"></div>
         </div>
@@ -283,6 +283,7 @@
         </div>
     </footer>
 
+    <script src="../js/script.js"></script>
     <script src="../js/predworldcup.js"></script>
 </body>
 </html>

@@ -30,9 +30,9 @@
 2. Selects 8 teams across 6 tournament stages
 3. Form validates: unique teams, valid email, username 3-20 chars
 4. Frontend submits to `/api/predictions/submit`
-5. Backend checks for duplicate email/username
-6. Email confirmation sent with ₹500 fee mention
-7. Success message shows (auto-hides after 7 seconds)
+5. Backend validates the canonical eight-slot payload and checks duplicate email/username
+6. Frontend handles `200`, `202`, `403`, and `429` separately
+7. A `202` entry still counts and shows a resend option for the email receipt
 
 ### Leaderboard & Real-Time Updates
 1. **Before Deadline** (June 12, 2026 12:30 AM IST):
@@ -40,7 +40,7 @@
    - Submission form active
    - No leaderboard shown
 
-2. **After Deadline** (or with `?testmode=true`):
+2. **After Deadline**:
    - Countdown hidden
    - Leaderboard appears at top
    - Real-time polling: Every 5 seconds
@@ -48,7 +48,7 @@
 
 3. **Stage-Dependent Sorting**:
    - **Before R32 Results**: Alphabetical by username
-   - **After R32 Results**: By total_score DESC (no tiebreakers)
+   - **After R32 Results**: By total_score DESC, then earliest submission
    - Backend detects R32 via actual_results table
    - Frontend respects backend metadata
 
@@ -92,9 +92,11 @@ Verify:
 - Submit button enables when complete
 ```
 
-### Test 3: After Deadline (Simulate with ?testmode=true)
+### Test 3: After Deadline
 ```
-URL: https://nvombat.github.io/pages/predworldcup.html?testmode=true
+For local testing, set the backend `REVEAL_DEADLINE` to a past ISO-8601
+timestamp, restart the backend, and open:
+http://localhost:8000/pages/predworldcup.html
 
 Expected:
 - Countdown section hidden
@@ -125,7 +127,7 @@ Setup: Admin adds R32 results, backend recalculates scores
 Expected:
 - Users sorted by score DESC
 - Highest scorers at top
-- No tie-breaking applied
+- Equal scores are ordered by earliest submission
 
 Verify:
 - Backend returns metadata.hasR32Results: true
@@ -192,16 +194,39 @@ Close Modal:
 Setup: Submit a new prediction
 
 Expected:
+- `200` response includes `emailSent: true`
 - Confirmation email sent within 30 seconds
 - Email contains:
   - Player name
   - Predicted teams
   - Points possible
-  - ₹500 entry fee mention
+  - Configured entry fee
   - Confirmation code
 ```
 
-### Test 10: Admin Panel
+### Test 10: Email Delivery Failure and Resend
+```
+Setup: Make SMTP delivery fail for a new submission
+
+Expected:
+- Submission returns 202 with emailSent: false
+- UI explains that the entry was accepted
+- UI explains that the entry still appears on the leaderboard
+- "Resend confirmation" button is visible
+- A successful resend shows the backend's generic success message
+- Unknown and registered emails receive the same generic resend response
+```
+
+### Test 11: Deadline and Rate-Limit Responses
+```
+Expected:
+- Frontend loads revealDeadline from GET /api/health
+- A submit 403 updates the local deadline and closes the form
+- A submit/resend 429 displays the backend rate-limit message
+- The static June 12 deadline is used only when the health request is unavailable
+```
+
+### Test 12: Admin Panel
 ```
 URL: https://worldcup-prediction-backend-production.up.railway.app/admin
 
@@ -221,14 +246,14 @@ Actions:
 ## Code Quality Verification
 
 ✅ **Frontend**: No console errors (diagnostics clean)
-✅ **Sorting Logic**: No tie-breaking (matches rules)
+✅ **Sorting Logic**: Backend ordering is authoritative
 ✅ **Metadata Flow**: Backend → Frontend properly synced
 ✅ **Real-time Polling**: 5-second interval controlled
-✅ **Form Validation**: Comprehensive validation logic
+✅ **Form Validation**: Canonical eight-slot order and unique-team validation
 ✅ **Security**: XSS protection, input sanitization
 ✅ **Responsive Design**: Works on mobile and desktop
 ✅ **Modal**: Event-based (no inline onclick)
-✅ **Constants**: STAGE_POINTS, STAGE_RANK properly defined
+✅ **Game config**: Teams, stages, points, and deadline load from the backend
 ✅ **Database**: Unique constraints on email and username
 
 ---
@@ -244,7 +269,7 @@ Actions:
 - [x] Admin token authentication working
 - [x] Real-time leaderboard updates implemented
 - [x] Stage-dependent sorting implemented
-- [x] No tie-breaking logic (transparent fairness)
+- [x] Backend score ordering and submission-time tie ordering displayed accurately
 - [x] Rules card accurately describes game
 - [x] No stale code or commented-out logic
 - [x] Frontend-backend communication verified

@@ -378,6 +378,11 @@ nav {
     text-shadow: 0 0 5px var(--secondary-color);
 }
 
+.disabled-link {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
 .cyber-link i {
     margin-right: 0.5rem;
 }
@@ -1459,6 +1464,15 @@ footer {
 /* Enhanced hover state for better interactivity */
 .experience-card:hover {
     background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0, 255, 0, 0.05) 100%);
+}
+
+.experience-card.expanded {
+    transform: scale(1.02);
+    box-shadow: 0 16px 40px rgba(0, 255, 0, 0.25) !important;
+}
+
+.experience-card.in-view {
+    animation: none;
 }
 
 .experience-icon {
