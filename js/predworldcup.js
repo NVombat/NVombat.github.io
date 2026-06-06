@@ -402,7 +402,7 @@ async function checkDeadlineAndUpdate() {
         }
     } else {
         // Before deadline: show countdown, hide leaderboard, show form
-        countdownSection.style.display = "block";
+        countdownSection.style.display = "flex";
         leaderboardSection.style.display = "none";
         closedMessage.style.display = "none";
         formSection.style.display = "block";
