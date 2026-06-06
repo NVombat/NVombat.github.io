@@ -306,6 +306,7 @@ body.no-matrix .matrix-bg {
 }
 
 .form-group label {
+    position: static;
     color: var(--secondary-color);
     font-weight: 600;
     font-size: 0.85rem;
@@ -315,7 +316,23 @@ body.no-matrix .matrix-bg {
     display: block;
     margin: 0;
     padding: 0;
+    top: auto;
+    left: auto;
+    opacity: 1;
+    background: transparent;
     order: 1;
+}
+
+/* Neutralize global floating-label behavior on this page */
+.form-group input:focus + label,
+.form-group input:not(:placeholder-shown) + label {
+    position: static;
+    top: auto;
+    left: auto;
+    font-size: 0.85rem;
+    background: transparent;
+    padding: 0;
+    color: var(--secondary-color);
 }
 
 /* Hide labels for team selections (in fieldsets) */
