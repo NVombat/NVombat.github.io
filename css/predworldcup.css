@@ -737,6 +737,47 @@ body.no-matrix .matrix-bg {
     font-size: 0.95rem;
 }
 
+.stage-results-section {
+    margin-top: 3rem;
+}
+
+.stage-results-section h2 {
+    margin-bottom: 1.5rem;
+}
+
+.stage-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.stage-result {
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    padding: 1rem;
+    background: rgba(0, 255, 0, 0.04);
+}
+
+.stage-result h3 {
+    color: var(--secondary-color);
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.stage-result-teams {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.stage-result-team {
+    border: 1px solid rgba(0, 255, 0, 0.55);
+    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
+    color: var(--text-color);
+    font-size: 0.8rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .predworldcup-hero h1 {

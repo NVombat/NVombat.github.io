@@ -84,7 +84,7 @@ const BACKEND_URL = isLocalFrontend
         || "https://worldcup-prediction-backend-production.up.railway.app";
 
 let revealDeadline = new Date(DEFAULT_REVEAL_DEADLINE);
-let TEAMS = [...FALLBACK_TEAMS];
+let TEAMS = [...FALLBACK_TEAMS].sort((a, b) => a.localeCompare(b));
 let PREDICTION_SLOTS = FALLBACK_PREDICTION_SLOTS.map(slot => ({ ...slot }));
 let actualResults = {};
 let leaderboardRefreshInterval = null;
@@ -102,6 +102,7 @@ const submissionStatus = document.getElementById("submissionStatus");
 const globalError = document.getElementById("globalError");
 const formSection = document.getElementById("formSection");
 const leaderboardSection = document.getElementById("leaderboardSection");
+const stageResultsContainer = document.getElementById("stageResultsContainer");
 const countdownSection = document.getElementById("countdownSection");
 const predictionsModal = document.getElementById("predictionsModal");
 const modalClose = document.getElementById("modalClose");
@@ -136,7 +137,7 @@ async function syncGameConfig() {
             throw new Error("Backend returned invalid game configuration");
         }
 
-        TEAMS = [...data.teams];
+        TEAMS = [...data.teams].sort((a, b) => a.localeCompare(b));
         PREDICTION_SLOTS = slots.map((slot, index) => ({
             id: FALLBACK_PREDICTION_SLOTS[index].id,
             stage: slot.stage,
@@ -477,6 +478,18 @@ async function fetchLeaderboard() {
     }
 }
 
+async function fetchStageHistory() {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/predictions/result-stages`);
+        const data = await readJson(response);
+        if (!response.ok) return [];
+        return Array.isArray(data.stages) ? data.stages : [];
+    } catch (error) {
+        console.error("Failed to fetch stage results:", error);
+        return [];
+    }
+}
+
 function updateCountdown() {
     const difference = revealDeadline.getTime() - Date.now();
     if (difference <= 0) {
@@ -530,11 +543,36 @@ async function checkDeadlineAndUpdate(force = false) {
 }
 
 async function refreshLeaderboard() {
-    const [, leaderboard] = await Promise.all([
+    const [, leaderboard, stages] = await Promise.all([
         fetchActualResults(),
-        fetchLeaderboard()
+        fetchLeaderboard(),
+        fetchStageHistory()
     ]);
     renderLeaderboard(leaderboard.entries, leaderboard.metadata);
+    renderStageHistory(stages);
+}
+
+function renderStageHistory(stages) {
+    stageResultsContainer.replaceChildren();
+    (Array.isArray(stages) ? stages : []).forEach(({ label, teams }) => {
+        const section = document.createElement("section");
+        section.className = "stage-result";
+
+        const heading = document.createElement("h3");
+        heading.textContent = `${label} (${teams.length})`;
+        const list = document.createElement("div");
+        list.className = "stage-result-teams";
+
+        teams.forEach(team => {
+            const item = document.createElement("span");
+            item.className = "stage-result-team";
+            item.textContent = team;
+            list.appendChild(item);
+        });
+
+        section.append(heading, list);
+        stageResultsContainer.appendChild(section);
+    });
 }
 
 function normalizeLeaderboardEntry(entry) {
