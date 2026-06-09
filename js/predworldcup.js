@@ -75,7 +75,9 @@ const STAGE_RANK = {
 };
 
 const backendMeta = document.querySelector('meta[name="backend-url"]');
-const isLocalFrontend = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const isLocalFrontend = ["localhost", "127.0.0.1", "0.0.0.0"].includes(
+    window.location.hostname
+);
 const BACKEND_URL = isLocalFrontend
     ? `http://${window.location.hostname}:5001`
     : backendMeta?.content?.replace(/\/$/, "")
@@ -339,8 +341,11 @@ async function handleSubmit(event) {
             return;
         }
 
-        const emailSent = response.status === 200 && data.emailSent === true;
-        showSubmissionOutcome({ name, email, emailSent });
+        const emailEnabled = data.emailEnabled !== false;
+        const emailSent = emailEnabled
+            && response.status === 200
+            && data.emailSent === true;
+        showSubmissionOutcome({ name, email, emailEnabled, emailSent });
     } catch (error) {
         console.error("Submission error:", error);
         showGlobalError("Could not reach the prediction service. Please try again.");
@@ -349,21 +354,25 @@ async function handleSubmit(event) {
     }
 }
 
-function showSubmissionOutcome({ name, email, emailSent }) {
+function showSubmissionOutcome({ name, email, emailEnabled, emailSent }) {
     predictionForm.style.display = "none";
     successMessage.style.display = "block";
     document.getElementById("successName").textContent = `Thank you, ${name}!`;
     submissionStatus.replaceChildren();
 
     const message = document.createElement("p");
-    message.className = emailSent ? "submission-confirmed" : "submission-warning";
-    message.textContent = emailSent
-        ? `Your entry is accepted. A confirmation email was sent to ${email}.`
-        : "Your entry is accepted and will appear on the leaderboard. "
-            + "The confirmation email could not be sent, so you can retry the receipt below.";
+    message.className = emailSent || !emailEnabled
+        ? "submission-confirmed"
+        : "submission-warning";
+    message.textContent = !emailEnabled
+        ? "Your entry is accepted. Email confirmations are currently disabled."
+        : emailSent
+            ? `Your entry is accepted. A confirmation email was sent to ${email}.`
+            : "Your entry is accepted and will appear on the leaderboard. "
+                + "The confirmation email could not be sent, so you can retry the receipt below.";
     submissionStatus.appendChild(message);
 
-    if (emailSent) {
+    if (!emailEnabled || emailSent) {
         window.setTimeout(resetForAnotherEntry, 7000);
         return;
     }
