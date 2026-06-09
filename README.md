@@ -50,3 +50,25 @@ A professional portfolio website showcasing my academic research, projects, and 
 - Vanilla JavaScript (DOM manipulation, localStorage, event handling)
 - Font Awesome Icons
 - Formspree (contact form backend)
+
+## World Cup Prediction Game
+
+The prediction page is at `pages/predworldcup.html`.
+
+- Production uses the Railway backend URL from the page's `backend-url` meta tag.
+- When served from `localhost`, `127.0.0.1`, or `0.0.0.0`, it automatically
+  uses the local backend on port `5001`.
+- The Admin footer link follows the same environment selection.
+
+Local startup:
+
+```bash
+# Backend repository
+npm run dev
+
+# This frontend repository
+python3 -m http.server 8000
+```
+
+Open `http://localhost:8000/pages/predworldcup.html`. The local admin panel is
+`http://localhost:5001/admin`.

@@ -228,17 +228,20 @@ Expected:
 
 ### Test 12: Admin Panel
 ```
-URL: https://worldcup-prediction-backend-production.up.railway.app/admin
+Production URL: https://worldcup-prediction-backend-production.up.railway.app/admin
+Local URL: http://localhost:5001/admin
 
 Setup: Login with admin token from env vars
 
 Actions:
 1. View all predictions
-2. View current results
-3. Update results (e.g., France → Final)
-4. Verify scores recalculate
-5. Verify leaderboard reflects change (5s)
-6. View admin logs
+2. Complete Round of 32 with exactly 32 teams
+3. Confirm later stages unlock sequentially and only eligible teams appear
+4. Correct a completed stage and verify its full selection is replaced
+5. Verify scores recalculate and the leaderboard reflects changes within 5s
+6. Verify tournament progress appears below the leaderboard
+7. Reset results and verify scores return to zero without deleting submissions
+8. View admin logs
 ```
 
 ---
@@ -277,6 +280,7 @@ Actions:
 
 ---
 
-## Status: READY FOR PRODUCTION
+## Release Status
 
-All tests pass. System is production-ready. Deploy with confidence.\n
+Run the current backend automated tests and the local/production checks in
+`worldcup-prediction-backend/docs/TEST.md` before each deployment.

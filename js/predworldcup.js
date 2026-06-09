@@ -82,6 +82,8 @@ const BACKEND_URL = isLocalFrontend
     ? `http://${window.location.hostname}:5001`
     : backendMeta?.content?.replace(/\/$/, "")
         || "https://worldcup-prediction-backend-production.up.railway.app";
+const adminLink = document.getElementById("adminLink");
+if (adminLink) adminLink.href = `${BACKEND_URL}/admin`;
 
 let revealDeadline = new Date(DEFAULT_REVEAL_DEADLINE);
 let TEAMS = [...FALLBACK_TEAMS].sort((a, b) => a.localeCompare(b));
