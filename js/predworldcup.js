@@ -74,6 +74,15 @@ const STAGE_RANK = {
     "Winner": 6
 };
 
+const FALLBACK_STAGE_TEAM_COUNTS = {
+    "Round of 32": 32,
+    "Round of 16": 16,
+    "Quarter-final": 8,
+    "Semi-final": 4,
+    "Final": 2,
+    "Winner": 1
+};
+
 const backendMeta = document.querySelector('meta[name="backend-url"]');
 const isLocalFrontend = ["localhost", "127.0.0.1", "0.0.0.0"].includes(
     window.location.hostname
@@ -88,6 +97,7 @@ if (adminLink) adminLink.href = `${BACKEND_URL}/admin`;
 let revealDeadline = new Date(DEFAULT_REVEAL_DEADLINE);
 let TEAMS = [...FALLBACK_TEAMS].sort((a, b) => a.localeCompare(b));
 let PREDICTION_SLOTS = FALLBACK_PREDICTION_SLOTS.map(slot => ({ ...slot }));
+let STAGE_TEAM_COUNTS = { ...FALLBACK_STAGE_TEAM_COUNTS };
 let actualResults = {};
 let leaderboardRefreshInterval = null;
 let deadlineState = null;
@@ -135,7 +145,12 @@ async function syncGameConfig() {
                 slot?.stage === FALLBACK_PREDICTION_SLOTS[index].stage
                 && Number(slot?.points) === FALLBACK_PREDICTION_SLOTS[index].points
             ));
-        if (!validTeams || !validSlots) {
+        const stageTeamCounts = data.stageTeamCounts;
+        const validStageTeamCounts = stageTeamCounts
+            && Object.entries(FALLBACK_STAGE_TEAM_COUNTS).every(
+                ([stage, count]) => Number(stageTeamCounts[stage]) === count
+            );
+        if (!validTeams || !validSlots || !validStageTeamCounts) {
             throw new Error("Backend returned invalid game configuration");
         }
 
@@ -145,6 +160,9 @@ async function syncGameConfig() {
             stage: slot.stage,
             points: Number(slot.points)
         }));
+        STAGE_TEAM_COUNTS = Object.fromEntries(
+            Object.entries(stageTeamCounts).map(([stage, count]) => [stage, Number(count)])
+        );
         if (!setRevealDeadline(data.revealDeadline)) {
             throw new Error("Backend returned an invalid reveal deadline");
         }
@@ -626,7 +644,24 @@ function renderLeaderboard(entries, metadata) {
         instruction.className = "leaderboard-click";
         instruction.textContent = "Click to view predictions";
 
-        card.append(badge, username, score, instruction);
+        const picks = document.createElement("div");
+        picks.className = "leaderboard-picks";
+        predictionRows(entry).forEach(prediction => {
+            const row = document.createElement("div");
+            row.className = "leaderboard-pick-row";
+            const stage = document.createElement("span");
+            stage.className = "leaderboard-pick-stage";
+            stage.textContent = prediction.stage;
+            const teams = document.createElement("span");
+            teams.className = "leaderboard-pick-teams";
+            prediction.teams.forEach(team => {
+                teams.appendChild(createTeamStatus(team, prediction.stage));
+            });
+            row.append(stage, teams);
+            picks.appendChild(row);
+        });
+
+        card.append(badge, username, score, picks, instruction);
         const openModal = () => showPredictionsModal(entry);
         card.addEventListener("click", openModal);
         card.addEventListener("keydown", event => {
@@ -687,19 +722,33 @@ function createTeamStatus(team, predictedStage) {
     const wrapper = document.createElement("span");
     let status = "not-started";
     let icon = "?";
-    if (actualStage) {
-        status = STAGE_RANK[actualStage] >= STAGE_RANK[predictedStage]
-            ? "correct"
-            : "wrong";
-        icon = status === "correct" ? "✓" : "✗";
+    let statusLabel = "Pending";
+    if (actualStage && STAGE_RANK[actualStage] >= STAGE_RANK[predictedStage]) {
+        status = "correct";
+        icon = "✓";
+        statusLabel = "Correct";
+    } else if (isStageComplete(predictedStage)) {
+        status = "wrong";
+        icon = "✗";
+        statusLabel = "Wrong";
     }
     wrapper.className = `team-with-status ${status}`;
+    wrapper.title = `${team}: ${statusLabel}`;
     wrapper.append(document.createTextNode(`${team} `));
     const statusIcon = document.createElement("span");
     statusIcon.className = "status-icon";
     statusIcon.textContent = icon;
     wrapper.appendChild(statusIcon);
     return wrapper;
+}
+
+function isStageComplete(stage) {
+    const expectedCount = STAGE_TEAM_COUNTS[stage];
+    const stageRank = STAGE_RANK[stage];
+    if (!expectedCount || stageRank === undefined) return false;
+    return Object.values(actualResults).filter(
+        actualStage => STAGE_RANK[actualStage] >= stageRank
+    ).length >= expectedCount;
 }
 
 function closePredictionsModal() {

@@ -735,6 +735,44 @@ body.no-matrix .matrix-bg {
     margin: 1rem 0;
 }
 
+.leaderboard-picks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 1rem;
+    text-align: left;
+}
+
+.leaderboard-pick-row {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.8fr) minmax(0, 1.4fr);
+    gap: 0.6rem;
+    align-items: start;
+    padding-top: 0.55rem;
+    border-top: 1px solid rgba(0, 255, 0, 0.18);
+}
+
+.leaderboard-pick-stage {
+    color: var(--secondary-color);
+    font-size: 0.78rem;
+    font-weight: bold;
+}
+
+.leaderboard-pick-teams {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.leaderboard-picks .team-with-status {
+    max-width: 100%;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.75rem;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
 .leaderboard-correct {
     color: var(--text-color);
     opacity: 0.8;
@@ -846,6 +884,16 @@ body.no-matrix .matrix-bg {
 
     .leaderboard-card.rank-1 {
         transform: scale(1);
+    }
+
+    .leaderboard-card {
+        min-width: 0;
+        padding: 1.25rem 1rem;
+    }
+
+    .leaderboard-pick-row {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
     }
 
     .form-section {
