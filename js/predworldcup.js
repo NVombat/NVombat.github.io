@@ -611,7 +611,7 @@ function renderLeaderboard(entries, metadata) {
     const sortStatus = document.createElement("p");
     sortStatus.className = "leaderboard-sort-status";
     sortStatus.textContent = metadata.sortBy === "score"
-        ? "Ranked by score. Equal scores are ordered by submission time."
+        ? "Ranked by score. Equal scores are ordered by username."
         : "Listed alphabetically until tournament results are recorded.";
     container.appendChild(sortStatus);
 
