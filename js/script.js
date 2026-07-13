@@ -469,3 +469,69 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add smooth scroll behavior to the entire page
     document.documentElement.style.scrollBehavior = 'smooth';
 });
+
+// Research card detail modal
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('researchModal');
+    const cards = document.querySelectorAll('.research-card');
+    if (!modal || cards.length === 0) return;
+
+    const modalTitle = document.getElementById('researchModalTitle');
+    const modalDate = document.getElementById('researchModalDate');
+    const modalDescription = document.getElementById('researchModalDescription');
+    const modalMeta = document.getElementById('researchModalMeta');
+    const modalLinks = document.getElementById('researchModalLinks');
+    let lastFocusedElement = null;
+
+    const cloneContent = (selector, source, fallbackTag = 'span') => {
+        const element = source.querySelector(selector);
+        return element ? element.cloneNode(true) : document.createElement(fallbackTag);
+    };
+
+    const openModal = card => {
+        lastFocusedElement = document.activeElement;
+        modalTitle.textContent = card.querySelector('h3')?.textContent.trim() || '';
+        modalDate.replaceChildren(...cloneContent('.research-date', card, 'p').childNodes);
+        modalDescription.textContent = card.querySelector('.research-description')?.textContent.trim() || '';
+        modalMeta.replaceChildren(...Array.from(card.querySelectorAll('.research-meta > *')).map(item => item.cloneNode(true)));
+        modalLinks.replaceChildren(...Array.from(card.querySelectorAll('.research-links > *')).map(item => item.cloneNode(true)));
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        modal.querySelector('.research-modal-close')?.focus();
+    };
+
+    const closeModal = () => {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (lastFocusedElement && document.contains(lastFocusedElement)) {
+            lastFocusedElement.focus();
+        }
+    };
+
+    cards.forEach(card => {
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `View details for ${card.querySelector('h3')?.textContent.trim() || 'research paper'}`);
+        card.addEventListener('click', event => {
+            if (event.target.closest('a, button')) return;
+            openModal(card);
+        });
+        card.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            openModal(card);
+        });
+    });
+
+    modal.querySelectorAll('[data-research-modal-close]').forEach(element => {
+        element.addEventListener('click', closeModal);
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && modal.classList.contains('open')) {
+            closeModal();
+        }
+    });
+});

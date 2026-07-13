@@ -528,6 +528,12 @@ h2 {
     display: flex;
     flex-direction: column;
     height: 100%;
+    cursor: pointer;
+}
+
+.research-card:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 4px;
 }
 
 /* Animated border effect on hover */
@@ -558,6 +564,7 @@ h2 {
     align-items: flex-start;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
+    min-height: 100px;
 }
 
 .research-icon {
@@ -582,6 +589,10 @@ h2 {
     flex: 1;
     min-width: 0;
     overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .research-card:hover h3 {
@@ -640,6 +651,114 @@ h2 {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+.research-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.research-modal.open {
+    display: flex;
+}
+
+.research-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(4px);
+}
+
+.research-modal-content {
+    position: relative;
+    width: min(720px, 100%);
+    max-height: min(82vh, 720px);
+    overflow-y: auto;
+    background: rgba(0, 15, 20, 0.98);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(0, 255, 0, 0.28);
+}
+
+.research-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.45);
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+.research-modal-close:hover,
+.research-modal-close:focus-visible {
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.research-modal-content h2 {
+    color: var(--secondary-color);
+    font-size: 1.45rem;
+    line-height: 1.35;
+    margin: 0 3rem 1rem 0;
+    overflow-wrap: break-word;
+}
+
+.research-modal-date {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.research-modal-description {
+    color: var(--text-color);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.research-modal-meta,
+.research-modal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.research-modal-meta {
+    margin-bottom: 1.5rem;
+}
+
+.research-modal-meta .research-venue,
+.research-modal-meta .research-status {
+    margin: 0;
+}
+
+.light-theme .research-modal-content {
+    background: var(--card-bg);
+}
+
+@media (max-width: 768px) {
+    .research-modal {
+        padding: 1rem;
+    }
+
+    .research-modal-content {
+        padding: 1.5rem;
+        max-height: 86vh;
+    }
+
+    .research-modal-content h2 {
+        font-size: 1.2rem;
+        margin-right: 2.75rem;
+    }
 }
 
 /* Projects Section */
