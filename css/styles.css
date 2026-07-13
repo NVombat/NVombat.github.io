@@ -558,7 +558,6 @@ h2 {
     align-items: flex-start;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
-    min-height: 100px;
 }
 
 .research-icon {
@@ -580,10 +579,9 @@ h2 {
     font-size: 1.2rem;
     line-height: 1.4;
     transition: color 0.3s ease;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
 }
 
 .research-card:hover h3 {
