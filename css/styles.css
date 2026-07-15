@@ -443,8 +443,7 @@ h2 {
     50% { border-color: var(--primary-color) }
 }
 
-/* Terminal Window */
-.terminal-window, .research-terminal, .projects-terminal {
+.research-terminal, .projects-terminal {
     background: var(--terminal-bg);
     border: var(--card-border);
     border-radius: 5px;
@@ -615,6 +614,7 @@ h2 {
     line-height: 1.7;
     font-size: 0.95rem;
     flex-grow: 1;
+    display: none;
 }
 
 .research-meta {
@@ -653,7 +653,7 @@ h2 {
     flex-wrap: wrap;
 }
 
-.research-modal {
+.detail-modal {
     position: fixed;
     inset: 0;
     z-index: 2000;
@@ -663,18 +663,18 @@ h2 {
     padding: 1.5rem;
 }
 
-.research-modal.open {
+.detail-modal.open {
     display: flex;
 }
 
-.research-modal-backdrop {
+.detail-modal-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.78);
     backdrop-filter: blur(4px);
 }
 
-.research-modal-content {
+.detail-modal-content {
     position: relative;
     width: min(720px, 100%);
     max-height: min(82vh, 720px);
@@ -686,7 +686,7 @@ h2 {
     box-shadow: 0 20px 60px rgba(0, 255, 0, 0.28);
 }
 
-.research-modal-close {
+.detail-modal-close {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -699,13 +699,13 @@ h2 {
     cursor: pointer;
 }
 
-.research-modal-close:hover,
-.research-modal-close:focus-visible {
+.detail-modal-close:hover,
+.detail-modal-close:focus-visible {
     color: var(--secondary-color);
     border-color: var(--secondary-color);
 }
 
-.research-modal-content h2 {
+.detail-modal-content h2 {
     color: var(--secondary-color);
     font-size: 1.45rem;
     line-height: 1.35;
@@ -719,20 +719,24 @@ h2 {
     font-weight: 600;
 }
 
-.research-modal-description {
+.research-modal-description,
+.project-modal-description {
     color: var(--text-color);
     line-height: 1.7;
     margin-bottom: 1.5rem;
 }
 
 .research-modal-meta,
-.research-modal-links {
+.research-modal-links,
+.project-modal-tech,
+.project-modal-links {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
 }
 
-.research-modal-meta {
+.research-modal-meta,
+.project-modal-tech {
     margin-bottom: 1.5rem;
 }
 
@@ -741,21 +745,21 @@ h2 {
     margin: 0;
 }
 
-.light-theme .research-modal-content {
+.light-theme .detail-modal-content {
     background: var(--card-bg);
 }
 
 @media (max-width: 768px) {
-    .research-modal {
+    .detail-modal {
         padding: 1rem;
     }
 
-    .research-modal-content {
+    .detail-modal-content {
         padding: 1.5rem;
         max-height: 86vh;
     }
 
-    .research-modal-content h2 {
+    .detail-modal-content h2 {
         font-size: 1.2rem;
         margin-right: 2.75rem;
     }
@@ -800,6 +804,12 @@ h2 {
     display: flex;
     flex-direction: column;
     height: 100%;
+    cursor: pointer;
+}
+
+.project-card:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 4px;
 }
 
 .project-card::before {
@@ -839,16 +849,11 @@ h2 {
     overflow: hidden;
 }
 
-.project-date {
-    color: var(--accent-color);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-}
-
 .project-card p {
     margin-bottom: 1.5rem;
     line-height: 1.6;
     flex-grow: 1;
+    display: none;
 }
 
 .project-tech {
@@ -885,6 +890,10 @@ h2 {
 .project-links {
     display: flex;
     gap: 1rem;
+}
+
+.project-modal-description p {
+    margin-bottom: 1rem;
 }
 
 /* Hackathons Section */
@@ -1340,6 +1349,11 @@ footer {
     line-height: 1.9;
     font-size: 1.05rem;
     color: var(--text-color);
+    text-align: justify;
+    text-align-last: left;
+    text-justify: inter-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 /* Education Section */
@@ -2351,8 +2365,7 @@ body {
 }
 
 .light-theme .experience-card .company,
-.light-theme .research-date,
-.light-theme .project-date {
+.light-theme .research-date {
     color: var(--accent-color);
 }
 
@@ -2430,7 +2443,6 @@ body {
 }
 
 /* Light theme terminal */
-.light-theme .terminal-window,
 .light-theme .research-terminal,
 .light-theme .projects-terminal {
     background: var(--terminal-bg);
@@ -2616,11 +2628,6 @@ body {
     
     .cyber-text {
         font-size: 1rem;
-        margin: 1.5rem 0;
-    }
-    
-    /* Terminal window mobile adjustments */
-    .terminal-window {
         margin: 1.5rem 0;
     }
     

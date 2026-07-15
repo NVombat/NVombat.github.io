@@ -208,19 +208,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // Initialize terminal effect
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize system terminal on home page
-    const systemTerminal = document.querySelector('.terminal-window .terminal-content');
-    if (systemTerminal) {
-        const terminalTexts = systemTerminal.querySelectorAll('.typing-text');
-        terminalTexts.forEach((text, index) => {
-            const originalText = text.textContent;
-            text.textContent = ''; // Clear the text before starting animation
-            setTimeout(() => {
-                new TypingEffect(text, originalText, 50);
-            }, index * 1000); // Stagger the start of each line
-        });
-    }
-
     // Initialize research terminal
     const researchTerminal = document.querySelector('.research-terminal .terminal-content');
     if (researchTerminal) {
@@ -320,16 +307,6 @@ document.querySelectorAll('.glitch').forEach(element => {
         setTimeout(() => {
             element.style.animation = 'glitch 1s infinite';
         }, 10);
-    });
-});
-
-// Terminal text animation
-document.addEventListener('DOMContentLoaded', function() {
-    const typingTexts = document.querySelectorAll('.typing-text');
-
-    typingTexts.forEach(text => {
-        const delay = text.getAttribute('data-delay');
-        text.style.setProperty('--delay', delay);
     });
 });
 
@@ -470,35 +447,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.style.scrollBehavior = 'smooth';
 });
 
-// Research card detail modal
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('researchModal');
-    const cards = document.querySelectorAll('.research-card');
+function initCardDetailModal({
+    modalId,
+    cardSelector,
+    closeSelector,
+    fallbackLabel,
+    renderContent
+}) {
+    const modal = document.getElementById(modalId);
+    const cards = document.querySelectorAll(cardSelector);
     if (!modal || cards.length === 0) return;
 
-    const modalTitle = document.getElementById('researchModalTitle');
-    const modalDate = document.getElementById('researchModalDate');
-    const modalDescription = document.getElementById('researchModalDescription');
-    const modalMeta = document.getElementById('researchModalMeta');
-    const modalLinks = document.getElementById('researchModalLinks');
+    const modalTitle = modal.querySelector('h2');
+    const closeButton = modal.querySelector('.detail-modal-close');
     let lastFocusedElement = null;
-
-    const cloneContent = (selector, source, fallbackTag = 'span') => {
-        const element = source.querySelector(selector);
-        return element ? element.cloneNode(true) : document.createElement(fallbackTag);
-    };
 
     const openModal = card => {
         lastFocusedElement = document.activeElement;
         modalTitle.textContent = card.querySelector('h3')?.textContent.trim() || '';
-        modalDate.replaceChildren(...cloneContent('.research-date', card, 'p').childNodes);
-        modalDescription.textContent = card.querySelector('.research-description')?.textContent.trim() || '';
-        modalMeta.replaceChildren(...Array.from(card.querySelectorAll('.research-meta > *')).map(item => item.cloneNode(true)));
-        modalLinks.replaceChildren(...Array.from(card.querySelectorAll('.research-links > *')).map(item => item.cloneNode(true)));
+        renderContent(card, modal);
         modal.classList.add('open');
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
-        modal.querySelector('.research-modal-close')?.focus();
+        closeButton?.focus();
     };
 
     const closeModal = () => {
@@ -511,9 +482,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     cards.forEach(card => {
+        const title = card.querySelector('h3')?.textContent.trim() || fallbackLabel;
         card.tabIndex = 0;
         card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', `View details for ${card.querySelector('h3')?.textContent.trim() || 'research paper'}`);
+        card.setAttribute('aria-label', `View details for ${title}`);
         card.addEventListener('click', event => {
             if (event.target.closest('a, button')) return;
             openModal(card);
@@ -525,13 +497,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    modal.querySelectorAll('[data-research-modal-close]').forEach(element => {
+    modal.querySelectorAll(closeSelector).forEach(element => {
         element.addEventListener('click', closeModal);
     });
 
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && modal.classList.contains('open')) {
             closeModal();
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initCardDetailModal({
+        modalId: 'researchModal',
+        cardSelector: '.research-card',
+        closeSelector: '[data-research-modal-close]',
+        fallbackLabel: 'research paper',
+        renderContent: (card, modal) => {
+            const date = card.querySelector('.research-date')?.cloneNode(true);
+            const description = card.querySelector('.research-description')?.textContent.trim() || '';
+            modal.querySelector('#researchModalDate').replaceChildren(...(date ? date.childNodes : []));
+            modal.querySelector('#researchModalDescription').textContent = description;
+            modal.querySelector('#researchModalMeta').replaceChildren(
+                ...Array.from(card.querySelectorAll('.research-meta > *')).map(item => item.cloneNode(true))
+            );
+            modal.querySelector('#researchModalLinks').replaceChildren(
+                ...Array.from(card.querySelectorAll('.research-links > *')).map(item => item.cloneNode(true))
+            );
+        }
+    });
+
+    initCardDetailModal({
+        modalId: 'projectModal',
+        cardSelector: '.project-card',
+        closeSelector: '[data-project-modal-close]',
+        fallbackLabel: 'project',
+        renderContent: (card, modal) => {
+            modal.querySelector('#projectModalDescription').replaceChildren(
+                ...Array.from(card.querySelectorAll(':scope > p')).map(item => item.cloneNode(true))
+            );
+            modal.querySelector('#projectModalTech').replaceChildren(
+                ...Array.from(card.querySelectorAll('.project-tech > *')).map(item => item.cloneNode(true))
+            );
+            modal.querySelector('#projectModalLinks').replaceChildren(
+                ...Array.from(card.querySelectorAll('.project-links > *')).map(item => item.cloneNode(true))
+            );
         }
     });
 });
