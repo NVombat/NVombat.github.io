@@ -2,7 +2,8 @@
 
 ## System Overview
 
-**Frontend**: https://nvombat.github.io/pages/predworldcup.html
+**Frontend hub**: https://nvombat.github.io/pages/steak.html
+**WCPrediction page**: https://nvombat.github.io/pages/predworldcup.html
 **Backend**: https://worldcup-prediction-backend-production.up.railway.app
 **Admin Panel**: https://worldcup-prediction-backend-production.up.railway.app/admin
 
@@ -11,9 +12,9 @@
 ## Architecture
 
 ### Frontend (GitHub Pages)
-- **HTML**: pages/predworldcup.html (289 lines)
-- **CSS**: css/predworldcup.css (908 lines)
-- **JS**: js/predworldcup.js (591 lines)
+- **HTML**: pages/predworldcup.html
+- **CSS**: css/predworldcup.css
+- **JS**: js/predworldcup.js
 
 ### Backend (Railway)
 - **routes/predictions.js** (206 lines): Submit, leaderboard, results endpoints
@@ -48,7 +49,7 @@
 
 3. **Stage-Dependent Sorting**:
    - **Before R32 Results**: Alphabetical by username
-   - **After R32 Results**: By total_score DESC, then earliest submission
+   - **After R32 Results**: By total_score DESC, then username A-Z
    - Backend detects R32 via actual_results table
    - Frontend respects backend metadata
 
@@ -68,7 +69,8 @@
 
 ### Test 1: Form Validation
 ```
-URL: https://nvombat.github.io/pages/predworldcup.html
+Hub URL: https://nvombat.github.io/pages/steak.html
+WCPrediction URL: https://nvombat.github.io/pages/predworldcup.html
 
 ✓ Name field required
 ✓ Username required (3-20 chars, alphanumeric + @_)
@@ -127,7 +129,7 @@ Setup: Admin adds R32 results, backend recalculates scores
 Expected:
 - Users sorted by score DESC
 - Highest scorers at top
-- Equal scores are ordered by earliest submission
+- Equal scores are ordered alphabetically by username
 
 Verify:
 - Backend returns metadata.hasR32Results: true

@@ -25,6 +25,7 @@ A professional portfolio website showcasing my academic research, projects, and 
 - **Experience** - Professional experience timeline, teaching roles, committee service, and leadership initiatives
 - **Research** - Academic research publications with areas of research in terminal section
 - **Projects** - Featured projects with tech tags and GitHub repository links
+- **$TEAK** - Prediction hub with WCPrediction and PLPrediction entry points
 
 ## Design & Layout
 
@@ -51,9 +52,15 @@ A professional portfolio website showcasing my academic research, projects, and 
 - Font Awesome Icons
 - Formspree (contact form backend)
 
-## World Cup Prediction Game
+## $TEAK Prediction Hub
 
-The prediction page is at `pages/predworldcup.html`.
+The prediction hub is at `pages/steak.html` and is displayed in the site nav as
+`$TEAK`. From there, users choose between WCPrediction and PLPrediction.
+
+- WCPrediction lives at `pages/predworldcup.html` and currently shows the
+  WC2026 archive/results plus the WC2030 stay-tuned note.
+- PLPrediction lives at `pages/plprediction.html` and is ready for the
+  PL2026-2027 game rules and future PL archives.
 
 - Production uses the Railway backend URL from the page's `backend-url` meta tag.
 - When served from `localhost`, `127.0.0.1`, or `0.0.0.0`, it automatically
@@ -70,5 +77,7 @@ npm run dev
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/pages/predworldcup.html`. The local admin panel is
+Open `http://localhost:8000/pages/steak.html`. The local WCPrediction page is
+`http://localhost:8000/pages/predworldcup.html`, PLPrediction is
+`http://localhost:8000/pages/plprediction.html`, and the local admin panel is
 `http://localhost:5001/admin`.

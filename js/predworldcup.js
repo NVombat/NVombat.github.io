@@ -574,12 +574,26 @@ async function refreshLeaderboard() {
 
 function renderStageHistory(stages) {
     stageResultsContainer.replaceChildren();
+    if (!Array.isArray(stages) || stages.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "stage-result-empty";
+        empty.textContent = "Tournament progress has not been recorded yet.";
+        stageResultsContainer.appendChild(empty);
+        return;
+    }
     (Array.isArray(stages) ? stages : []).forEach(({ label, teams }) => {
         const section = document.createElement("section");
         section.className = "stage-result";
 
+        const header = document.createElement("div");
+        header.className = "stage-result-header";
         const heading = document.createElement("h3");
-        heading.textContent = `${label} (${teams.length})`;
+        heading.textContent = label;
+        const count = document.createElement("span");
+        count.className = "stage-result-count";
+        count.textContent = `${teams.length}`;
+        header.append(heading, count);
+
         const list = document.createElement("div");
         list.className = "stage-result-teams";
 
@@ -590,7 +604,7 @@ function renderStageHistory(stages) {
             list.appendChild(item);
         });
 
-        section.append(heading, list);
+        section.append(header, list);
         stageResultsContainer.appendChild(section);
     });
 }
@@ -623,7 +637,12 @@ function renderLeaderboard(entries, metadata) {
         return;
     }
 
-    entries.map(normalizeLeaderboardEntry).forEach((entry, index) => {
+    const normalizedEntries = entries.map(normalizeLeaderboardEntry);
+    if (metadata.sortBy === "score" && normalizedEntries.length > 0) {
+        container.appendChild(createWinnerSpotlight(normalizedEntries[0]));
+    }
+
+    normalizedEntries.forEach((entry, index) => {
         const rank = index + 1;
         const card = document.createElement("article");
         card.className = `leaderboard-card${rank <= 3 ? ` rank-${rank}` : ""}`;
@@ -633,7 +652,7 @@ function renderLeaderboard(entries, metadata) {
 
         const badge = document.createElement("div");
         badge.className = "rank-badge";
-        badge.textContent = rank === 1 ? "1st" : rank === 2 ? "2nd" : rank === 3 ? "3rd" : `#${rank}`;
+        badge.textContent = rank === 1 ? "Winner" : rank === 2 ? "2nd" : rank === 3 ? "3rd" : `#${rank}`;
         const username = document.createElement("div");
         username.className = "leaderboard-username";
         username.textContent = `@${entry.username}`;
@@ -672,6 +691,28 @@ function renderLeaderboard(entries, metadata) {
         });
         container.appendChild(card);
     });
+}
+
+function createWinnerSpotlight(entry) {
+    const spotlight = document.createElement("section");
+    spotlight.className = "winner-spotlight";
+
+    const icon = document.createElement("div");
+    icon.className = "winner-spotlight-icon";
+    icon.innerHTML = '<i class="fas fa-crown"></i>';
+
+    const content = document.createElement("div");
+    const kicker = document.createElement("p");
+    kicker.className = "archive-kicker";
+    kicker.textContent = "2026 Champion";
+    const title = document.createElement("h3");
+    title.textContent = `@${entry.username}`;
+    const score = document.createElement("p");
+    score.textContent = `${entry.totalScore} points`;
+    content.append(kicker, title, score);
+
+    spotlight.append(icon, content);
+    return spotlight;
 }
 
 function predictionRows(entry) {
