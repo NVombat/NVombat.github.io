@@ -51,6 +51,50 @@ function appendPlArchiveText(parent, tag, text, className = "") {
     return element;
 }
 
+function appendPlArchiveRuleCard(container, card) {
+    const article = document.createElement("article");
+    article.className = "archive-rule-card";
+
+    if (card.icon) {
+        const icon = document.createElement("div");
+        icon.className = "archive-rule-icon";
+        icon.innerHTML = `<i class="fas fa-${card.icon}"></i>`;
+        article.appendChild(icon);
+    }
+
+    appendPlArchiveText(article, "h3", card.title);
+
+    if (card.body) {
+        appendPlArchiveText(article, "p", card.body);
+    }
+
+    if (Array.isArray(card.scoring) && card.scoring.length > 0) {
+        const scoringList = document.createElement("div");
+        scoringList.className = "scoring-grid";
+        card.scoring.forEach(({ stage, points }) => {
+            const row = document.createElement("div");
+            row.className = "score-row";
+            appendPlArchiveText(row, "span", stage, "score-stage");
+            appendPlArchiveText(row, "span", `${points} ${Number(points) === 1 ? "pt" : "pts"}`, "score-points");
+            scoringList.appendChild(row);
+        });
+        article.appendChild(scoringList);
+    }
+
+    if (Array.isArray(card.bullets) && card.bullets.length > 0) {
+        const list = document.createElement("ul");
+        list.className = "rules-list";
+        card.bullets.forEach(rule => {
+            const item = document.createElement("li");
+            item.textContent = rule;
+            list.appendChild(item);
+        });
+        article.appendChild(list);
+    }
+
+    container.appendChild(article);
+}
+
 function renderPlArchiveRules(rules) {
     const container = document.getElementById("plArchiveRulesContainer");
     if (!container) return;
@@ -58,6 +102,11 @@ function renderPlArchiveRules(rules) {
 
     if (!rules) {
         appendPlArchiveText(container, "p", "Rules are not available for this archive yet.", "disabled-link");
+        return;
+    }
+
+    if (Array.isArray(rules.cards) && rules.cards.length > 0) {
+        rules.cards.forEach(card => appendPlArchiveRuleCard(container, card));
         return;
     }
 

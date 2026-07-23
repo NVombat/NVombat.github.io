@@ -694,6 +694,50 @@ function appendArchiveRuleText(parent, tag, text, className = "") {
     return element;
 }
 
+function appendArchiveRuleCard(container, card) {
+    const article = document.createElement("article");
+    article.className = "archive-rule-card";
+
+    if (card.icon) {
+        const icon = document.createElement("div");
+        icon.className = "archive-rule-icon";
+        icon.innerHTML = `<i class="fas fa-${card.icon}"></i>`;
+        article.appendChild(icon);
+    }
+
+    appendArchiveRuleText(article, "h3", card.title);
+
+    if (card.body) {
+        appendArchiveRuleText(article, "p", card.body);
+    }
+
+    if (Array.isArray(card.scoring) && card.scoring.length > 0) {
+        const scoringList = document.createElement("div");
+        scoringList.className = "scoring-grid";
+        card.scoring.forEach(({ stage, points }) => {
+            const row = document.createElement("div");
+            row.className = "score-row";
+            appendArchiveRuleText(row, "span", stage, "score-stage");
+            appendArchiveRuleText(row, "span", `${points} ${Number(points) === 1 ? "pt" : "pts"}`, "score-points");
+            scoringList.appendChild(row);
+        });
+        article.appendChild(scoringList);
+    }
+
+    if (Array.isArray(card.bullets) && card.bullets.length > 0) {
+        const list = document.createElement("ul");
+        list.className = "rules-list";
+        card.bullets.forEach(rule => {
+            const item = document.createElement("li");
+            item.textContent = rule;
+            list.appendChild(item);
+        });
+        article.appendChild(list);
+    }
+
+    container.appendChild(article);
+}
+
 function renderArchiveRules(rules) {
     if (!archiveRulesContainer) return;
     archiveRulesContainer.replaceChildren();
@@ -703,6 +747,11 @@ function renderArchiveRules(rules) {
         empty.className = "stage-result-empty";
         empty.textContent = "Rules are not available for this archive yet.";
         archiveRulesContainer.appendChild(empty);
+        return;
+    }
+
+    if (Array.isArray(rules.cards) && rules.cards.length > 0) {
+        rules.cards.forEach(card => appendArchiveRuleCard(archiveRulesContainer, card));
         return;
     }
 

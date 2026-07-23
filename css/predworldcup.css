@@ -1,11 +1,5 @@
 /* World Cup Prediction Game Styles */
 
-/* Disable matrix rain and theme toggles on this page */
-body.no-matrix #matrixRain,
-body.no-matrix .matrix-bg {
-    display: none !important;
-}
-
 .predworldcup-container {
     width: 100%;
     max-width: 1200px;

@@ -13,7 +13,9 @@
     <link rel="stylesheet" href="../css/predworldcup.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="no-matrix">
+<body>
+    <canvas id="matrixRain"></canvas>
+    <div class="matrix-bg"></div>
     <header>
         <nav>
             <a href="../index.html" class="logo-link">
@@ -29,6 +31,14 @@
                 <li><a href="projects.html">Projects</a></li>
                 <li><a href="steak.html" class="active">$TEAK</a></li>
             </ul>
+            <div class="theme-toggles">
+                <button id="themeToggle" class="toggle-button" aria-label="Toggle light/dark theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button id="rainToggle" class="toggle-button" aria-label="Toggle matrix rain">
+                    <i class="fas fa-cloud-rain"></i>
+                </button>
+            </div>
         </nav>
     </header>
 
