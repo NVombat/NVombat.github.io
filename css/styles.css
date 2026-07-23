@@ -997,7 +997,7 @@ h2 {
 
 .archive-rules-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
 }
 
@@ -1039,6 +1039,12 @@ h2 {
 .archive-rule-card .score-stage,
 .archive-rule-card .score-points {
     color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+    .archive-rules-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Hackathons Section */
