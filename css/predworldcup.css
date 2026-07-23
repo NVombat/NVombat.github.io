@@ -670,8 +670,6 @@ body.no-matrix .matrix-bg {
 }
 
 .archive-action-button {
-    background: transparent;
-    border: 0;
     cursor: pointer;
     font: inherit;
 }

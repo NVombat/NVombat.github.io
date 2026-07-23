@@ -126,6 +126,8 @@ const worldCupArchiveList = document.getElementById("worldCupArchiveList");
 const viewWorldCupArchivesButton = document.getElementById("viewWorldCupArchives");
 const archiveLeaderboardTitle = document.getElementById("archiveLeaderboardTitle");
 const archiveProgressTitle = document.getElementById("archiveProgressTitle");
+const archiveRulesTitle = document.getElementById("archiveRulesTitle");
+const archiveRulesContainer = document.getElementById("archiveRulesContainer");
 let selectedWorldCupArchive = { competitionSlug: "world-cup", seasonSlug: "2026", label: "WC2026" };
 
 async function init() {
@@ -216,6 +218,7 @@ function showWorldCupArchive(season) {
     };
     archiveLeaderboardTitle.innerHTML = `<i class="fas fa-ranking-star"></i> ${season.label} Leaderboard`;
     archiveProgressTitle.innerHTML = `<i class="fas fa-sitemap"></i> ${season.label} Tournament Progress`;
+    archiveRulesTitle.innerHTML = `<i class="fas fa-book"></i> ${season.label} Rules`;
     wcResultsPanel.hidden = false;
     refreshLeaderboard();
     if (!leaderboardRefreshInterval && deadlineState === "leaderboard") {
@@ -669,6 +672,7 @@ async function refreshLeaderboard() {
             archive.leaderboard?.metadata || {}
         );
         renderStageHistory(archive.stages || []);
+        renderArchiveRules(archive.rules);
         return;
     }
 
@@ -679,6 +683,60 @@ async function refreshLeaderboard() {
     ]);
     renderLeaderboard(leaderboard.entries, leaderboard.metadata);
     renderStageHistory(stages);
+    renderArchiveRules(null);
+}
+
+function appendArchiveRuleText(parent, tag, text, className = "") {
+    const element = document.createElement(tag);
+    element.textContent = String(text ?? "");
+    if (className) element.className = className;
+    parent.appendChild(element);
+    return element;
+}
+
+function renderArchiveRules(rules) {
+    if (!archiveRulesContainer) return;
+    archiveRulesContainer.replaceChildren();
+
+    if (!rules) {
+        const empty = document.createElement("p");
+        empty.className = "stage-result-empty";
+        empty.textContent = "Rules are not available for this archive yet.";
+        archiveRulesContainer.appendChild(empty);
+        return;
+    }
+
+    const scoringCard = document.createElement("article");
+    scoringCard.className = "archive-rule-card";
+    appendArchiveRuleText(scoringCard, "h3", "Scoring");
+    const scoringList = document.createElement("div");
+    scoringList.className = "scoring-grid";
+    (Array.isArray(rules.predictionSlots) ? rules.predictionSlots : []).forEach(({ stage, points }) => {
+        const row = document.createElement("div");
+        row.className = "score-row";
+        appendArchiveRuleText(row, "span", stage, "score-stage");
+        appendArchiveRuleText(row, "span", `${points} ${Number(points) === 1 ? "pt" : "pts"}`, "score-points");
+        scoringList.appendChild(row);
+    });
+    scoringCard.appendChild(scoringList);
+
+    const summaryCard = document.createElement("article");
+    summaryCard.className = "archive-rule-card";
+    appendArchiveRuleText(summaryCard, "h3", "Rules");
+    const list = document.createElement("ul");
+    list.className = "rules-list";
+    [
+        rules.scoringNote,
+        rules.maxScore ? `Max score: ${rules.maxScore} points` : "",
+        "Each archived season preserves the rules used for that year's game."
+    ].filter(Boolean).forEach(rule => {
+        const item = document.createElement("li");
+        item.textContent = rule;
+        list.appendChild(item);
+    });
+    summaryCard.appendChild(list);
+
+    archiveRulesContainer.append(scoringCard, summaryCard);
 }
 
 function renderStageHistory(stages) {

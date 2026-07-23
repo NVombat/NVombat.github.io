@@ -34,12 +34,93 @@ function renderPlArchives(seasons) {
     }
 
     archivedSeasons.forEach(season => {
-        const link = document.createElement("a");
-        link.className = "cyber-link";
-        link.href = `#${season.id}`;
-        link.innerHTML = `<i class="fas fa-box-archive"></i> ${season.label}`;
-        container.appendChild(link);
+        const button = document.createElement("button");
+        button.className = "cyber-link archive-link-button";
+        button.type = "button";
+        button.innerHTML = `<i class="fas fa-box-archive"></i> ${season.label}`;
+        button.addEventListener("click", () => loadPlArchiveSeason(season));
+        container.appendChild(button);
     });
+}
+
+function appendPlArchiveText(parent, tag, text, className = "") {
+    const element = document.createElement(tag);
+    element.textContent = String(text ?? "");
+    if (className) element.className = className;
+    parent.appendChild(element);
+    return element;
+}
+
+function renderPlArchiveRules(rules) {
+    const container = document.getElementById("plArchiveRulesContainer");
+    if (!container) return;
+    container.replaceChildren();
+
+    if (!rules) {
+        appendPlArchiveText(container, "p", "Rules are not available for this archive yet.", "disabled-link");
+        return;
+    }
+
+    const scoringCard = document.createElement("article");
+    scoringCard.className = "archive-rule-card";
+    appendPlArchiveText(scoringCard, "h3", "Scoring");
+    const scoringList = document.createElement("div");
+    scoringList.className = "scoring-grid";
+    (Array.isArray(rules.predictionSlots) ? rules.predictionSlots : []).forEach(({ stage, points }) => {
+        const row = document.createElement("div");
+        row.className = "score-row";
+        appendPlArchiveText(row, "span", stage, "score-stage");
+        appendPlArchiveText(row, "span", `${points} ${Number(points) === 1 ? "pt" : "pts"}`, "score-points");
+        scoringList.appendChild(row);
+    });
+    scoringCard.appendChild(scoringList);
+
+    const summaryCard = document.createElement("article");
+    summaryCard.className = "archive-rule-card";
+    appendPlArchiveText(summaryCard, "h3", "Rules");
+    const list = document.createElement("ul");
+    list.className = "rules-list";
+    [
+        rules.scoringNote,
+        rules.maxScore ? `Max score: ${rules.maxScore} points` : "",
+        "Each archived season preserves the rules used for that year's game."
+    ].filter(Boolean).forEach(rule => {
+        const item = document.createElement("li");
+        item.textContent = rule;
+        list.appendChild(item);
+    });
+    summaryCard.appendChild(list);
+
+    container.append(scoringCard, summaryCard);
+}
+
+async function loadPlArchiveSeason(season) {
+    try {
+        const response = await fetch(
+            `${PL_BACKEND_URL}/api/archives/${season.competitionSlug}/${season.seasonSlug}`
+        );
+        const archive = await readPlJson(response);
+        if (!response.ok || !archive.archiveAvailable || !archive.payload) {
+            throw new Error(archive.error || "Archive data unavailable");
+        }
+
+        const panel = document.getElementById("plArchiveResults");
+        const title = document.getElementById("plArchiveTitle");
+        const summary = document.getElementById("plArchiveSummary");
+        const rulesTitle = document.getElementById("plArchiveRulesTitle");
+        if (!panel || !title || !summary || !rulesTitle) return;
+
+        title.textContent = `${archive.label} Results`;
+        summary.textContent = archive.summary
+            ? `${archive.summary.entryCount || 0} entries archived.`
+            : "Season results are archived.";
+        rulesTitle.innerHTML = `<i class="fas fa-book"></i> ${archive.label} Rules`;
+        renderPlArchiveRules(archive.payload.rules);
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (error) {
+        console.error("Failed to load PL archive season:", error);
+    }
 }
 
 async function loadPlArchives() {

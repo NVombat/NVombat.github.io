@@ -383,6 +383,14 @@ nav {
     opacity: 0.55;
 }
 
+.archive-link-button {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+}
+
 .cyber-link i {
     margin-right: 0.5rem;
 }
@@ -965,6 +973,61 @@ h2 {
 
 .steak-game-actions {
     margin-top: 1.5rem;
+}
+
+.pl-archive-results {
+    margin: 3rem 0;
+}
+
+.pl-archive-results h2,
+.archive-rules-section h2 {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+}
+
+.pl-archive-summary {
+    color: var(--text-color);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.archive-rules-section {
+    margin-top: 3rem;
+}
+
+.archive-rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.archive-rule-card {
+    border: 1px solid rgba(0, 255, 0, 0.65);
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(0, 255, 0, 0.06), rgba(0, 255, 255, 0.025));
+    padding: 1.25rem;
+}
+
+.archive-rule-card h3 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+}
+
+.archive-rule-card .scoring-grid {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.archive-rule-card .score-row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.archive-rule-card .score-stage,
+.archive-rule-card .score-points {
+    color: var(--text-color);
 }
 
 /* Hackathons Section */
