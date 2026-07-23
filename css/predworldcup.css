@@ -934,8 +934,9 @@ body.no-matrix .matrix-bg {
 
 .stage-results-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 280px));
     gap: 1.25rem;
+    justify-content: center;
 }
 
 .stage-result {
@@ -944,7 +945,8 @@ body.no-matrix .matrix-bg {
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    height: 15rem;
+    height: 16rem;
+    width: 280px;
     padding: 1rem;
     background: linear-gradient(135deg, rgba(0, 255, 0, 0.06), rgba(0, 255, 255, 0.025));
     transition: all 0.3s ease;
@@ -955,7 +957,6 @@ body.no-matrix .matrix-bg {
     border-color: var(--secondary-color);
     box-shadow: 0 8px 24px rgba(0, 255, 0, 0.16);
     outline: none;
-    transform: translateY(-3px);
 }
 
 .stage-result-header {
@@ -989,7 +990,8 @@ body.no-matrix .matrix-bg {
 
 .stage-result-teams {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    grid-auto-rows: 2.1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
     overflow: hidden;
 }
@@ -997,11 +999,15 @@ body.no-matrix .matrix-bg {
 .stage-result-team {
     border: 1px solid rgba(0, 255, 0, 0.55);
     border-radius: 4px;
+    align-items: center;
+    display: flex;
+    min-width: 0;
     padding: 0.45rem 0.55rem;
     color: var(--text-color);
     font-size: 0.8rem;
     overflow-wrap: anywhere;
     white-space: normal;
+    word-break: break-word;
 }
 
 .stage-result-more {
@@ -1327,5 +1333,15 @@ body.no-matrix .matrix-bg {
 
     .predworldcup-footer .admin-link {
         font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .stage-results-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .stage-result {
+        width: 100%;
     }
 }
