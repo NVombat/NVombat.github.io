@@ -918,6 +918,10 @@ h2 {
     background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0, 255, 0, 0.025) 100%);
     border: 2px solid var(--primary-color);
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 18rem;
     padding: 1.5rem;
     min-width: 0;
     box-shadow: 0 4px 16px rgba(0, 255, 0, 0.08);
@@ -928,14 +932,15 @@ h2 {
 }
 
 .steak-game-icon {
+    align-items: center;
     color: var(--accent-color);
+    display: flex;
     font-size: 2rem;
+    height: 2.5rem;
     margin-bottom: 1rem;
 }
 
 .premier-league-icon {
-    align-items: center;
-    display: flex;
     height: 2.5rem;
 }
 
@@ -959,7 +964,7 @@ h2 {
 }
 
 .steak-game-actions {
-    margin-top: 1.25rem;
+    margin-top: 1.5rem;
 }
 
 /* Hackathons Section */

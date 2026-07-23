@@ -576,7 +576,7 @@ function renderWorldCupArchiveOptions(seasons) {
         label.textContent = season.label;
         const title = document.createElement("strong");
         title.textContent = season.archiveAvailable
-            ? "Leaderboard, champion, rules, and tournament progress"
+            ? "Results"
             : season.message || "Coming later";
         card.append(label, title);
 

@@ -114,6 +114,15 @@ body.no-matrix .matrix-bg {
     font-size: 2.2rem;
 }
 
+.rules-context {
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: -1.75rem auto 2rem;
+    max-width: 760px;
+    opacity: 0.82;
+    text-align: center;
+}
+
 .rules-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
