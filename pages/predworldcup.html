@@ -42,21 +42,15 @@
         <div class="predworldcup-container">
             <section class="archive-notice">
                 <div>
-                    <p class="archive-kicker">WC2026 archive</p>
-                    <h2>World Cup 2026 results</h2>
-                    <p>Review the final leaderboard, winner, predictions, and tournament progress. STAY TUNED for WC2030.</p>
+                    <p class="archive-kicker">World Cup predictions</p>
+                    <h2>Thank you for playing</h2>
+                    <p>Submissions are closed for now. STAY TUNED for WC2030.</p>
                 </div>
-                <a class="fifa-link" href="steak.html"><i class="fas fa-arrow-left"></i> Back to $TEAK</a>
-            </section>
-
-            <!-- Leaderboard (shown after deadline, positioned at top) -->
-            <section class="leaderboard-section" id="leaderboardSection" style="display: none;">
-                <h2><i class="fas fa-ranking-star"></i> Leaderboard</h2>
-                <div class="leaderboard-container" id="leaderboardContainer">
-                </div>
-                <div class="stage-results-section">
-                    <h2><i class="fas fa-sitemap"></i> Tournament Progress</h2>
-                    <div class="stage-results-grid" id="stageResultsContainer"></div>
+                <div class="archive-actions">
+                    <button class="fifa-link archive-action-button" id="viewWorldCupArchives" type="button">
+                        <i class="fas fa-box-archive"></i> View Previous Results
+                    </button>
+                    <a class="fifa-link" href="steak.html"><i class="fas fa-arrow-left"></i> Back to $TEAK</a>
                 </div>
             </section>
 
@@ -272,6 +266,29 @@
                     <div id="submissionStatus" aria-live="polite"></div>
                 </div>
             </section>
+
+            <section class="previous-results-section" id="worldCupArchivesSection">
+                <div class="previous-results-header">
+                    <p class="archive-kicker">Previous results</p>
+                    <h2>World Cup Results by Year</h2>
+                </div>
+                <div class="previous-results-list" id="worldCupArchiveList">
+                    <p class="stage-result-empty">Loading World Cup archives...</p>
+                </div>
+            </section>
+
+            <div id="wcResultsPanel" class="wc-results-panel" hidden>
+                <!-- Leaderboard (shown after deadline, positioned above tournament progress) -->
+                <section class="leaderboard-section" id="leaderboardSection" style="display: none;">
+                    <h2 id="archiveLeaderboardTitle"><i class="fas fa-ranking-star"></i> WC2026 Leaderboard</h2>
+                    <div class="leaderboard-container" id="leaderboardContainer">
+                    </div>
+                    <div class="stage-results-section">
+                        <h2 id="archiveProgressTitle"><i class="fas fa-sitemap"></i> WC2026 Tournament Progress</h2>
+                        <div class="stage-results-grid" id="stageResultsContainer"></div>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
 

@@ -118,11 +118,21 @@ const stageResultsContainer = document.getElementById("stageResultsContainer");
 const countdownSection = document.getElementById("countdownSection");
 const predictionsModal = document.getElementById("predictionsModal");
 const modalClose = document.getElementById("modalClose");
+const modalTitle = document.getElementById("modalTitle");
+const modalBody = document.getElementById("modalBody");
+const wcResultsPanel = document.getElementById("wcResultsPanel");
+const worldCupArchivesSection = document.getElementById("worldCupArchivesSection");
+const worldCupArchiveList = document.getElementById("worldCupArchiveList");
+const viewWorldCupArchivesButton = document.getElementById("viewWorldCupArchives");
+const archiveLeaderboardTitle = document.getElementById("archiveLeaderboardTitle");
+const archiveProgressTitle = document.getElementById("archiveProgressTitle");
+let selectedWorldCupArchive = { competitionSlug: "world-cup", seasonSlug: "2026", label: "WC2026" };
 
 async function init() {
     await syncGameConfig();
     populateTeamSelects();
     addEventListeners();
+    loadWorldCupArchiveOptions();
     updateCountdown();
     await checkDeadlineAndUpdate();
     window.setInterval(updateCountdown, 1000);
@@ -186,12 +196,32 @@ function addEventListeners() {
     teamSelects.forEach(select => select.addEventListener("change", validateForm));
     predictionForm.addEventListener("submit", handleSubmit);
     modalClose.addEventListener("click", closePredictionsModal);
+    viewWorldCupArchivesButton?.addEventListener("click", () => {
+        worldCupArchivesSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     predictionsModal.addEventListener("click", event => {
         if (event.target === predictionsModal) closePredictionsModal();
     });
     document.addEventListener("keydown", event => {
         if (event.key === "Escape") closePredictionsModal();
     });
+}
+
+function showWorldCupArchive(season) {
+    if (!wcResultsPanel || !season) return;
+    selectedWorldCupArchive = {
+        competitionSlug: season.competitionSlug,
+        seasonSlug: season.seasonSlug,
+        label: season.label
+    };
+    archiveLeaderboardTitle.innerHTML = `<i class="fas fa-ranking-star"></i> ${season.label} Leaderboard`;
+    archiveProgressTitle.innerHTML = `<i class="fas fa-sitemap"></i> ${season.label} Tournament Progress`;
+    wcResultsPanel.hidden = false;
+    refreshLeaderboard();
+    if (!leaderboardRefreshInterval && deadlineState === "leaderboard") {
+        leaderboardRefreshInterval = window.setInterval(refreshLeaderboard, 5000);
+    }
+    wcResultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function readJson(response) {
@@ -510,6 +540,69 @@ async function fetchStageHistory() {
     }
 }
 
+async function fetchWorldCupArchives() {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/archives/world-cup`);
+        const data = await readJson(response);
+        if (!response.ok || !Array.isArray(data.seasons)) return [];
+        return data.seasons;
+    } catch (error) {
+        console.error("Failed to fetch World Cup archive list:", error);
+        return [];
+    }
+}
+
+function loadWorldCupArchiveOptions() {
+    if (!worldCupArchiveList) return;
+    fetchWorldCupArchives().then(renderWorldCupArchiveOptions);
+}
+
+function renderWorldCupArchiveOptions(seasons) {
+    worldCupArchiveList.replaceChildren();
+    if (!Array.isArray(seasons) || seasons.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "stage-result-empty";
+        empty.textContent = "No World Cup archive seasons are available yet.";
+        worldCupArchiveList.appendChild(empty);
+        return;
+    }
+
+    seasons.forEach(season => {
+        const card = document.createElement("button");
+        card.className = "previous-result-card";
+        card.type = "button";
+        card.disabled = !season.archiveAvailable;
+        const label = document.createElement("span");
+        label.textContent = season.label;
+        const title = document.createElement("strong");
+        title.textContent = season.archiveAvailable
+            ? "Leaderboard, champion, rules, and tournament progress"
+            : season.message || "Coming later";
+        card.append(label, title);
+
+        if (season.archiveAvailable) {
+            card.addEventListener("click", () => showWorldCupArchive(season));
+        } else {
+            card.classList.add("is-disabled");
+        }
+        worldCupArchiveList.appendChild(card);
+    });
+}
+
+async function fetchWorldCupArchivePayload() {
+    try {
+        const response = await fetch(
+            `${BACKEND_URL}/api/archives/${selectedWorldCupArchive.competitionSlug}/${selectedWorldCupArchive.seasonSlug}`
+        );
+        const data = await readJson(response);
+        if (!response.ok || !data.archiveAvailable || !data.payload) return null;
+        return data.payload;
+    } catch (error) {
+        console.error("Failed to fetch World Cup archive:", error);
+        return null;
+    }
+}
+
 function updateCountdown() {
     const difference = revealDeadline.getTime() - Date.now();
     if (difference <= 0) {
@@ -543,8 +636,10 @@ async function checkDeadlineAndUpdate(force = false) {
         predictionForm.style.display = "none";
         successMessage.style.display = "none";
         closedMessage.style.display = "block";
-        await refreshLeaderboard();
-        if (!leaderboardRefreshInterval) {
+        if (wcResultsPanel && !wcResultsPanel.hidden) {
+            await refreshLeaderboard();
+        }
+        if (wcResultsPanel && !wcResultsPanel.hidden && !leaderboardRefreshInterval) {
             leaderboardRefreshInterval = window.setInterval(refreshLeaderboard, 5000);
         }
         return;
@@ -563,6 +658,20 @@ async function checkDeadlineAndUpdate(force = false) {
 }
 
 async function refreshLeaderboard() {
+    const archive = await fetchWorldCupArchivePayload();
+    if (archive) {
+        actualResults = Object.fromEntries(
+            (Array.isArray(archive.results) ? archive.results : [])
+                .map(row => [row.team_name, row.actual_stage])
+        );
+        renderLeaderboard(
+            archive.leaderboard?.entries || [],
+            archive.leaderboard?.metadata || {}
+        );
+        renderStageHistory(archive.stages || []);
+        return;
+    }
+
     const [, leaderboard, stages] = await Promise.all([
         fetchActualResults(),
         fetchLeaderboard(),
@@ -582,8 +691,12 @@ function renderStageHistory(stages) {
         return;
     }
     (Array.isArray(stages) ? stages : []).forEach(({ label, teams }) => {
+        const teamList = Array.isArray(teams) ? teams : [];
         const section = document.createElement("section");
         section.className = "stage-result";
+        section.tabIndex = 0;
+        section.setAttribute("role", "button");
+        section.setAttribute("aria-label", `View all ${label} teams`);
 
         const header = document.createElement("div");
         header.className = "stage-result-header";
@@ -591,22 +704,62 @@ function renderStageHistory(stages) {
         heading.textContent = label;
         const count = document.createElement("span");
         count.className = "stage-result-count";
-        count.textContent = `${teams.length}`;
+        count.textContent = `${teamList.length}`;
         header.append(heading, count);
 
         const list = document.createElement("div");
         list.className = "stage-result-teams";
 
-        teams.forEach(team => {
+        teamList.slice(0, 6).forEach(team => {
             const item = document.createElement("span");
             item.className = "stage-result-team";
             item.textContent = team;
             list.appendChild(item);
         });
 
-        section.append(header, list);
+        const more = document.createElement("p");
+        more.className = "stage-result-more";
+        more.textContent = teamList.length > 6
+            ? `View all ${teamList.length} teams`
+            : "View details";
+
+        const openStageModal = () => showStageTeamsModal(label, teamList);
+        section.addEventListener("click", openStageModal);
+        section.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openStageModal();
+            }
+        });
+
+        section.append(header, list, more);
         stageResultsContainer.appendChild(section);
     });
+}
+
+function showStageTeamsModal(label, teams) {
+    modalTitle.textContent = `${selectedWorldCupArchive.label} ${label}`;
+    modalBody.replaceChildren();
+
+    const display = document.createElement("div");
+    display.className = "stage-modal-teams";
+    (Array.isArray(teams) ? teams : []).forEach(team => {
+        const item = document.createElement("span");
+        item.className = "stage-result-team";
+        item.textContent = team;
+        display.appendChild(item);
+    });
+
+    if (display.children.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "leaderboard-empty";
+        empty.textContent = "No teams recorded for this stage.";
+        modalBody.appendChild(empty);
+    } else {
+        modalBody.appendChild(display);
+    }
+
+    predictionsModal.style.display = "flex";
 }
 
 function normalizeLeaderboardEntry(entry) {
@@ -727,8 +880,6 @@ function predictionRows(entry) {
 }
 
 function showPredictionsModal(entry) {
-    const modalTitle = document.getElementById("modalTitle");
-    const modalBody = document.getElementById("modalBody");
     modalTitle.textContent = `${entry.name} (@${entry.username}) - ${entry.totalScore} pts`;
     modalBody.replaceChildren();
 

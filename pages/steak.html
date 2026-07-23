@@ -6,7 +6,6 @@
     <meta name="description" content="$TEAK prediction games by Nikhill Vombatkere - World Cup and Premier League prediction competitions.">
     <meta name="keywords" content="predictions, world cup, premier league, football, leaderboard">
     <meta name="author" content="Nikhill Vombatkere">
-    <meta name="backend-url" content="https://worldcup-prediction-backend-production.up.railway.app">
     <title>$TEAK Predictions - Nikhill Vombatkere</title>
     <link rel="canonical" href="https://nvombat.github.io/pages/steak.html">
     <link rel="stylesheet" href="../css/styles.css">
@@ -60,7 +59,9 @@
                 </article>
 
                 <article class="steak-game-card">
-                    <div class="steak-game-icon"><i class="fas fa-shield-halved"></i></div>
+                    <div class="steak-game-icon premier-league-icon">
+                        <img src="https://logo.premierleague.com/img/logo-negative_1.svg" alt="Premier League lion logo">
+                    </div>
                     <p class="steak-game-kicker">Premier League games</p>
                     <h2>PLPrediction</h2>
                     <p>Open the Premier League prediction area for PL2026-2027 and future archived PL seasons.</p>
@@ -69,16 +70,6 @@
                     </div>
                 </article>
             </div>
-
-            <section class="steak-archive" aria-labelledby="wcArchiveTitle">
-                <div class="steak-section-heading">
-                    <p class="steak-game-kicker">Database archive</p>
-                    <h2 id="wcArchiveTitle">World Cup 2026 Archive</h2>
-                </div>
-                <div id="wcArchiveSummary" class="steak-archive-summary">
-                    <p>Loading archive...</p>
-                </div>
-            </section>
         </section>
     </main>
 
@@ -98,6 +89,5 @@
     </footer>
 
     <script src="../js/script.js"></script>
-    <script src="../js/steak.js"></script>
 </body>
 </html>
