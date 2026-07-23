@@ -964,7 +964,7 @@ function createWinnerSpotlight(entry) {
     const content = document.createElement("div");
     const kicker = document.createElement("p");
     kicker.className = "archive-kicker";
-    kicker.textContent = "2026 Champion";
+    kicker.textContent = `${selectedWorldCupArchive.label} Champion`;
     const title = document.createElement("h3");
     title.textContent = `@${entry.username}`;
     const score = document.createElement("p");
