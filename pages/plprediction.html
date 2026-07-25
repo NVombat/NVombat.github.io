@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PLPrediction by Nikhill Vombatkere - Premier League prediction competitions and archives.">
+    <meta name="description" content="PLPrediction by Nikhill Vombatkere - predict the Premier League table and season awards.">
     <meta name="keywords" content="premier league, prediction, football, leaderboard, archive">
     <meta name="author" content="Nikhill Vombatkere">
     <meta name="backend-url" content="https://worldcup-prediction-backend-production.up.railway.app">
     <title>PLPrediction - Nikhill Vombatkere</title>
     <link rel="canonical" href="https://nvombat.github.io/pages/plprediction.html">
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/predworldcup.css">
+    <link rel="stylesheet" href="../css/plprediction.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -42,33 +44,160 @@
     </header>
 
     <main>
-        <section class="page-header steak-hero">
-            <h1><i class="fas fa-shield-halved"></i> PLPrediction</h1>
-            <p>Premier League prediction games, current seasons, and future archives.</p>
+        <section class="page-header predworldcup-hero plprediction-hero">
+            <h1><i class="fas fa-futbol"></i> PLPrediction</h1>
+            <p>Predict the 2026/27 Premier League season before the opening fixture.</p>
         </section>
 
-        <section class="steak-section">
-            <div class="steak-games-grid">
-                <article class="steak-game-card featured">
-                    <div class="steak-game-icon"><i class="fas fa-table"></i></div>
-                    <p class="steak-game-kicker">First season</p>
-                    <h2>PL2026-2027</h2>
-                    <p>Current PLPrediction rules and game flow will be added here once finalized. Completed PL seasons will preserve their own archived rules.</p>
-                    <div class="steak-game-actions">
-                        <span class="cyber-link disabled-link" aria-disabled="true"><i class="fas fa-lock"></i> Coming later</span>
-                    </div>
-                </article>
+        <div class="predworldcup-container plprediction-container">
+            <section class="pl-season-strip" aria-labelledby="plSeasonTitle">
+                <div>
+                    <p class="archive-kicker">Current game</p>
+                    <h2 id="plSeasonTitle">PL2026-2027</h2>
+                    <p>Build the full table and make four season award predictions.</p>
+                </div>
+                <span class="pl-season-status" id="plSeasonStatus">Loading season...</span>
+            </section>
 
-                <article class="steak-game-card">
-                    <div class="steak-game-icon"><i class="fas fa-box-archive"></i></div>
-                    <p class="steak-game-kicker">Archive</p>
-                    <h2>Previous PL Seasons</h2>
-                    <p>Completed PLPrediction seasons will stay accessible here after each year ends.</p>
-                    <div class="steak-game-actions" id="plArchiveList">
-                        <span class="cyber-link disabled-link" aria-disabled="true"><i class="fas fa-folder-open"></i> No archives yet</span>
+            <section class="countdown-section" id="plCountdownSection">
+                <div class="countdown-card">
+                    <h2><i class="fas fa-hourglass-half"></i> Entries Lock When the Season Begins</h2>
+                    <div class="countdown-display">
+                        <div class="countdown-item">
+                            <div class="countdown-number" id="plDays">0</div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-number" id="plHours">0</div>
+                            <div class="countdown-label">Hours</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-number" id="plMinutes">0</div>
+                            <div class="countdown-label">Minutes</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-number" id="plSeconds">0</div>
+                            <div class="countdown-label">Seconds</div>
+                        </div>
                     </div>
-                </article>
-            </div>
+                    <p class="countdown-deadline" id="plDeadlineText">Friday, August 21, 2026</p>
+                </div>
+            </section>
+
+            <section class="rules-section" aria-labelledby="plRulesTitle">
+                <h2 id="plRulesTitle"><i class="fas fa-book"></i> How the Game Works</h2>
+                <p class="rules-context">These rules belong to PL2026-2027 and will be preserved with this season's archive.</p>
+                <div class="rules-container" id="plRulesContainer"></div>
+                <div class="pl-official-link">
+                    <a href="https://www.premierleague.com/en/" target="_blank" rel="noopener">
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                        Visit the Premier League
+                    </a>
+                </div>
+            </section>
+
+            <section class="form-section pl-form-section" id="plFormSection">
+                <h2><i class="fas fa-list-ol"></i> Submit Your PL2026-2027 Predictions</h2>
+                <div id="plDataNotice" class="closed-message">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading Premier League teams and players...</p>
+                </div>
+                <div id="plClosedMessage" class="closed-message" hidden>
+                    <i class="fas fa-lock"></i>
+                    <p>Entries are closed and predictions are locked.</p>
+                </div>
+
+                <form id="plPredictionForm" class="prediction-form" hidden>
+                    <fieldset class="prediction-group pl-identity-group">
+                        <legend><i class="fas fa-user"></i> Your Entry</legend>
+                        <div class="pl-identity-grid">
+                            <div class="form-group">
+                                <label for="plPlayerName">Your Name</label>
+                                <input type="text" id="plPlayerName" placeholder="Enter your full name" minlength="2" maxlength="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="plPlayerUsername">Your Username</label>
+                                <input type="text" id="plPlayerUsername" placeholder="3-20 letters, numbers, or underscores" minlength="3" maxlength="21" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="plPlayerEmail">Your Email</label>
+                                <input type="email" id="plPlayerEmail" placeholder="your.email@example.com" maxlength="255" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="prediction-group pl-table-group">
+                        <legend><i class="fas fa-table-list"></i> Predict the Final Table</legend>
+                        <p class="pl-field-help">Select every team once. Team menus are alphabetical.</p>
+                        <div class="pl-ranking-list" id="plRankingRows"></div>
+                    </fieldset>
+
+                    <fieldset class="prediction-group pl-awards-group">
+                        <legend><i class="fas fa-award"></i> Season Predictions</legend>
+                        <div class="pl-awards-grid">
+                            <div class="form-group">
+                                <label for="plGoldenBoot">Golden Boot Winner</label>
+                                <select id="plGoldenBoot" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="plGoldenGlove">Golden Glove Winner</label>
+                                <select id="plGoldenGlove" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="plMostGoals">Team with Most Goals</label>
+                                <select id="plMostGoals" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="plPlayerOfSeason">Player of the Season</label>
+                                <select id="plPlayerOfSeason" required></select>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div id="plGlobalError" class="global-error" role="alert" aria-live="assertive" hidden></div>
+                    <button type="submit" id="plSubmitButton" class="submit-button">
+                        <i class="fas fa-paper-plane"></i> Submit My PL Predictions
+                    </button>
+                </form>
+
+                <div id="plSuccessMessage" class="success-message" role="status" aria-live="polite" hidden>
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Predictions Submitted</h3>
+                    <p id="plSuccessText"></p>
+                </div>
+            </section>
+
+            <section class="leaderboard-section" id="plLeaderboardSection" hidden>
+                <div class="pl-section-heading">
+                    <div>
+                        <p class="archive-kicker">The competition</p>
+                        <h2><i class="fas fa-ranking-star"></i> PL2026-2027 Leaderboard</h2>
+                    </div>
+                    <p>Ranked by score, then username. Select a username to inspect every prediction.</p>
+                </div>
+                <div class="pl-table-shell" id="plLeaderboardContainer"></div>
+
+                <div class="pl-live-table-section" id="plLiveTableSection" hidden>
+                    <div class="pl-section-heading">
+                        <div>
+                            <p class="archive-kicker">Synced weekly</p>
+                            <h2><i class="fas fa-table-list"></i> Premier League Table</h2>
+                        </div>
+                        <p id="plLiveTableUpdated"></p>
+                    </div>
+                    <div class="pl-table-shell" id="plLiveTableContainer"></div>
+                </div>
+            </section>
+
+            <section class="previous-results-section" id="plArchivesSection">
+                <div class="previous-results-header">
+                    <p class="archive-kicker">Previous results</p>
+                    <h2>Premier League Results by Season</h2>
+                </div>
+                <div class="previous-results-list" id="plArchiveList">
+                    <p class="stage-result-empty">Loading Premier League archives...</p>
+                </div>
+            </section>
 
             <section class="pl-archive-results" id="plArchiveResults" hidden>
                 <h2 id="plArchiveTitle">PL Archive Results</h2>
@@ -80,22 +209,32 @@
             </section>
 
             <a class="cyber-link" href="steak.html"><i class="fas fa-arrow-left"></i> Back to $TEAK</a>
-        </section>
+        </div>
     </main>
 
-    <footer>
-        <div class="social-links">
-            <a href="https://scholar.google.com/citations?user=DMYmvTEAAAAJ&hl=en" target="_blank" title="Google Scholar">
-                <i class="fas fa-graduation-cap"></i>
-            </a>
-            <a href="https://github.com/NVombat" target="_blank" title="GitHub">
-                <i class="fab fa-github"></i>
-            </a>
-            <a href="https://www.linkedin.com/in/nikhill-vombatkere-1a0b9a192/" target="_blank" title="LinkedIn">
-                <i class="fab fa-linkedin"></i>
+    <div class="pl-predictions-modal" id="plPredictionsModal" hidden>
+        <button class="pl-modal-backdrop" type="button" aria-label="Close prediction details"></button>
+        <section class="pl-modal-panel" role="dialog" aria-modal="true" aria-labelledby="plModalTitle">
+            <div class="pl-modal-header">
+                <div>
+                    <p class="archive-kicker">Locked prediction</p>
+                    <h2 id="plModalTitle"></h2>
+                </div>
+                <button class="pl-modal-close" id="plModalClose" type="button" aria-label="Close prediction details">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="pl-modal-body" id="plModalBody"></div>
+        </section>
+    </div>
+
+    <footer class="predworldcup-footer">
+        <div class="footer-content">
+            <p>&copy; 2026 $TEAK PLPrediction</p>
+            <a href="https://worldcup-prediction-backend-production.up.railway.app/admin" id="plAdminLink" class="admin-link" title="Admin Panel" target="_blank" rel="noopener">
+                <i class="fas fa-key"></i> Admin
             </a>
         </div>
-        <p>&copy; 2026 Nikhill Vombatkere. All rights reserved.</p>
     </footer>
 
     <script src="../js/script.js"></script>
