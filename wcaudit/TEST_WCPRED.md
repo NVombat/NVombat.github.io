@@ -96,7 +96,7 @@ Verify:
 
 ### Test 3: After Deadline
 ```
-For local testing, set the backend `REVEAL_DEADLINE` to a past ISO-8601
+For local testing, set the backend `WC_SUBMISSION_DEADLINE` to a past ISO-8601
 timestamp, restart the backend, and open:
 http://localhost:8000/pages/predworldcup.html
 
