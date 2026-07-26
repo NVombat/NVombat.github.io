@@ -46,7 +46,7 @@
     <main>
         <section class="page-header predworldcup-hero plprediction-hero">
             <h1><i class="fas fa-futbol"></i> PLPrediction</h1>
-            <p>Predict the 2026/27 Premier League season before the opening fixture.</p>
+            <p id="plHeroDescription">Predict the Premier League season before the opening fixture.</p>
         </section>
 
         <div class="predworldcup-container plprediction-container">
@@ -86,7 +86,7 @@
 
             <section class="rules-section" aria-labelledby="plRulesTitle">
                 <h2 id="plRulesTitle"><i class="fas fa-book"></i> How the Game Works</h2>
-                <p class="rules-context">These rules belong to PL2026-2027 and will be preserved with this season's archive.</p>
+                <p class="rules-context" id="plRulesContext">These rules belong to the current season and will be preserved with its archive.</p>
                 <div class="rules-container" id="plRulesContainer"></div>
                 <div class="pl-official-link">
                     <a href="https://www.premierleague.com/en/" target="_blank" rel="noopener">
@@ -97,7 +97,7 @@
             </section>
 
             <section class="form-section pl-form-section" id="plFormSection">
-                <h2><i class="fas fa-list-ol"></i> Submit Your PL2026-2027 Predictions</h2>
+                <h2 id="plFormTitle"><i class="fas fa-list-ol"></i> Submit Your Premier League Predictions</h2>
                 <div id="plDataNotice" class="closed-message">
                     <i class="fas fa-spinner fa-spin"></i>
                     <p>Loading Premier League teams and players...</p>
@@ -171,7 +171,7 @@
                 <div class="pl-section-heading">
                     <div>
                         <p class="archive-kicker">The competition</p>
-                        <h2><i class="fas fa-ranking-star"></i> PL2026-2027 Leaderboard</h2>
+                        <h2 id="plLeaderboardTitle"><i class="fas fa-ranking-star"></i> Premier League Leaderboard</h2>
                     </div>
                     <p>Ranked by score, then username. Select a username to inspect every prediction.</p>
                 </div>
@@ -202,6 +202,23 @@
             <section class="pl-archive-results" id="plArchiveResults" hidden>
                 <h2 id="plArchiveTitle">PL Archive Results</h2>
                 <div class="pl-archive-summary" id="plArchiveSummary"></div>
+                <div class="pl-section-heading">
+                    <div>
+                        <p class="archive-kicker">Final standings</p>
+                        <h2><i class="fas fa-ranking-star"></i> Leaderboard</h2>
+                    </div>
+                </div>
+                <div class="pl-table-shell" id="plArchiveLeaderboardContainer"></div>
+                <div id="plArchiveTableSection" hidden>
+                    <div class="pl-section-heading">
+                        <div>
+                            <p class="archive-kicker">Final season table</p>
+                            <h2><i class="fas fa-table-list"></i> Premier League Table</h2>
+                        </div>
+                        <p id="plArchiveTableUpdated"></p>
+                    </div>
+                    <div class="pl-table-shell" id="plArchiveTableContainer"></div>
+                </div>
                 <div class="archive-rules-section">
                     <h2 id="plArchiveRulesTitle"><i class="fas fa-book"></i> Archive Rules</h2>
                     <div class="archive-rules-grid" id="plArchiveRulesContainer"></div>

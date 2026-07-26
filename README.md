@@ -62,16 +62,17 @@ The prediction hub is at `pages/steak.html` and is displayed in the site nav as
   loaded from `/api/archives/world-cup/2026`; its archive payload includes the
   rules that applied to WC2026.
 - PLPrediction lives at `pages/plprediction.html` and is ready for the
-  PL2026-2027 current game rules and future PL archives. Each completed PL
-  archive should preserve that season's rules.
+  PL2026-2027 current game, FPL-backed team/player selections, post-kickoff
+  leaderboard, live table, and future PL archives. Each completed PL archive
+  preserves that season's database-backed rules and results.
 
 - WCPrediction uses the Railway backend URL from its `backend-url` meta tag.
 - When WCPrediction is served from `localhost`, `127.0.0.1`, or `0.0.0.0`, it
   automatically uses the local backend on port `5001`.
 - The WCPrediction Admin footer link follows the same environment selection.
-- `$TEAK` is static and only links to prediction pages. PLPrediction calls the
-  archive API for season metadata, but PL game data will be added when the PL
-  rules are finalized.
+- `$TEAK` is static and only links to prediction pages. Both game pages call
+  the shared Railway backend, and both select the local backend on port `5001`
+  when served from localhost.
 
 Local startup:
 

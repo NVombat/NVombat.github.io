@@ -1,4 +1,9 @@
-# World Cup Prediction Game - Complete Testing Guide
+# Historical World Cup Testing Snapshot
+
+This document predates the `$TEAK` WC/PL architecture and is retained only as
+historical context. It is not the current test specification. Use
+`worldcup-prediction-backend/docs/TEST.md` for current endpoints, season-aware
+tables, archive behavior, and admin lifecycle checks.
 
 ## System Overview
 

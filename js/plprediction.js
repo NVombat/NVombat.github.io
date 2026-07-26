@@ -7,7 +7,6 @@ const PL_BACKEND_URL = plIsLocalFrontend
     : plBackendMeta?.content?.replace(/\/$/, "")
         || "https://worldcup-prediction-backend-production.up.railway.app";
 
-const PL_DEFAULT_DEADLINE = new Date("2026-08-21T19:00:00Z");
 const PL_TEAM_COUNT = 20;
 const PL_RULES_FALLBACK = {
     cards: [
@@ -49,7 +48,9 @@ const PL_RULES_FALLBACK = {
     ]
 };
 
-let plDeadline = new Date(PL_DEFAULT_DEADLINE);
+let plDeadline = null;
+let plSeasonKey = "";
+let plSeasonLabel = "Premier League";
 let plTeams = [];
 let plPlayers = [];
 let plSubmissionsOpen = false;
@@ -210,6 +211,10 @@ function setPlFormState(dataReady) {
 }
 
 function updatePlCountdown() {
+    if (!(plDeadline instanceof Date) || Number.isNaN(plDeadline.getTime())) {
+        document.getElementById("plCountdownSection").hidden = true;
+        return;
+    }
     const remaining = Math.max(0, plDeadline.getTime() - Date.now());
     const seconds = Math.floor(remaining / 1000);
     const values = {
@@ -247,18 +252,40 @@ async function loadPlGame() {
         if (!response.ok) throw new Error(data.error || "PL game configuration is unavailable");
 
         plDeadline = new Date(data.season.submissionDeadline);
-        if (Number.isNaN(plDeadline.getTime())) plDeadline = new Date(PL_DEFAULT_DEADLINE);
+        plSeasonKey = String(data.season.seasonKey || "").trim();
+        plSeasonLabel = String(data.season.label || "").trim();
+        if (Number.isNaN(plDeadline.getTime()) || !plSeasonKey || !plSeasonLabel) {
+            throw new Error("PL season configuration is invalid");
+        }
         plSubmissionsOpen = Boolean(data.submissionsOpen);
         plTeams = Array.isArray(data.teams)
             ? [...data.teams].sort((a, b) => a.name.localeCompare(b.name))
             : [];
         plPlayers = Array.isArray(data.players) ? data.players : [];
         renderPlRules(data.rules);
-        document.getElementById("plSeasonTitle").textContent = data.season.label;
+        document.getElementById("plSeasonTitle").textContent = plSeasonLabel;
         document.getElementById("plSeasonStatus").textContent =
             plSubmissionsOpen ? "Entries open" : data.season.status;
+        document.getElementById("plHeroDescription").textContent =
+            `Predict the ${plSeasonLabel} Premier League season before the opening fixture.`;
+        document.getElementById("plRulesContext").textContent =
+            `These rules belong to ${plSeasonLabel} and will be preserved with this season's archive.`;
+        document.getElementById("plFormTitle").replaceChildren();
+        const formTitleIcon = document.createElement("i");
+        formTitleIcon.className = "fas fa-list-ol";
+        document.getElementById("plFormTitle").append(
+            formTitleIcon,
+            document.createTextNode(` Submit Your ${plSeasonLabel} Predictions`)
+        );
+        document.getElementById("plLeaderboardTitle").replaceChildren();
+        const leaderboardIcon = document.createElement("i");
+        leaderboardIcon.className = "fas fa-ranking-star";
+        document.getElementById("plLeaderboardTitle").append(
+            leaderboardIcon,
+            document.createTextNode(` ${plSeasonLabel} Leaderboard`)
+        );
         document.getElementById("plDeadlineText").textContent =
-            `Deadline: Friday, August 21, 2026 at 20:00 BST (${formatPlDeadline()} local time)`;
+            `Entries close ${formatPlDeadline()} local time`;
 
         const dataReady = Boolean(data.dataReady)
             && plTeams.length === PL_TEAM_COUNT
@@ -303,7 +330,7 @@ function buildPlSubmission() {
     }
 
     return {
-        seasonKey: "2026-2027",
+        seasonKey: plSeasonKey,
         playerName: document.getElementById("plPlayerName").value.trim(),
         playerUsername: username,
         playerEmail: document.getElementById("plPlayerEmail").value.trim(),
@@ -333,7 +360,7 @@ async function submitPlPredictions(event) {
         return;
     }
 
-    if (!window.confirm("Submit and lock these PL2026-2027 predictions?")) return;
+    if (!window.confirm(`Submit and lock these ${plSeasonLabel} predictions?`)) return;
     plSubmitButton.disabled = true;
     plSubmitButton.textContent = "Submitting...";
 
@@ -374,8 +401,10 @@ function formatPlScore(value) {
     return Number(value || 0).toFixed(3);
 }
 
-function renderPlParticipantTable(entries) {
-    const container = document.getElementById("plLeaderboardContainer");
+function renderPlParticipantTable(
+    entries,
+    container = document.getElementById("plLeaderboardContainer")
+) {
     container.replaceChildren();
     if (entries.length === 0) {
         appendPlText(container, "p", "No entries are available.", "pl-table-empty");
@@ -421,9 +450,15 @@ function renderPlParticipantTable(entries) {
     container.appendChild(table);
 }
 
-function renderPlLiveTable(tableRows, metadata = {}) {
-    const section = document.getElementById("plLiveTableSection");
-    const container = document.getElementById("plLiveTableContainer");
+function renderPlLiveTable(
+    tableRows,
+    metadata = {},
+    {
+        section = document.getElementById("plLiveTableSection"),
+        container = document.getElementById("plLiveTableContainer"),
+        updated = document.getElementById("plLiveTableUpdated")
+    } = {}
+) {
     container.replaceChildren();
     if (!Array.isArray(tableRows) || tableRows.length !== PL_TEAM_COUNT) {
         section.hidden = true;
@@ -474,7 +509,6 @@ function renderPlLiveTable(tableRows, metadata = {}) {
     });
     container.appendChild(table);
 
-    const updated = document.getElementById("plLiveTableUpdated");
     const updatedAt = new Date(metadata.tableUpdatedAt);
     updated.textContent = Number.isNaN(updatedAt.getTime())
         ? "Latest synchronized standings"
@@ -590,6 +624,17 @@ function renderPlArchiveRules(rules) {
     (Array.isArray(rules?.cards) ? rules.cards : []).forEach(card => {
         const article = document.createElement("article");
         article.className = "archive-rule-card";
+        if (card.icon) {
+            const icon = document.createElement("div");
+            icon.className = "archive-rule-icon";
+            const iconElement = document.createElement("i");
+            const safeIcon = /^[a-z0-9-]+$/i.test(card.icon)
+                ? card.icon
+                : "circle-info";
+            iconElement.className = `fas fa-${safeIcon}`;
+            icon.appendChild(iconElement);
+            article.appendChild(icon);
+        }
         appendPlText(article, "h3", card.title);
         if (card.body) appendPlText(article, "p", card.body);
         if (Array.isArray(card.bullets)) {
@@ -620,16 +665,27 @@ async function loadPlArchiveSeason(season) {
             `${archive.summary?.entryCount || 0} entries archived.`
         );
         const entries = archive.payload?.leaderboard?.entries;
-        if (Array.isArray(entries) && entries.length) {
-            appendPlText(summary, "h3", "Final Leaderboard");
-            entries.forEach((entry, index) => {
-                appendPlText(
-                    summary,
-                    "p",
-                    `${index + 1}. ${entry.player_username} - ${Number(entry.total_score).toFixed(3)} points`
-                );
-            });
+        const winner = archive.summary?.winner;
+        if (winner?.username) {
+            appendPlText(
+                summary,
+                "p",
+                `Champion: @${winner.username} with ${formatPlScore(winner.totalScore)} points.`
+            );
         }
+        renderPlParticipantTable(
+            Array.isArray(entries) ? entries : [],
+            document.getElementById("plArchiveLeaderboardContainer")
+        );
+        renderPlLiveTable(
+            archive.payload?.liveTable,
+            archive.payload?.leaderboard?.metadata,
+            {
+                section: document.getElementById("plArchiveTableSection"),
+                container: document.getElementById("plArchiveTableContainer"),
+                updated: document.getElementById("plArchiveTableUpdated")
+            }
+        );
         document.getElementById("plArchiveRulesTitle").textContent = `${archive.label} Rules`;
         renderPlArchiveRules(archive.payload.rules);
         const panel = document.getElementById("plArchiveResults");
