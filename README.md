@@ -12,8 +12,8 @@ A professional portfolio website showcasing my academic research, projects, and 
 - **Dark/Light Theme** - Toggle between dark and light modes with localStorage persistence
 - **Matrix Rain Animation** - Cyberpunk-themed background effect with toggle
 - **Interactive Elements** - Terminal-style sections and smooth animations
-- **Research Showcase** - Publications with consistent card layouts and aligned metadata
-- **Project Portfolio** - Featured projects with tech tags and repository links
+- **Research Showcase** - Publication cards with paper metadata and detail modals
+- **Project Portfolio** - Project cards with repository links and detail modals
 - **Professional Timeline** - Interactive experience timeline with staggered animations
 - **Awards Carousel** - Interactive carousel showcasing academic awards
 - **Academic Leadership** - Teaching, committee service, and leadership initiatives
@@ -30,8 +30,8 @@ A professional portfolio website showcasing my academic research, projects, and 
 ## Design & Layout
 
 ### Card Layouts
-- **Research Cards** - Flexbox-based layout with fixed title space (100px), flexible description area, and auto-aligned metadata at bottom
-- **Project Cards** - Consistent layout with fixed title space (60px), flexible descriptions, and tech tags pushed to bottom
+- **Research Cards** - Show the paper title, date, conference/status tags, and paper link; clicking a card opens its existing description
+- **Project Cards** - Show the project name, technology tags, and repository link; clicking a card opens its existing description
 - **Leadership Cards** - Uniform bullet point styling with consistent indentation across all subsections
 
 ### Typography & Styling
@@ -60,7 +60,9 @@ The prediction hub is at `pages/steak.html` and is displayed in the site nav as
 - WCPrediction lives at `pages/predworldcup.html` and currently shows the
   WC2026 archive/results plus the WC2030 stay-tuned note. WC2026 results are
   loaded from `/api/archives/world-cup/2026`; its archive payload includes the
-  rules that applied to WC2026.
+  rules that applied to WC2026. The archive view fails closed if that complete
+  payload is unavailable and does not reconstruct history from live-game
+  endpoints.
 - PLPrediction lives at `pages/plprediction.html` and is ready for the
   PL2026-2027 current game, FPL-backed team/player selections, post-kickoff
   leaderboard, live table, and future PL archives. Each completed PL archive

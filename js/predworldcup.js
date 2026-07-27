@@ -99,7 +99,6 @@ let TEAMS = [...FALLBACK_TEAMS].sort((a, b) => a.localeCompare(b));
 let PREDICTION_SLOTS = FALLBACK_PREDICTION_SLOTS.map(slot => ({ ...slot }));
 let STAGE_TEAM_COUNTS = { ...FALLBACK_STAGE_TEAM_COUNTS };
 let actualResults = {};
-let leaderboardRefreshInterval = null;
 let deadlineState = null;
 
 const playerNameInput = document.getElementById("playerName");
@@ -221,9 +220,6 @@ function showWorldCupArchive(season) {
     archiveRulesTitle.innerHTML = `<i class="fas fa-book"></i> ${season.label} Rules`;
     wcResultsPanel.hidden = false;
     refreshLeaderboard();
-    if (!leaderboardRefreshInterval && deadlineState === "leaderboard") {
-        leaderboardRefreshInterval = window.setInterval(refreshLeaderboard, 5000);
-    }
     wcResultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -498,51 +494,6 @@ function resetForAnotherEntry() {
     validateForm();
 }
 
-async function fetchActualResults() {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/predictions/results`);
-        if (!response.ok) return;
-        const rows = await readJson(response);
-        actualResults = Object.fromEntries(
-            (Array.isArray(rows) ? rows : []).map(row => [row.team_name, row.actual_stage])
-        );
-    } catch (error) {
-        console.error("Failed to fetch actual results:", error);
-    }
-}
-
-async function fetchLeaderboard() {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/predictions/leaderboard`);
-        const data = await readJson(response);
-        if (response.status === 403 && data.revealDeadline) {
-            setRevealDeadline(data.revealDeadline);
-            await checkDeadlineAndUpdate(true);
-            return { entries: [], metadata: {} };
-        }
-        if (!response.ok) return { entries: [], metadata: {} };
-        return {
-            entries: Array.isArray(data.entries) ? data.entries : [],
-            metadata: data.metadata && typeof data.metadata === "object" ? data.metadata : {}
-        };
-    } catch (error) {
-        console.error("Failed to fetch leaderboard:", error);
-        return { entries: [], metadata: {} };
-    }
-}
-
-async function fetchStageHistory() {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/predictions/result-stages`);
-        const data = await readJson(response);
-        if (!response.ok) return [];
-        return Array.isArray(data.stages) ? data.stages : [];
-    } catch (error) {
-        console.error("Failed to fetch stage results:", error);
-        return [];
-    }
-}
-
 async function fetchWorldCupArchives() {
     try {
         const response = await fetch(`${BACKEND_URL}/api/archives/world-cup`);
@@ -598,7 +549,10 @@ async function fetchWorldCupArchivePayload() {
             `${BACKEND_URL}/api/archives/${selectedWorldCupArchive.competitionSlug}/${selectedWorldCupArchive.seasonSlug}`
         );
         const data = await readJson(response);
-        if (!response.ok || !data.archiveAvailable || !data.payload) return null;
+        if (!response.ok || !data.archiveAvailable || !data.payload) {
+            console.error(`World Cup archive request returned ${response.status}`);
+            return null;
+        }
         return data.payload;
     } catch (error) {
         console.error("Failed to fetch World Cup archive:", error);
@@ -642,9 +596,6 @@ async function checkDeadlineAndUpdate(force = false) {
         if (wcResultsPanel && !wcResultsPanel.hidden) {
             await refreshLeaderboard();
         }
-        if (wcResultsPanel && !wcResultsPanel.hidden && !leaderboardRefreshInterval) {
-            leaderboardRefreshInterval = window.setInterval(refreshLeaderboard, 5000);
-        }
         return;
     }
 
@@ -653,37 +604,42 @@ async function checkDeadlineAndUpdate(force = false) {
     closedMessage.style.display = "none";
     formSection.style.display = "block";
     predictionForm.style.display = "flex";
-    if (leaderboardRefreshInterval) {
-        window.clearInterval(leaderboardRefreshInterval);
-        leaderboardRefreshInterval = null;
-    }
     validateForm();
 }
 
 async function refreshLeaderboard() {
     const archive = await fetchWorldCupArchivePayload();
-    if (archive) {
-        actualResults = Object.fromEntries(
-            (Array.isArray(archive.results) ? archive.results : [])
-                .map(row => [row.team_name, row.actual_stage])
-        );
-        renderLeaderboard(
-            archive.leaderboard?.entries || [],
-            archive.leaderboard?.metadata || {}
-        );
-        renderStageHistory(archive.stages || []);
-        renderArchiveRules(archive.rules);
+    if (!archive) {
+        actualResults = {};
+        renderArchiveUnavailable();
         return;
     }
 
-    const [, leaderboard, stages] = await Promise.all([
-        fetchActualResults(),
-        fetchLeaderboard(),
-        fetchStageHistory()
-    ]);
-    renderLeaderboard(leaderboard.entries, leaderboard.metadata);
-    renderStageHistory(stages);
-    renderArchiveRules(null);
+    actualResults = Object.fromEntries(
+        (Array.isArray(archive.results) ? archive.results : [])
+            .map(row => [row.team_name, row.actual_stage])
+    );
+    renderLeaderboard(
+        archive.leaderboard?.entries || [],
+        archive.leaderboard?.metadata || {}
+    );
+    renderStageHistory(archive.stages || []);
+    renderArchiveRules(archive.rules);
+}
+
+function renderArchiveUnavailable() {
+    const sections = [
+        [document.getElementById("leaderboardContainer"), "Archive leaderboard is unavailable."],
+        [stageResultsContainer, "Tournament progress is unavailable."],
+        [archiveRulesContainer, "Archive rules are unavailable."]
+    ];
+    sections.forEach(([container, message]) => {
+        if (!container) return;
+        const error = document.createElement("p");
+        error.className = "stage-result-empty";
+        error.textContent = message;
+        container.replaceChildren(error);
+    });
 }
 
 function appendArchiveRuleText(parent, tag, text, className = "") {
