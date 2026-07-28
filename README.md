@@ -65,8 +65,10 @@ The prediction hub is at `pages/steak.html` and is displayed in the site nav as
   endpoints.
 - PLPrediction lives at `pages/plprediction.html` and is ready for the
   PL2026-2027 current game, FPL-backed team/player selections, post-kickoff
-  leaderboard, live table, and future PL archives. Each completed PL archive
-  preserves that season's database-backed rules and results.
+  leaderboard, live table, and future PL archives. Golden Boot, Golden Glove,
+  and Player of the Season selections provide searchable player menus. Each
+  completed PL archive preserves that season's database-backed rules and
+  results.
 
 - WCPrediction uses the Railway backend URL from its `backend-url` meta tag.
 - When WCPrediction is served from `localhost`, `127.0.0.1`, or `0.0.0.0`, it

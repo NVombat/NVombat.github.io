@@ -151,6 +151,81 @@
     margin-top: 0;
 }
 
+.pl-player-combobox {
+    order: 2;
+    position: relative;
+}
+
+.pl-player-search-shell {
+    position: relative;
+}
+
+.pl-player-search-shell > i {
+    color: var(--primary-color);
+    left: 0.85rem;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.plprediction-container .pl-player-search {
+    padding-left: 2.55rem;
+    padding-right: 2.25rem;
+    width: 100%;
+}
+
+.pl-player-options {
+    background: #050b06;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    left: 0;
+    margin-top: 0.35rem;
+    max-height: 16rem;
+    overflow-y: auto;
+    position: absolute;
+    right: 0;
+    z-index: 30;
+}
+
+.pl-player-option {
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+    color: var(--text-color);
+    cursor: pointer;
+    display: block;
+    font-family: "Courier New", monospace;
+    font-size: 0.88rem;
+    letter-spacing: 0;
+    min-height: 2.75rem;
+    padding: 0.7rem 0.85rem;
+    text-align: left;
+    width: 100%;
+}
+
+.pl-player-option:last-child {
+    border-bottom: 0;
+}
+
+.pl-player-option:hover,
+.pl-player-option.active {
+    background: rgba(0, 255, 0, 0.13);
+    color: var(--primary-color);
+}
+
+.pl-player-option:focus-visible {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: -2px;
+}
+
+.pl-player-empty {
+    color: var(--text-color);
+    margin: 0;
+    opacity: 0.75;
+    padding: 0.85rem;
+}
+
 .pl-archive-results {
     margin: 3rem 0;
 }
@@ -492,6 +567,21 @@ body.pl-modal-open {
     color: #111;
 }
 
+.light-theme .pl-player-options {
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+}
+
+.light-theme .pl-player-option {
+    color: #111;
+}
+
+.light-theme .pl-player-option:hover,
+.light-theme .pl-player-option.active {
+    background: rgba(0, 120, 75, 0.1);
+    color: #006a48;
+}
+
 @media (max-width: 768px) {
     .plprediction-container .rules-container {
         grid-template-columns: minmax(0, 1fr);
@@ -534,6 +624,10 @@ body.pl-modal-open {
     .pl-ranking-row {
         gap: 0.65rem;
         grid-template-columns: 2.5rem minmax(0, 1fr);
+    }
+
+    .pl-player-options {
+        max-height: 13rem;
     }
 
     .pl-live-table {

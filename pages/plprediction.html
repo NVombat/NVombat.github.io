@@ -136,20 +136,53 @@
                         <legend><i class="fas fa-award"></i> Season Predictions</legend>
                         <div class="pl-awards-grid">
                             <div class="form-group">
-                                <label for="plGoldenBoot">Golden Boot Winner</label>
-                                <select id="plGoldenBoot" required></select>
+                                <label for="plGoldenBootSearch">Golden Boot Winner</label>
+                                <div class="pl-player-combobox" data-player-combobox="plGoldenBoot">
+                                    <div class="pl-player-search-shell">
+                                        <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+                                        <input class="pl-player-search" id="plGoldenBootSearch" type="search"
+                                            placeholder="Search players or clubs" autocomplete="off"
+                                            role="combobox" aria-autocomplete="list"
+                                            aria-controls="plGoldenBootOptions" aria-expanded="false" required>
+                                    </div>
+                                    <input id="plGoldenBoot" type="hidden">
+                                    <div class="pl-player-options" id="plGoldenBootOptions"
+                                        role="listbox" aria-label="Golden Boot players" hidden></div>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="plGoldenGlove">Golden Glove Winner</label>
-                                <select id="plGoldenGlove" required></select>
+                                <label for="plGoldenGloveSearch">Golden Glove Winner</label>
+                                <div class="pl-player-combobox" data-player-combobox="plGoldenGlove">
+                                    <div class="pl-player-search-shell">
+                                        <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+                                        <input class="pl-player-search" id="plGoldenGloveSearch" type="search"
+                                            placeholder="Search goalkeepers" autocomplete="off"
+                                            role="combobox" aria-autocomplete="list"
+                                            aria-controls="plGoldenGloveOptions" aria-expanded="false" required>
+                                    </div>
+                                    <input id="plGoldenGlove" type="hidden">
+                                    <div class="pl-player-options" id="plGoldenGloveOptions"
+                                        role="listbox" aria-label="Golden Glove goalkeepers" hidden></div>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="plMostGoals">Team with Most Goals</label>
                                 <select id="plMostGoals" required></select>
                             </div>
                             <div class="form-group">
-                                <label for="plPlayerOfSeason">Player of the Season</label>
-                                <select id="plPlayerOfSeason" required></select>
+                                <label for="plPlayerOfSeasonSearch">Player of the Season</label>
+                                <div class="pl-player-combobox" data-player-combobox="plPlayerOfSeason">
+                                    <div class="pl-player-search-shell">
+                                        <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+                                        <input class="pl-player-search" id="plPlayerOfSeasonSearch" type="search"
+                                            placeholder="Search players or clubs" autocomplete="off"
+                                            role="combobox" aria-autocomplete="list"
+                                            aria-controls="plPlayerOfSeasonOptions" aria-expanded="false" required>
+                                    </div>
+                                    <input id="plPlayerOfSeason" type="hidden">
+                                    <div class="pl-player-options" id="plPlayerOfSeasonOptions"
+                                        role="listbox" aria-label="Player of the Season players" hidden></div>
+                                </div>
                             </div>
                         </div>
                     </fieldset>

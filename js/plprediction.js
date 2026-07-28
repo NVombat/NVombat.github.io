@@ -8,6 +8,7 @@ const PL_BACKEND_URL = plIsLocalFrontend
         || "https://worldcup-prediction-backend-production.up.railway.app";
 
 const PL_TEAM_COUNT = 20;
+const PL_PLAYER_SEARCH_LIMIT = 50;
 const PL_RULES_FALLBACK = {
     cards: [
         {
@@ -129,6 +130,126 @@ function addSelectOptions(select, options, labelForOption) {
     options.forEach(item => select.add(new Option(labelForOption(item), String(item.id))));
 }
 
+function setupPlayerCombobox(valueId, players) {
+    const wrapper = document.querySelector(`[data-player-combobox="${valueId}"]`);
+    const input = wrapper?.querySelector(".pl-player-search");
+    const valueInput = document.getElementById(valueId);
+    const list = wrapper?.querySelector(".pl-player-options");
+    if (!wrapper || !input || !valueInput || !list) return;
+
+    const options = players.map(player => ({
+        id: String(player.id),
+        label: playerOptionLabel(player),
+        searchText: `${player.name} ${teamName(player.teamId)}`.toLocaleLowerCase()
+    }));
+    let visibleOptions = [];
+    let activeIndex = -1;
+
+    function closeList() {
+        list.hidden = true;
+        input.setAttribute("aria-expanded", "false");
+        input.removeAttribute("aria-activedescendant");
+        activeIndex = -1;
+    }
+
+    function selectPlayer(option) {
+        valueInput.value = option.id;
+        input.value = option.label;
+        input.setCustomValidity("");
+        closeList();
+    }
+
+    function setActiveOption(index) {
+        const optionButtons = Array.from(list.querySelectorAll(".pl-player-option"));
+        if (optionButtons.length === 0) return;
+        activeIndex = Math.max(0, Math.min(index, optionButtons.length - 1));
+        optionButtons.forEach((button, buttonIndex) => {
+            const active = buttonIndex === activeIndex;
+            button.classList.toggle("active", active);
+            button.setAttribute("aria-selected", String(active));
+        });
+        const activeButton = optionButtons[activeIndex];
+        input.setAttribute("aria-activedescendant", activeButton.id);
+        activeButton.scrollIntoView({ block: "nearest" });
+    }
+
+    function renderOptions(query = "") {
+        const normalizedQuery = query.trim().toLocaleLowerCase();
+        visibleOptions = options
+            .filter(option => !normalizedQuery || option.searchText.includes(normalizedQuery))
+            .slice(0, PL_PLAYER_SEARCH_LIMIT);
+        list.replaceChildren();
+        activeIndex = -1;
+        input.removeAttribute("aria-activedescendant");
+
+        if (visibleOptions.length === 0) {
+            appendPlText(list, "p", "No matching players", "pl-player-empty");
+            return;
+        }
+
+        visibleOptions.forEach((option, index) => {
+            const button = document.createElement("button");
+            button.className = "pl-player-option";
+            button.id = `${list.id}-option-${index}`;
+            button.type = "button";
+            button.setAttribute("role", "option");
+            button.setAttribute("aria-selected", "false");
+            button.textContent = option.label;
+            button.addEventListener("mousedown", event => event.preventDefault());
+            button.addEventListener("click", () => selectPlayer(option));
+            list.appendChild(button);
+        });
+    }
+
+    function openList(query = "") {
+        renderOptions(query);
+        list.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+    }
+
+    input.addEventListener("focus", () => {
+        openList(valueInput.value ? "" : input.value);
+    });
+    input.addEventListener("input", () => {
+        valueInput.value = "";
+        input.setCustomValidity(input.value.trim() ? "Select a player from the list." : "");
+        openList(input.value);
+    });
+    input.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeList();
+            return;
+        }
+        if (event.key === "Tab") {
+            closeList();
+            return;
+        }
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            if (list.hidden) openList(valueInput.value ? "" : input.value);
+            const direction = event.key === "ArrowDown" ? 1 : -1;
+            const startIndex = activeIndex < 0
+                ? (direction > 0 ? 0 : visibleOptions.length - 1)
+                : activeIndex + direction;
+            setActiveOption(startIndex);
+            return;
+        }
+        if (event.key === "Enter" && !list.hidden && activeIndex >= 0) {
+            event.preventDefault();
+            selectPlayer(visibleOptions[activeIndex]);
+        }
+    });
+    input.addEventListener("invalid", () => {
+        if (input.value.trim() && !valueInput.value) {
+            input.setCustomValidity("Select a player from the list.");
+        }
+        openList(input.value);
+    });
+    document.addEventListener("pointerdown", event => {
+        if (!wrapper.contains(event.target)) closeList();
+    });
+}
+
 function renderPlFormOptions() {
     const rankingRows = document.getElementById("plRankingRows");
     rankingRows.replaceChildren();
@@ -151,26 +272,14 @@ function renderPlFormOptions() {
         playerOptionLabel(a).localeCompare(playerOptionLabel(b)) || a.id - b.id
     ));
     const goalkeepers = allPlayers.filter(player => player.position === "Goalkeeper");
-    addSelectOptions(
-        document.getElementById("plGoldenBoot"),
-        allPlayers,
-        playerOptionLabel
-    );
-    addSelectOptions(
-        document.getElementById("plGoldenGlove"),
-        goalkeepers,
-        playerOptionLabel
-    );
+    setupPlayerCombobox("plGoldenBoot", allPlayers);
+    setupPlayerCombobox("plGoldenGlove", goalkeepers);
     addSelectOptions(
         document.getElementById("plMostGoals"),
         plTeams,
         team => team.name
     );
-    addSelectOptions(
-        document.getElementById("plPlayerOfSeason"),
-        allPlayers,
-        playerOptionLabel
-    );
+    setupPlayerCombobox("plPlayerOfSeason", allPlayers);
 }
 
 function rankingSelects() {
