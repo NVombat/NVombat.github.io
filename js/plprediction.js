@@ -8,46 +8,8 @@ const PL_BACKEND_URL = plIsLocalFrontend
         || "https://worldcup-prediction-backend-production.up.railway.app";
 
 const PL_TEAM_COUNT = 20;
-const PL_PLAYER_SEARCH_LIMIT = 50;
-const PL_RULES_FALLBACK = {
-    cards: [
-        {
-            icon: "table-list",
-            title: "Predict the Table",
-            body: "Place all 20 Premier League teams from first to twentieth before the season begins."
-        },
-        {
-            icon: "calculator",
-            title: "Table Scoring",
-            bullets: [
-                "Each team earns 1 / (absolute position difference + 1) points.",
-                "A correct position therefore earns 1 point.",
-                "Correctly predicting first or twentieth place earns 2 points instead.",
-                "The maximum table score is 22 points."
-            ]
-        },
-        {
-            icon: "award",
-            title: "Season Awards",
-            bullets: [
-                "Predict the Golden Boot winner.",
-                "Predict the Golden Glove winner.",
-                "Predict the team that scores the most goals.",
-                "Predict the Player of the Season."
-            ]
-        },
-        {
-            icon: "lock",
-            title: "Entry Rules",
-            bullets: [
-                "One entry per username and email for this season.",
-                "Every team must appear exactly once in the predicted table.",
-                "Entries lock when the Premier League season begins.",
-                "Award point values will be added when that scoring is finalized."
-            ]
-        }
-    ]
-};
+let plMaximumSwaps = 3;
+let plMaximumAffectedTeams = 6;
 
 let plDeadline = null;
 let plSeasonKey = "";
@@ -57,6 +19,12 @@ let plPlayers = [];
 let plSubmissionsOpen = false;
 let plCountdownTimer = null;
 let plModalReturnFocus = null;
+let plMidseason = { status: "pending" };
+let plMidseasonToken = "";
+let plMidseasonEntry = null;
+let plSwapOriginal = [];
+let plSwapWorking = [];
+let plSwapSelectedPosition = null;
 
 const plForm = document.getElementById("plPredictionForm");
 const plSubmitButton = document.getElementById("plSubmitButton");
@@ -86,13 +54,11 @@ async function readPlJson(response) {
     }
 }
 
-function renderPlRules(rules = PL_RULES_FALLBACK) {
+function renderPlRules(rules) {
     const container = document.getElementById("plRulesContainer");
     if (!container) return;
     container.replaceChildren();
-    const cards = Array.isArray(rules?.cards) && rules.cards.length
-        ? rules.cards
-        : PL_RULES_FALLBACK.cards;
+    const cards = Array.isArray(rules?.cards) ? rules.cards : [];
 
     cards.forEach(card => {
         const article = document.createElement("article");
@@ -176,8 +142,7 @@ function setupPlayerCombobox(valueId, players) {
     function renderOptions(query = "") {
         const normalizedQuery = query.trim().toLocaleLowerCase();
         visibleOptions = options
-            .filter(option => !normalizedQuery || option.searchText.includes(normalizedQuery))
-            .slice(0, PL_PLAYER_SEARCH_LIMIT);
+            .filter(option => !normalizedQuery || option.searchText.includes(normalizedQuery));
         list.replaceChildren();
         activeIndex = -1;
         input.removeAttribute("aria-activedescendant");
@@ -351,8 +316,278 @@ function formatPlDeadline() {
     }).format(plDeadline);
 }
 
+function formatPlDate(value) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+        ? ""
+        : new Intl.DateTimeFormat(undefined, {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }).format(date);
+}
+
+function showPlMidseasonMessage(message, kind = "error") {
+    const element = document.getElementById("plMidseasonMessage");
+    if (!element) return;
+    element.textContent = message;
+    element.classList.toggle("success-message-inline", kind === "success");
+    element.hidden = !message;
+}
+
+function renderPlMidseasonState() {
+    const section = document.getElementById("plMidseasonSection");
+    const status = document.getElementById("plMidseasonStatus");
+    const notice = document.getElementById("plMidseasonNotice");
+    const authForm = document.getElementById("plMidseasonAuthForm");
+    const editor = document.getElementById("plSwapEditor");
+    if (!section || !status || !notice || !authForm || !editor) return;
+
+    const labels = {
+        pending: "Waiting for Gameweek 19",
+        open: "Update window open",
+        closed: "Update window closed",
+        unavailable: "Unavailable"
+    };
+    const midseasonStatus = plMidseason?.status || "pending";
+    status.textContent = labels[midseasonStatus] || midseasonStatus;
+    status.dataset.status = midseasonStatus;
+    section.hidden = false;
+    authForm.hidden = midseasonStatus !== "open" || Boolean(plMidseasonEntry);
+    editor.hidden = !plMidseasonEntry;
+
+    if (midseasonStatus === "pending") {
+        notice.textContent =
+            "Table 2 will unlock after every Gameweek 19 fixture is complete and the official midpoint table is frozen.";
+    } else if (midseasonStatus === "open") {
+        notice.textContent = `Confirm zero to three swaps before ${
+            formatPlDate(plMidseason.closeAt)
+        }. Once confirmed, Table 2 cannot be edited or undone.`;
+    } else if (midseasonStatus === "closed") {
+        notice.textContent =
+            "The midseason update window is closed. Table 2 predictions are now visible from the leaderboard.";
+    } else {
+        notice.textContent =
+            "The midseason update is not available because its official schedule is incomplete.";
+    }
+}
+
+function calculatePlSwapMetrics(originalTable, updatedTable) {
+    const original = [...originalTable].sort(
+        (a, b) => a.predictedPosition - b.predictedPosition
+    );
+    const updated = [...updatedTable].sort(
+        (a, b) => a.predictedPosition - b.predictedPosition
+    );
+    const targetPositionByTeam = new Map(
+        updated.map(row => [row.teamId, row.predictedPosition])
+    );
+    let affectedTeamCount = 0;
+    const permutation = new Map();
+    original.forEach((row, index) => {
+        if (row.teamId !== updated[index].teamId) affectedTeamCount += 1;
+        permutation.set(row.predictedPosition, targetPositionByTeam.get(row.teamId));
+    });
+    let cycles = 0;
+    const visited = new Set();
+    for (let position = 1; position <= PL_TEAM_COUNT; position += 1) {
+        if (visited.has(position)) continue;
+        cycles += 1;
+        let current = position;
+        while (!visited.has(current)) {
+            visited.add(current);
+            current = permutation.get(current);
+        }
+    }
+    return {
+        swapCount: PL_TEAM_COUNT - cycles,
+        affectedTeamCount
+    };
+}
+
+function renderPlSwapEditor() {
+    const container = document.getElementById("plSwapTable");
+    const confirmButton = document.getElementById("plSwapConfirm");
+    const resetButton = document.getElementById("plSwapReset");
+    if (!container || !confirmButton || !resetButton || !plMidseasonEntry) return;
+
+    const metrics = calculatePlSwapMetrics(plSwapOriginal, plSwapWorking);
+    document.getElementById("plSwapCount").textContent =
+        `${metrics.swapCount} of ${plMaximumSwaps} swaps`;
+    document.getElementById("plAffectedCount").textContent =
+        `${metrics.affectedTeamCount} of ${plMaximumAffectedTeams} teams affected`;
+    const submitted = Boolean(plMidseasonEntry.alreadySubmitted);
+    confirmButton.disabled = submitted;
+    resetButton.disabled = submitted || metrics.affectedTeamCount === 0;
+    confirmButton.innerHTML = submitted
+        ? '<i class="fas fa-lock"></i> Table 2 Confirmed'
+        : '<i class="fas fa-lock"></i> Confirm Table 2';
+
+    const originalTeamByPosition = new Map(
+        plSwapOriginal.map(row => [row.predictedPosition, row.teamId])
+    );
+    container.replaceChildren();
+    [...plSwapWorking]
+        .sort((a, b) => a.predictedPosition - b.predictedPosition)
+        .forEach(prediction => {
+            const button = document.createElement("button");
+            button.className = "pl-swap-row";
+            button.type = "button";
+            button.disabled = submitted;
+            button.classList.toggle(
+                "changed",
+                originalTeamByPosition.get(prediction.predictedPosition)
+                    !== prediction.teamId
+            );
+            button.classList.toggle(
+                "selected",
+                prediction.predictedPosition === plSwapSelectedPosition
+            );
+            button.dataset.position = String(prediction.predictedPosition);
+            appendPlText(button, "span", prediction.predictedPosition, "pl-swap-position");
+            appendPlText(button, "span", prediction.teamName, "pl-swap-team");
+            const state = document.createElement("i");
+            state.className = button.classList.contains("changed")
+                ? "fas fa-right-left"
+                : "fas fa-grip-lines";
+            state.setAttribute("aria-hidden", "true");
+            button.appendChild(state);
+            button.addEventListener("click", () => selectPlSwapPosition(
+                prediction.predictedPosition
+            ));
+            container.appendChild(button);
+        });
+}
+
+function selectPlSwapPosition(position) {
+    if (!plMidseasonEntry || plMidseasonEntry.alreadySubmitted) return;
+    showPlMidseasonMessage("");
+    if (plSwapSelectedPosition === null) {
+        plSwapSelectedPosition = position;
+        renderPlSwapEditor();
+        return;
+    }
+    if (plSwapSelectedPosition === position) {
+        plSwapSelectedPosition = null;
+        renderPlSwapEditor();
+        return;
+    }
+
+    const first = plSwapWorking.find(
+        row => row.predictedPosition === plSwapSelectedPosition
+    );
+    const second = plSwapWorking.find(row => row.predictedPosition === position);
+    [first.teamId, second.teamId] = [second.teamId, first.teamId];
+    [first.teamName, second.teamName] = [second.teamName, first.teamName];
+    const metrics = calculatePlSwapMetrics(plSwapOriginal, plSwapWorking);
+    if (metrics.swapCount > plMaximumSwaps
+        || metrics.affectedTeamCount > plMaximumAffectedTeams) {
+        [first.teamId, second.teamId] = [second.teamId, first.teamId];
+        [first.teamName, second.teamName] = [second.teamName, first.teamName];
+        showPlMidseasonMessage(
+            "That exchange would exceed three swaps or six affected teams."
+        );
+    }
+    plSwapSelectedPosition = null;
+    renderPlSwapEditor();
+}
+
+async function authenticatePlMidseason(event) {
+    event.preventDefault();
+    showPlMidseasonMessage("");
+    const usernameInput = document.getElementById("plMidseasonUsername");
+    const tokenInput = document.getElementById("plMidseasonToken");
+    const button = event.currentTarget.querySelector("button[type='submit']");
+    button.disabled = true;
+    try {
+        const response = await fetch(`${PL_BACKEND_URL}/api/pl/midseason/auth`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({
+                seasonKey: plSeasonKey,
+                playerUsername: usernameInput.value.trim(),
+                token: tokenInput.value.trim()
+            })
+        });
+        const data = await readPlJson(response);
+        if (!response.ok) throw new Error(data.error || "Authentication failed");
+        plMidseasonToken = tokenInput.value.trim();
+        tokenInput.value = "";
+        plMidseasonEntry = data.entry;
+        plMaximumSwaps = Number(data.entry.maximumSwaps) || plMaximumSwaps;
+        plMaximumAffectedTeams = Number(
+            data.entry.maximumAffectedTeams
+        ) || plMaximumAffectedTeams;
+        plSwapOriginal = data.entry.tableOne.map(row => ({ ...row }));
+        plSwapWorking = data.entry.tableTwo.map(row => ({ ...row }));
+        plSwapSelectedPosition = null;
+        renderPlMidseasonState();
+        renderPlSwapEditor();
+        if (data.entry.alreadySubmitted) {
+            plMidseasonToken = "";
+            showPlMidseasonMessage(
+                "Your final Table 2 has already been confirmed.",
+                "success"
+            );
+        }
+    } catch (error) {
+        showPlMidseasonMessage(error.message || "Could not open this prediction.");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+async function confirmPlMidseasonUpdate() {
+    if (!plMidseasonEntry || !plMidseasonToken) return;
+    const metrics = calculatePlSwapMetrics(plSwapOriginal, plSwapWorking);
+    const confirmed = window.confirm(
+        `Confirm Table 2 with ${metrics.swapCount} swap${
+            metrics.swapCount === 1 ? "" : "s"
+        } affecting ${metrics.affectedTeamCount} team${
+            metrics.affectedTeamCount === 1 ? "" : "s"
+        }? This is final and cannot be undone.`
+    );
+    if (!confirmed) return;
+    const button = document.getElementById("plSwapConfirm");
+    button.disabled = true;
+    showPlMidseasonMessage("");
+    try {
+        const response = await fetch(`${PL_BACKEND_URL}/api/pl/midseason/swaps`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({
+                seasonKey: plSeasonKey,
+                playerUsername: plMidseasonEntry.playerUsername,
+                token: plMidseasonToken,
+                table: plSwapWorking.map(row => ({
+                    teamId: row.teamId,
+                    predictedPosition: row.predictedPosition
+                }))
+            })
+        });
+        const data = await readPlJson(response);
+        if (!response.ok) throw new Error(data.error || "Update failed");
+        plMidseasonToken = "";
+        plMidseasonEntry.alreadySubmitted = true;
+        plMidseasonEntry.update = {
+            swapCount: data.swapCount,
+            affectedTeamCount: data.affectedTeamCount,
+            submittedAt: data.submittedAt
+        };
+        renderPlSwapEditor();
+        showPlMidseasonMessage(data.message, "success");
+    } catch (error) {
+        button.disabled = false;
+        showPlMidseasonMessage(error.message || "Could not confirm Table 2.");
+    }
+}
+
 async function loadPlGame() {
-    renderPlRules();
     try {
         const response = await fetch(`${PL_BACKEND_URL}/api/pl/config`, {
             headers: { Accept: "application/json" }
@@ -367,6 +602,13 @@ async function loadPlGame() {
             throw new Error("PL season configuration is invalid");
         }
         plSubmissionsOpen = Boolean(data.submissionsOpen);
+        plMidseason = data.season.midseason || { status: "pending" };
+        plMaximumSwaps = Number(
+            data.rules?.midseason?.maximumSwaps
+        ) || plMaximumSwaps;
+        plMaximumAffectedTeams = Number(
+            data.rules?.midseason?.maximumAffectedTeams
+        ) || plMaximumAffectedTeams;
         plTeams = Array.isArray(data.teams)
             ? [...data.teams].sort((a, b) => a.name.localeCompare(b.name))
             : [];
@@ -401,6 +643,7 @@ async function loadPlGame() {
             && plPlayers.length > 0;
         if (dataReady) renderPlFormOptions();
         setPlFormState(dataReady);
+        renderPlMidseasonState();
         if (!plSubmissionsOpen) await loadPlLeaderboard();
     } catch (error) {
         console.error("Failed to load PL game:", error);
@@ -512,7 +755,8 @@ function formatPlScore(value) {
 
 function renderPlParticipantTable(
     entries,
-    container = document.getElementById("plLeaderboardContainer")
+    container = document.getElementById("plLeaderboardContainer"),
+    metadata = {}
 ) {
     container.replaceChildren();
     if (entries.length === 0) {
@@ -525,7 +769,9 @@ function renderPlParticipantTable(
     const head = table.createTHead().insertRow();
     appendPlCell(head, "th", "Rank", "pl-rank-column");
     appendPlCell(head, "th", "Player");
-    appendPlCell(head, "th", "Score", "pl-score-column");
+    appendPlCell(head, "th", "Table 1", "pl-score-column pl-component-column");
+    appendPlCell(head, "th", "Table 2", "pl-score-column pl-component-column");
+    appendPlCell(head, "th", "Total", "pl-score-column");
     const body = table.createTBody();
 
     entries.forEach((entry, index) => {
@@ -548,13 +794,29 @@ function renderPlParticipantTable(
         playerCell.appendChild(button);
         row.appendChild(playerCell);
 
+        const midseasonCell = appendPlCell(
+            row,
+            "td",
+            formatPlScore(entry.midseason_score),
+            "pl-score-column pl-component-column"
+        );
+        midseasonCell.setAttribute("data-label", "Table 1");
+        const finalVisible = Array.isArray(entry.tableTwo)
+            || metadata?.midseason?.status === "closed";
+        const finalCell = appendPlCell(
+            row,
+            "td",
+            finalVisible ? formatPlScore(entry.final_score) : "Pending",
+            "pl-score-column pl-component-column"
+        );
+        finalCell.setAttribute("data-label", "Table 2");
         const scoreCell = appendPlCell(
             row,
             "td",
             formatPlScore(entry.total_score),
             "pl-score-column"
         );
-        scoreCell.setAttribute("data-label", "Score");
+        scoreCell.setAttribute("data-label", "Total");
     });
     container.appendChild(table);
 }
@@ -596,7 +858,7 @@ function renderPlLiveTable(
         const row = body.insertRow();
         if (team.position <= 4) row.classList.add("pl-europe-place");
         if (team.position >= 18) row.classList.add("pl-relegation-place");
-        const hasStats = team.source === "fpl_api";
+        const hasStats = String(team.source || "").startsWith("fpl_api");
         const values = [
             [team.position, "pl-live-position"],
             [team.teamName, "pl-live-club"],
@@ -633,31 +895,78 @@ function showPlPredictions(entry) {
     modalBody.replaceChildren();
 
     const summary = document.createElement("div");
-    summary.className = "pl-modal-summary";
-    appendPlText(summary, "span", "Leaderboard score");
-    appendPlText(summary, "strong", formatPlScore(entry.total_score));
+    summary.className = "pl-modal-score-grid";
+    [
+        ["Table 1", entry.midseason_score],
+        ["Table 2", Array.isArray(entry.tableTwo) ? entry.final_score : null],
+        ["Total", entry.total_score]
+    ].forEach(([label, value]) => {
+        const item = document.createElement("div");
+        appendPlText(item, "span", label);
+        appendPlText(
+            item,
+            "strong",
+            value === null ? "Pending" : formatPlScore(value)
+        );
+        summary.appendChild(item);
+    });
     modalBody.appendChild(summary);
 
     const predictions = Array.isArray(entry.predictions) ? entry.predictions : [];
     const tablePredictions = predictions
         .filter(prediction => prediction.type === "league_position")
         .sort((a, b) => a.position - b.position);
-    appendPlText(modalBody, "h3", "Predicted Final Table");
-    const tableShell = document.createElement("div");
-    tableShell.className = "pl-modal-table-shell";
-    const table = document.createElement("table");
-    table.className = "pl-prediction-table";
-    const head = table.createTHead().insertRow();
-    appendPlCell(head, "th", "Pos");
-    appendPlCell(head, "th", "Club");
-    const body = table.createTBody();
-    tablePredictions.forEach(prediction => {
-        const row = body.insertRow();
-        appendPlCell(row, "td", prediction.position);
-        appendPlCell(row, "td", prediction.subjectName);
-    });
-    tableShell.appendChild(table);
-    modalBody.appendChild(tableShell);
+    function appendPredictionTable(title, rows, placeholder) {
+        appendPlText(modalBody, "h3", title);
+        if (!Array.isArray(rows) || rows.length !== PL_TEAM_COUNT) {
+            appendPlText(modalBody, "p", placeholder, "pl-table-empty");
+            return;
+        }
+        const tableShell = document.createElement("div");
+        tableShell.className = "pl-modal-table-shell";
+        const table = document.createElement("table");
+        table.className = "pl-prediction-table";
+        const head = table.createTHead().insertRow();
+        appendPlCell(head, "th", "Pos");
+        appendPlCell(head, "th", "Club");
+        appendPlCell(head, "th", "Actual");
+        appendPlCell(head, "th", "Pts");
+        const body = table.createTBody();
+        [...rows].sort((a, b) => a.position - b.position).forEach(prediction => {
+            const row = body.insertRow();
+            appendPlCell(row, "td", prediction.position);
+            appendPlCell(row, "td", prediction.subjectName);
+            appendPlCell(
+                row,
+                "td",
+                prediction.actualPosition ?? "-",
+                "pl-prediction-number"
+            );
+            appendPlCell(
+                row,
+                "td",
+                prediction.points === null || prediction.points === undefined
+                    ? "-"
+                    : formatPlScore(prediction.points),
+                "pl-prediction-number"
+            );
+        });
+        tableShell.appendChild(table);
+        modalBody.appendChild(tableShell);
+    }
+
+    appendPredictionTable(
+        "Table 1 - Original Prediction",
+        tablePredictions,
+        "Table 1 is unavailable."
+    );
+    appendPredictionTable(
+        "Table 2 - Post Gameweek 19",
+        entry.tableTwo,
+        plMidseason?.status === "open"
+            ? "Table 2 remains private until the update window closes."
+            : "Table 2 will appear after Gameweek 19."
+    );
 
     appendPlText(modalBody, "h3", "Season Predictions");
     const awardLabels = {
@@ -699,8 +1008,19 @@ async function loadPlLeaderboard() {
         const data = await readPlJson(response);
         if (!response.ok) return;
         const entries = Array.isArray(data.entries) ? data.entries : [];
-        renderPlParticipantTable(entries);
+        plMidseason = data.metadata?.midseason || plMidseason;
+        renderPlMidseasonState();
+        renderPlParticipantTable(entries, undefined, data.metadata);
         renderPlLiveTable(data.liveTable, data.metadata);
+        renderPlLiveTable(
+            data.midseasonTable,
+            { tableUpdatedAt: data.midseasonTable?.[0]?.updatedAt },
+            {
+                section: document.getElementById("plMidseasonTableSection"),
+                container: document.getElementById("plMidseasonTableContainer"),
+                updated: document.getElementById("plMidseasonTableUpdated")
+            }
+        );
         document.getElementById("plLeaderboardSection").hidden = false;
     } catch (error) {
         console.error("Failed to load PL leaderboard:", error);
@@ -784,7 +1104,20 @@ async function loadPlArchiveSeason(season) {
         }
         renderPlParticipantTable(
             Array.isArray(entries) ? entries : [],
-            document.getElementById("plArchiveLeaderboardContainer")
+            document.getElementById("plArchiveLeaderboardContainer"),
+            archive.payload?.leaderboard?.metadata
+        );
+        renderPlLiveTable(
+            archive.payload?.midseasonTable,
+            {
+                tableUpdatedAt:
+                    archive.payload?.midseasonTable?.[0]?.updatedAt
+            },
+            {
+                section: document.getElementById("plArchiveMidseasonTableSection"),
+                container: document.getElementById("plArchiveMidseasonTableContainer"),
+                updated: document.getElementById("plArchiveMidseasonTableUpdated")
+            }
         );
         renderPlLiveTable(
             archive.payload?.liveTable,
@@ -819,6 +1152,16 @@ async function loadPlArchives() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     plForm?.addEventListener("submit", submitPlPredictions);
+    document.getElementById("plMidseasonAuthForm")
+        ?.addEventListener("submit", authenticatePlMidseason);
+    document.getElementById("plSwapReset")?.addEventListener("click", () => {
+        plSwapWorking = plSwapOriginal.map(row => ({ ...row }));
+        plSwapSelectedPosition = null;
+        showPlMidseasonMessage("");
+        renderPlSwapEditor();
+    });
+    document.getElementById("plSwapConfirm")
+        ?.addEventListener("click", confirmPlMidseasonUpdate);
     plModalClose?.addEventListener("click", closePlPredictions);
     plPredictionsModal
         ?.querySelector(".pl-modal-backdrop")

@@ -200,6 +200,61 @@
                 </div>
             </section>
 
+            <section class="pl-midseason-section" id="plMidseasonSection" hidden
+                aria-labelledby="plMidseasonTitle">
+                <div class="pl-section-heading">
+                    <div>
+                        <p class="archive-kicker">Gameweek 19 update</p>
+                        <h2 id="plMidseasonTitle"><i class="fas fa-right-left"></i> Build Table 2</h2>
+                    </div>
+                    <span class="pl-midseason-status" id="plMidseasonStatus"></span>
+                </div>
+                <div class="pl-midseason-notice" id="plMidseasonNotice"></div>
+
+                <form class="pl-midseason-auth" id="plMidseasonAuthForm" autocomplete="off" hidden>
+                    <div class="pl-midseason-auth-grid">
+                        <div class="form-group">
+                            <label for="plMidseasonUsername">Username</label>
+                            <input id="plMidseasonUsername" name="username" type="text"
+                                minlength="3" maxlength="21" pattern="@?[A-Za-z0-9_]{3,20}"
+                                autocomplete="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="plMidseasonToken">Midseason access token</label>
+                            <input id="plMidseasonToken" name="token" type="password"
+                                minlength="32" maxlength="128" autocomplete="off"
+                                spellcheck="false" required>
+                        </div>
+                    </div>
+                    <button class="submit-button pl-midseason-auth-button" type="submit">
+                        <i class="fas fa-unlock-keyhole"></i> Open My Table
+                    </button>
+                </form>
+
+                <div class="pl-swap-editor" id="plSwapEditor" hidden>
+                    <div class="pl-swap-toolbar">
+                        <div>
+                            <strong id="plSwapCount">0 of 3 swaps</strong>
+                            <span id="plAffectedCount">0 teams affected</span>
+                        </div>
+                        <button class="pl-icon-command" id="plSwapReset" type="button"
+                            title="Reset Table 2 to your original table">
+                            <i class="fas fa-rotate-left"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                    <p class="pl-swap-instruction" id="plSwapInstruction">
+                        Select one team, then another team to exchange their positions.
+                    </p>
+                    <div class="pl-swap-table" id="plSwapTable"></div>
+                    <button class="submit-button" id="plSwapConfirm" type="button">
+                        <i class="fas fa-lock"></i> Confirm Table 2
+                    </button>
+                </div>
+                <div class="global-error" id="plMidseasonMessage" role="alert"
+                    aria-live="assertive" hidden></div>
+            </section>
+
             <section class="leaderboard-section" id="plLeaderboardSection" hidden>
                 <div class="pl-section-heading">
                     <div>
@@ -210,15 +265,27 @@
                 </div>
                 <div class="pl-table-shell" id="plLeaderboardContainer"></div>
 
+                <div class="pl-official-tables">
+                <div class="pl-live-table-section" id="plMidseasonTableSection" hidden>
+                    <div class="pl-section-heading">
+                        <div>
+                            <p class="archive-kicker">Frozen after Gameweek 19</p>
+                            <h2><i class="fas fa-snowflake"></i> Midseason Table</h2>
+                        </div>
+                        <p id="plMidseasonTableUpdated"></p>
+                    </div>
+                    <div class="pl-table-shell" id="plMidseasonTableContainer"></div>
+                </div>
                 <div class="pl-live-table-section" id="plLiveTableSection" hidden>
                     <div class="pl-section-heading">
                         <div>
-                            <p class="archive-kicker">Synced weekly</p>
+                            <p class="archive-kicker">Automatically synced</p>
                             <h2><i class="fas fa-table-list"></i> Premier League Table</h2>
                         </div>
                         <p id="plLiveTableUpdated"></p>
                     </div>
                     <div class="pl-table-shell" id="plLiveTableContainer"></div>
+                </div>
                 </div>
             </section>
 
@@ -242,6 +309,16 @@
                     </div>
                 </div>
                 <div class="pl-table-shell" id="plArchiveLeaderboardContainer"></div>
+                <div id="plArchiveMidseasonTableSection" hidden>
+                    <div class="pl-section-heading">
+                        <div>
+                            <p class="archive-kicker">Frozen after Gameweek 19</p>
+                            <h2><i class="fas fa-snowflake"></i> Midseason Table</h2>
+                        </div>
+                        <p id="plArchiveMidseasonTableUpdated"></p>
+                    </div>
+                    <div class="pl-table-shell" id="plArchiveMidseasonTableContainer"></div>
+                </div>
                 <div id="plArchiveTableSection" hidden>
                     <div class="pl-section-heading">
                         <div>
