@@ -230,6 +230,28 @@ function renderPlFormOptions() {
         addSelectOptions(select, plTeams, team => team.name);
         select.addEventListener("change", refreshPlTeamAvailability);
         row.appendChild(select);
+
+        const selectedTeam = document.createElement("button");
+        selectedTeam.className = "pl-selected-team";
+        selectedTeam.type = "button";
+        selectedTeam.hidden = true;
+        const selectedTeamName = appendPlText(
+            selectedTeam,
+            "span",
+            "",
+            "pl-selected-team-name"
+        );
+        const clearIcon = document.createElement("i");
+        clearIcon.className = "fas fa-xmark";
+        clearIcon.setAttribute("aria-hidden", "true");
+        selectedTeam.appendChild(clearIcon);
+        selectedTeam.addEventListener("click", () => {
+            select.value = "";
+            selectedTeamName.textContent = "";
+            refreshPlTeamAvailability();
+            select.focus();
+        });
+        row.appendChild(selectedTeam);
         rankingRows.appendChild(row);
     }
 
@@ -260,6 +282,21 @@ function refreshPlTeamAvailability() {
         Array.from(select.options).forEach(option => {
             if (option.value) option.disabled = selectedElsewhere.has(option.value);
         });
+
+        const selectedTeam = select.parentElement?.querySelector(".pl-selected-team");
+        const selectedTeamName = selectedTeam?.querySelector(".pl-selected-team-name");
+        const name = teamName(select.value);
+        select.hidden = Boolean(name);
+        if (selectedTeam && selectedTeamName) {
+            selectedTeam.hidden = !name;
+            selectedTeamName.textContent = name;
+            selectedTeam.setAttribute(
+                "aria-label",
+                name
+                    ? `Unselect ${name} from predicted position ${select.dataset.position}`
+                    : `No team selected for predicted position ${select.dataset.position}`
+            );
+        }
     });
 }
 
@@ -753,6 +790,51 @@ function formatPlScore(value) {
     return Number(value || 0).toFixed(3);
 }
 
+function renderPlLeaderboardPhases(metadata = {}) {
+    const container = document.getElementById("plLeaderboardPhases");
+    if (!container) return;
+    container.replaceChildren();
+
+    const midseasonStatus = metadata?.midseason?.status || "pending";
+    const seasonFinished = ["complete", "archived"].includes(metadata?.seasonStatus);
+    const phases = [
+        {
+            label: "Table 1",
+            value: ["open", "closed"].includes(midseasonStatus) ? "Frozen" : "Live",
+            active: true
+        },
+        {
+            label: "Table 2",
+            value: midseasonStatus === "closed"
+                ? seasonFinished ? "Final" : "Live"
+                : midseasonStatus === "open"
+                    ? "Private until GW20"
+                    : "Awaiting GW19",
+            active: midseasonStatus === "closed"
+        },
+        {
+            label: "Awards",
+            value: seasonFinished ? "Final" : "Predictions visible",
+            active: seasonFinished
+        }
+    ];
+
+    phases.forEach(phase => {
+        const item = document.createElement("div");
+        item.className = "pl-leaderboard-phase";
+        const indicator = document.createElement("span");
+        indicator.className = phase.active
+            ? "pl-phase-indicator is-active"
+            : "pl-phase-indicator";
+        indicator.setAttribute("aria-hidden", "true");
+        const copy = document.createElement("div");
+        appendPlText(copy, "span", phase.label);
+        appendPlText(copy, "strong", phase.value);
+        item.append(indicator, copy);
+        container.appendChild(item);
+    });
+}
+
 function renderPlParticipantTable(
     entries,
     container = document.getElementById("plLeaderboardContainer"),
@@ -771,6 +853,7 @@ function renderPlParticipantTable(
     appendPlCell(head, "th", "Player");
     appendPlCell(head, "th", "Table 1", "pl-score-column pl-component-column");
     appendPlCell(head, "th", "Table 2", "pl-score-column pl-component-column");
+    appendPlCell(head, "th", "Awards", "pl-score-column pl-component-column");
     appendPlCell(head, "th", "Total", "pl-score-column");
     const body = table.createTBody();
 
@@ -785,7 +868,12 @@ function renderPlParticipantTable(
         const button = document.createElement("button");
         button.className = "pl-username-button";
         button.type = "button";
-        button.textContent = `@${String(entry.player_username || "").replace(/^@/, "")}`;
+        const username = document.createElement("span");
+        username.textContent = `@${String(entry.player_username || "").replace(/^@/, "")}`;
+        const detailIcon = document.createElement("i");
+        detailIcon.className = "fas fa-chevron-right";
+        detailIcon.setAttribute("aria-hidden", "true");
+        button.append(username, detailIcon);
         button.setAttribute("aria-haspopup", "dialog");
         button.addEventListener("click", event => {
             plModalReturnFocus = event.currentTarget;
@@ -810,6 +898,15 @@ function renderPlParticipantTable(
             "pl-score-column pl-component-column"
         );
         finalCell.setAttribute("data-label", "Table 2");
+        const awardsVisible = Array.isArray(entry.scoreComponents?.awards)
+            && entry.scoreComponents.awards.length === 4;
+        const awardsCell = appendPlCell(
+            row,
+            "td",
+            awardsVisible ? formatPlScore(entry.award_score) : "Pending",
+            "pl-score-column pl-component-column"
+        );
+        awardsCell.setAttribute("data-label", "Awards");
         const scoreCell = appendPlCell(
             row,
             "td",
@@ -821,16 +918,35 @@ function renderPlParticipantTable(
     container.appendChild(table);
 }
 
+function updatePlLiveTableHeading(metadata = {}) {
+    const kicker = document.getElementById("plLiveTableKicker");
+    const title = document.getElementById("plLiveTableTitle");
+    if (!kicker || !title) return;
+    const seasonFinished = ["complete", "archived"].includes(metadata.seasonStatus);
+    const hasMidseasonSnapshot = Boolean(metadata?.midseason?.snapshotAt);
+    const label = seasonFinished
+        ? "Final Premier League Table"
+        : hasMidseasonSnapshot
+            ? "Current Premier League Table"
+            : "Live Premier League Table";
+    kicker.textContent = seasonFinished ? "Frozen final standings" : "Automatically synced";
+    const icon = document.createElement("i");
+    icon.className = seasonFinished ? "fas fa-flag-checkered" : "fas fa-table-list";
+    title.replaceChildren(icon, document.createTextNode(` ${label}`));
+}
+
 function renderPlLiveTable(
     tableRows,
     metadata = {},
     {
         section = document.getElementById("plLiveTableSection"),
         container = document.getElementById("plLiveTableContainer"),
-        updated = document.getElementById("plLiveTableUpdated")
+        updated = document.getElementById("plLiveTableUpdated"),
+        collapsible = false
     } = {}
 ) {
     container.replaceChildren();
+    container.classList.toggle("pl-live-table-collapsible", collapsible);
     if (!Array.isArray(tableRows) || tableRows.length !== PL_TEAM_COUNT) {
         section.hidden = true;
         return;
@@ -853,11 +969,17 @@ function renderPlLiveTable(
     const head = table.createTHead().insertRow();
     headers.forEach(([label, className]) => appendPlCell(head, "th", label, className));
     const body = table.createTBody();
+    const middleRows = [];
+    let gapRow = null;
 
     tableRows.forEach(team => {
         const row = body.insertRow();
         if (team.position <= 4) row.classList.add("pl-europe-place");
         if (team.position >= 18) row.classList.add("pl-relegation-place");
+        if (collapsible && team.position > 5 && team.position < 18) {
+            row.classList.add("pl-live-table-middle");
+            middleRows.push(row);
+        }
         const hasStats = String(team.source || "").startsWith("fpl_api");
         const values = [
             [team.position, "pl-live-position"],
@@ -877,13 +999,161 @@ function renderPlLiveTable(
             [hasStats ? team.points : "-", "pl-live-points"]
         ];
         values.forEach(([value, className]) => appendPlCell(row, "td", value, className));
+
+        if (collapsible && team.position === 5) {
+            gapRow = body.insertRow();
+            gapRow.className = "pl-live-table-gap";
+            const gapCell = gapRow.insertCell();
+            gapCell.colSpan = headers.length;
+            const gapIcon = document.createElement("i");
+            gapIcon.className = "fas fa-ellipsis";
+            gapIcon.setAttribute("aria-hidden", "true");
+            gapCell.appendChild(gapIcon);
+            gapCell.setAttribute("aria-label", "Positions 6 through 17 are hidden");
+        }
     });
-    container.appendChild(table);
+
+    if (collapsible) {
+        const viewport = document.createElement("div");
+        viewport.className = "pl-live-table-viewport";
+        const tableId = `${container.id}Table`;
+        table.id = tableId;
+        viewport.appendChild(table);
+
+        const controls = document.createElement("div");
+        controls.className = "pl-live-table-controls";
+        const toggle = document.createElement("button");
+        toggle.className = "pl-live-table-toggle";
+        toggle.type = "button";
+        toggle.setAttribute("aria-controls", tableId);
+        const toggleIcon = document.createElement("i");
+        toggleIcon.setAttribute("aria-hidden", "true");
+        const toggleLabel = document.createElement("span");
+        toggle.append(toggleIcon, toggleLabel);
+        controls.appendChild(toggle);
+        container.append(viewport, controls);
+
+        let expanded = false;
+        const updateTableVisibility = () => {
+            middleRows.forEach(row => {
+                row.hidden = !expanded;
+            });
+            if (gapRow) gapRow.hidden = expanded;
+            toggle.setAttribute("aria-expanded", String(expanded));
+            toggleIcon.className = expanded
+                ? "fas fa-compress"
+                : "fas fa-table-list";
+            toggleLabel.textContent = expanded
+                ? "Show Top and Bottom"
+                : "View Full Table";
+        };
+        toggle.addEventListener("click", () => {
+            expanded = !expanded;
+            updateTableVisibility();
+        });
+        updateTableVisibility();
+    } else {
+        container.appendChild(table);
+    }
 
     const updatedAt = new Date(metadata.tableUpdatedAt);
     updated.textContent = Number.isNaN(updatedAt.getTime())
         ? "Latest synchronized standings"
         : `Updated ${updatedAt.toLocaleString()}`;
+    if (section.id === "plLiveTableSection") {
+        updatePlLiveTableHeading(metadata);
+    }
+    section.hidden = false;
+}
+
+function renderPlLiveAwards(
+    rows,
+    {
+        section = document.getElementById("plLiveAwardsSection"),
+        container = document.getElementById("plLiveAwardsContainer"),
+        updated = document.getElementById("plLiveAwardsUpdated")
+    } = {}
+) {
+    if (!section || !container || !updated) return;
+    container.replaceChildren();
+    const standings = Array.isArray(rows) ? rows : [];
+    const definitions = [
+        {
+            type: "golden_boot",
+            title: "Golden Boot",
+            icon: "shoe-prints",
+            metric: value => `${value} ${value === 1 ? "goal" : "goals"}`
+        },
+        {
+            type: "golden_glove",
+            title: "Golden Glove",
+            icon: "hand",
+            metric: value => `${value} clean ${value === 1 ? "sheet" : "sheets"}`
+        },
+        {
+            type: "most_goals",
+            title: "Team Goals",
+            icon: "futbol",
+            metric: value => `${value} ${value === 1 ? "goal" : "goals"}`
+        }
+    ];
+    const hasResults = definitions.some(({ type }) => (
+        standings.some(row => row.type === type)
+    ));
+    if (!hasResults) {
+        section.hidden = true;
+        return;
+    }
+
+    definitions.forEach(definition => {
+        const panel = document.createElement("article");
+        panel.className = "pl-live-award-panel";
+        const heading = document.createElement("div");
+        heading.className = "pl-live-award-heading";
+        const icon = document.createElement("i");
+        icon.className = `fas fa-${definition.icon}`;
+        icon.setAttribute("aria-hidden", "true");
+        appendPlText(heading, "h3", definition.title);
+        heading.prepend(icon);
+        panel.appendChild(heading);
+
+        const typeRows = standings
+            .filter(row => row.type === definition.type)
+            .sort((a, b) => Number(a.rank) - Number(b.rank))
+            .slice(0, 5);
+        if (typeRows.length === 0) {
+            appendPlText(panel, "p", "Awaiting season data.", "pl-live-award-empty");
+        } else {
+            const list = document.createElement("ol");
+            list.className = "pl-live-award-list";
+            typeRows.forEach(row => {
+                const item = document.createElement("li");
+                const rank = appendPlText(item, "span", row.rank, "pl-live-award-rank");
+                rank.setAttribute("aria-label", `Rank ${row.rank}`);
+                const subject = document.createElement("div");
+                appendPlText(subject, "strong", row.subjectName);
+                if (row.teamName) appendPlText(subject, "small", row.teamName);
+                const value = appendPlText(
+                    item,
+                    "span",
+                    definition.metric(Number(row.value)),
+                    "pl-live-award-value"
+                );
+                item.insertBefore(subject, value);
+                list.appendChild(item);
+            });
+            panel.appendChild(list);
+        }
+        container.appendChild(panel);
+    });
+
+    const timestamps = standings
+        .map(row => new Date(row.updatedAt))
+        .filter(date => !Number.isNaN(date.getTime()));
+    const latest = timestamps.sort((a, b) => b - a)[0];
+    updated.textContent = latest
+        ? `Updated ${latest.toLocaleString()}`
+        : "Latest synchronized statistics";
     section.hidden = false;
 }
 
@@ -899,6 +1169,13 @@ function showPlPredictions(entry) {
     [
         ["Table 1", entry.midseason_score],
         ["Table 2", Array.isArray(entry.tableTwo) ? entry.final_score : null],
+        [
+            "Awards",
+            Array.isArray(entry.scoreComponents?.awards)
+                && entry.scoreComponents.awards.length === 4
+                ? entry.award_score
+                : null
+        ],
         ["Total", entry.total_score]
     ].forEach(([label, value]) => {
         const item = document.createElement("div");
@@ -919,7 +1196,14 @@ function showPlPredictions(entry) {
     function appendPredictionTable(title, rows, placeholder) {
         appendPlText(modalBody, "h3", title);
         if (!Array.isArray(rows) || rows.length !== PL_TEAM_COUNT) {
-            appendPlText(modalBody, "p", placeholder, "pl-table-empty");
+            const empty = document.createElement("div");
+            empty.className = "pl-phase-placeholder";
+            const icon = document.createElement("i");
+            icon.className = "fas fa-clock";
+            icon.setAttribute("aria-hidden", "true");
+            appendPlText(empty, "p", placeholder);
+            empty.prepend(icon);
+            modalBody.appendChild(empty);
             return;
         }
         const tableShell = document.createElement("div");
@@ -964,11 +1248,11 @@ function showPlPredictions(entry) {
         "Table 2 - Post Gameweek 19",
         entry.tableTwo,
         plMidseason?.status === "open"
-            ? "Table 2 remains private until the update window closes."
-            : "Table 2 will appear after Gameweek 19."
+            ? "Table 2 is private while swaps are open. It will be revealed when Gameweek 20 begins."
+            : "Table 2 will be created after Gameweek 19 and revealed when Gameweek 20 begins."
     );
 
-    appendPlText(modalBody, "h3", "Season Predictions");
+    appendPlText(modalBody, "h3", "Season Award Predictions");
     const awardLabels = {
         golden_boot: "Golden Boot",
         golden_glove: "Golden Glove",
@@ -985,7 +1269,15 @@ function showPlPredictions(entry) {
                 "dt",
                 awardLabels[prediction.type] || prediction.type
             );
-            appendPlText(awardList, "dd", prediction.subjectName);
+            const scored = prediction.correct === true || prediction.correct === false;
+            appendPlText(
+                awardList,
+                "dd",
+                scored
+                    ? `${prediction.subjectName} - ${formatPlScore(prediction.points)} pts `
+                        + `(${prediction.correct ? "correct" : "incorrect"})`
+                    : prediction.subjectName
+            );
         });
     modalBody.appendChild(awardList);
 
@@ -1010,18 +1302,33 @@ async function loadPlLeaderboard() {
         const entries = Array.isArray(data.entries) ? data.entries : [];
         plMidseason = data.metadata?.midseason || plMidseason;
         renderPlMidseasonState();
+        renderPlLeaderboardPhases(data.metadata);
         renderPlParticipantTable(entries, undefined, data.metadata);
-        renderPlLiveTable(data.liveTable, data.metadata);
+        renderPlLiveTable(
+            data.liveTable,
+            data.metadata,
+            { collapsible: true }
+        );
         renderPlLiveTable(
             data.midseasonTable,
             { tableUpdatedAt: data.midseasonTable?.[0]?.updatedAt },
             {
                 section: document.getElementById("plMidseasonTableSection"),
                 container: document.getElementById("plMidseasonTableContainer"),
-                updated: document.getElementById("plMidseasonTableUpdated")
+                updated: document.getElementById("plMidseasonTableUpdated"),
+                collapsible: true
             }
         );
-        document.getElementById("plLeaderboardSection").hidden = false;
+        renderPlLiveAwards(data.liveAwards);
+        const leaderboardSection = document.getElementById("plLeaderboardSection");
+        const midseasonSection = document.getElementById("plMidseasonSection");
+        const rulesSection = document.querySelector(".rules-section");
+        if (rulesSection) {
+            rulesSection.before(
+                ...[leaderboardSection, midseasonSection].filter(Boolean)
+            );
+        }
+        leaderboardSection.hidden = false;
     } catch (error) {
         console.error("Failed to load PL leaderboard:", error);
     }
@@ -1126,6 +1433,14 @@ async function loadPlArchiveSeason(season) {
                 section: document.getElementById("plArchiveTableSection"),
                 container: document.getElementById("plArchiveTableContainer"),
                 updated: document.getElementById("plArchiveTableUpdated")
+            }
+        );
+        renderPlLiveAwards(
+            archive.payload?.liveAwards,
+            {
+                section: document.getElementById("plArchiveLiveAwardsSection"),
+                container: document.getElementById("plArchiveLiveAwardsContainer"),
+                updated: document.getElementById("plArchiveLiveAwardsUpdated")
             }
         );
         document.getElementById("plArchiveRulesTitle").textContent = `${archive.label} Rules`;

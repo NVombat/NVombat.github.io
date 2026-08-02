@@ -208,6 +208,14 @@ function addEventListeners() {
     });
 }
 
+function setWorldCupArchiveHeading(element, iconName, text) {
+    if (!element) return;
+    const icon = document.createElement("i");
+    icon.className = `fas fa-${iconName}`;
+    icon.setAttribute("aria-hidden", "true");
+    element.replaceChildren(icon, document.createTextNode(` ${text}`));
+}
+
 function showWorldCupArchive(season) {
     if (!wcResultsPanel || !season) return;
     selectedWorldCupArchive = {
@@ -215,9 +223,21 @@ function showWorldCupArchive(season) {
         seasonSlug: season.seasonSlug,
         label: season.label
     };
-    archiveLeaderboardTitle.innerHTML = `<i class="fas fa-ranking-star"></i> ${season.label} Leaderboard`;
-    archiveProgressTitle.innerHTML = `<i class="fas fa-sitemap"></i> ${season.label} Tournament Progress`;
-    archiveRulesTitle.innerHTML = `<i class="fas fa-book"></i> ${season.label} Rules`;
+    setWorldCupArchiveHeading(
+        archiveLeaderboardTitle,
+        "ranking-star",
+        `${season.label} Leaderboard`
+    );
+    setWorldCupArchiveHeading(
+        archiveProgressTitle,
+        "sitemap",
+        `${season.label} Tournament Progress`
+    );
+    setWorldCupArchiveHeading(
+        archiveRulesTitle,
+        "book",
+        `${season.label} Rules`
+    );
     wcResultsPanel.hidden = false;
     refreshLeaderboard();
     wcResultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -657,7 +677,13 @@ function appendArchiveRuleCard(container, card) {
     if (card.icon) {
         const icon = document.createElement("div");
         icon.className = "archive-rule-icon";
-        icon.innerHTML = `<i class="fas fa-${card.icon}"></i>`;
+        const iconElement = document.createElement("i");
+        const safeIcon = /^[a-z0-9-]+$/i.test(card.icon)
+            ? card.icon
+            : "circle-info";
+        iconElement.className = `fas fa-${safeIcon}`;
+        iconElement.setAttribute("aria-hidden", "true");
+        icon.appendChild(iconElement);
         article.appendChild(icon);
     }
 
@@ -698,7 +724,8 @@ function renderArchiveRules(rules) {
     if (!archiveRulesContainer) return;
     archiveRulesContainer.replaceChildren();
 
-    if (!rules) {
+    const cards = Array.isArray(rules?.cards) ? rules.cards : [];
+    if (cards.length === 0) {
         const empty = document.createElement("p");
         empty.className = "stage-result-empty";
         empty.textContent = "Rules are not available for this archive yet.";
@@ -706,42 +733,7 @@ function renderArchiveRules(rules) {
         return;
     }
 
-    if (Array.isArray(rules.cards) && rules.cards.length > 0) {
-        rules.cards.forEach(card => appendArchiveRuleCard(archiveRulesContainer, card));
-        return;
-    }
-
-    const scoringCard = document.createElement("article");
-    scoringCard.className = "archive-rule-card";
-    appendArchiveRuleText(scoringCard, "h3", "Scoring");
-    const scoringList = document.createElement("div");
-    scoringList.className = "scoring-grid";
-    (Array.isArray(rules.predictionSlots) ? rules.predictionSlots : []).forEach(({ stage, points }) => {
-        const row = document.createElement("div");
-        row.className = "score-row";
-        appendArchiveRuleText(row, "span", stage, "score-stage");
-        appendArchiveRuleText(row, "span", `${points} ${Number(points) === 1 ? "pt" : "pts"}`, "score-points");
-        scoringList.appendChild(row);
-    });
-    scoringCard.appendChild(scoringList);
-
-    const summaryCard = document.createElement("article");
-    summaryCard.className = "archive-rule-card";
-    appendArchiveRuleText(summaryCard, "h3", "Rules");
-    const list = document.createElement("ul");
-    list.className = "rules-list";
-    [
-        rules.scoringNote,
-        rules.maxScore ? `Max score: ${rules.maxScore} points` : "",
-        "Each archived season preserves the rules used for that year's game."
-    ].filter(Boolean).forEach(rule => {
-        const item = document.createElement("li");
-        item.textContent = rule;
-        list.appendChild(item);
-    });
-    summaryCard.appendChild(list);
-
-    archiveRulesContainer.append(scoringCard, summaryCard);
+    cards.forEach(card => appendArchiveRuleCard(archiveRulesContainer, card));
 }
 
 function renderStageHistory(stages) {

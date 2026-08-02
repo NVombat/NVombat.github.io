@@ -263,30 +263,43 @@
                     </div>
                     <p>Ranked by score, then username. Select a username to inspect every prediction.</p>
                 </div>
+                <div class="pl-leaderboard-phases" id="plLeaderboardPhases"
+                    aria-label="Leaderboard scoring phases"></div>
                 <div class="pl-table-shell" id="plLeaderboardContainer"></div>
 
                 <div class="pl-official-tables">
-                <div class="pl-live-table-section" id="plMidseasonTableSection" hidden>
+                    <div class="pl-live-table-section" id="plMidseasonTableSection" hidden>
+                        <div class="pl-section-heading">
+                            <div>
+                                <p class="archive-kicker">Frozen after Gameweek 19</p>
+                                <h2><i class="fas fa-snowflake"></i> Midseason Table</h2>
+                            </div>
+                            <p id="plMidseasonTableUpdated"></p>
+                        </div>
+                        <div class="pl-table-shell" id="plMidseasonTableContainer"></div>
+                    </div>
+                    <div class="pl-live-table-section" id="plLiveTableSection" hidden>
+                        <div class="pl-section-heading">
+                            <div>
+                                <p class="archive-kicker" id="plLiveTableKicker">Automatically synced</p>
+                                <h2 id="plLiveTableTitle"><i class="fas fa-table-list"></i> Premier League Table</h2>
+                            </div>
+                            <p id="plLiveTableUpdated"></p>
+                        </div>
+                        <div class="pl-table-shell" id="plLiveTableContainer"></div>
+                    </div>
+                </div>
+
+                <section class="pl-season-leaders" id="plLiveAwardsSection" hidden>
                     <div class="pl-section-heading">
                         <div>
-                            <p class="archive-kicker">Frozen after Gameweek 19</p>
-                            <h2><i class="fas fa-snowflake"></i> Midseason Table</h2>
+                            <p class="archive-kicker">Synced from FPL</p>
+                            <h2><i class="fas fa-chart-line"></i> Live Season Leaders</h2>
                         </div>
-                        <p id="plMidseasonTableUpdated"></p>
+                        <p id="plLiveAwardsUpdated"></p>
                     </div>
-                    <div class="pl-table-shell" id="plMidseasonTableContainer"></div>
-                </div>
-                <div class="pl-live-table-section" id="plLiveTableSection" hidden>
-                    <div class="pl-section-heading">
-                        <div>
-                            <p class="archive-kicker">Automatically synced</p>
-                            <h2><i class="fas fa-table-list"></i> Premier League Table</h2>
-                        </div>
-                        <p id="plLiveTableUpdated"></p>
-                    </div>
-                    <div class="pl-table-shell" id="plLiveTableContainer"></div>
-                </div>
-                </div>
+                    <div class="pl-live-awards-grid" id="plLiveAwardsContainer"></div>
+                </section>
             </section>
 
             <section class="previous-results-section" id="plArchivesSection">
@@ -329,6 +342,16 @@
                     </div>
                     <div class="pl-table-shell" id="plArchiveTableContainer"></div>
                 </div>
+                <section class="pl-season-leaders" id="plArchiveLiveAwardsSection" hidden>
+                    <div class="pl-section-heading">
+                        <div>
+                            <p class="archive-kicker">Final statistics</p>
+                            <h2><i class="fas fa-chart-line"></i> Season Leaders</h2>
+                        </div>
+                        <p id="plArchiveLiveAwardsUpdated"></p>
+                    </div>
+                    <div class="pl-live-awards-grid" id="plArchiveLiveAwardsContainer"></div>
+                </section>
                 <div class="archive-rules-section">
                     <h2 id="plArchiveRulesTitle"><i class="fas fa-book"></i> Archive Rules</h2>
                     <div class="archive-rules-grid" id="plArchiveRulesContainer"></div>
