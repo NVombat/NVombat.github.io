@@ -525,9 +525,11 @@
 }
 
 .pl-participant-table thead th {
+    background: #001218;
+    box-shadow: inset 0 -1px 0 rgba(0, 255, 0, 0.45);
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
 }
 
 .pl-leaderboard-phases {
@@ -1025,6 +1027,11 @@ body.pl-modal-open {
 .light-theme .pl-data-table th,
 .light-theme .pl-prediction-table th {
     background: rgba(0, 120, 75, 0.08);
+}
+
+.light-theme .pl-participant-table thead th {
+    background: #fff;
+    box-shadow: inset 0 -1px 0 rgba(0, 120, 75, 0.35);
 }
 
 .light-theme .pl-data-table tbody tr:hover {
