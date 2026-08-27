@@ -1132,7 +1132,7 @@ body.pl-modal-open {
 
     .pl-live-table {
         min-width: 0;
-        table-layout: fixed;
+        table-layout: auto;
     }
 
     .pl-live-table-viewport {
