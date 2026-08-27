@@ -1044,7 +1044,7 @@ function renderPlLiveTable(
                 ? "fas fa-compress"
                 : "fas fa-table-list";
             toggleLabel.textContent = expanded
-                ? "Show Top and Bottom"
+                ? "Collapse Table"
                 : "View Full Table";
         };
         toggle.addEventListener("click", () => {

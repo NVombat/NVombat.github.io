@@ -1131,8 +1131,12 @@ body.pl-modal-open {
     }
 
     .pl-live-table {
-        min-width: 440px;
+        min-width: 0;
         table-layout: fixed;
+    }
+
+    .pl-live-table-viewport {
+        overflow-x: hidden;
     }
 
     .pl-live-wide {
@@ -1140,21 +1144,43 @@ body.pl-modal-open {
     }
 
     .pl-live-club {
+        min-width: 0;
         overflow-wrap: normal;
-        white-space: nowrap;
+        white-space: normal;
+        word-break: normal;
         width: auto;
     }
 
-    .pl-live-position,
-    .pl-live-played,
-    .pl-live-gd,
+    .pl-live-position {
+        width: 2.5rem;
+    }
+
+    .pl-live-played {
+        width: 2.25rem;
+    }
+
+    .pl-live-gd {
+        width: 2.7rem;
+    }
+
     .pl-live-points {
-        width: 3.15rem;
+        width: 2.5rem;
     }
 
     .pl-data-table th,
     .pl-data-table td {
         padding: 0.8rem 0.65rem;
+    }
+
+    .pl-data-table.pl-live-table th,
+    .pl-data-table.pl-live-table td {
+        font-size: 0.82rem;
+        line-height: 1.3;
+        padding: 0.75rem 0.35rem;
+    }
+
+    .pl-data-table.pl-live-table th {
+        font-size: 0.68rem;
     }
 
     .pl-predictions-modal {
